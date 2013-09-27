@@ -70,10 +70,10 @@ import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.Tracker;
 import com.twobigears.circlesynth.BpmPicker.OnBpmChangedListener;
 
-import controlP5.Button;
-import controlP5.ControlP5;
-import controlP5.ControllerView;
-import controlP5.Toggle;
+//import controlP5.Button;
+//import controlP5.ControlP5;
+//import controlP5.ControllerView;
+//import controlP5.Toggle;
 
 public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		OnSharedPreferenceChangeListener, SensorEventListener {
@@ -88,15 +88,15 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	private Tracker tracker;
 
 	public int sketchWidth() {
-		return this.displayWidth;
+		return displayWidth;
 	}
 
 	public int sketchHeight() {
-		return this.displayHeight;
+		return displayHeight;
 	}
 
 	public String sketchRenderer() {
-		return PApplet.JAVA2D;
+		return OPENGL;
 	}
 
 	private PdService pdService = null;
@@ -182,7 +182,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	int col4 = color(170, 102, 204);
 	int col5 = color(51, 181, 229);
 
-	public ControlP5 cp5;
+//	public ControlP5 cp5;
 	PFont f;
 
 	// new ui stuff
@@ -484,7 +484,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		stored = new ArrayList<String>();
 
 		background(bgCol);
-		smooth();
+		smooth(8);
 		CHECK = new String[10];
 		SAVE = new String[10];
 		for (int i = 0; i < maxCircle; i++) {
@@ -580,7 +580,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		button2Space = (int) (buttonSize2 * 0.15f);
 
 		circSize1 = 40 * density; // outer circle size configured to dpi
-		circSize2 = 15 * density; // inner circle size configured to dpi
+		circSize2 = 50 * density; // inner circle size configured to dpi
 		circSize3 = 18 * density;
 		// setup display stuff
 		settingup();
@@ -804,7 +804,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		/*
 		 * ControlP5 ui elements below
 		 */
-
+		/*
 		cp5 = new ControlP5(this);
 		cp5.addToggle("playValue")
 				// create play/stop toggle
@@ -889,6 +889,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		cp5.addButton("loadButton")
 				.setPosition(width - (buttonSize * 4) - (buttonSpace * 4), 0)
 				.setSize(buttonSize, buttonSize).setView(new LoadButton());
+		*/
 	}
 
 	// Super Fast Blur v1.1
@@ -1272,7 +1273,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 
 	}
-
+/*
 	class PlayToggle implements ControllerView<Toggle> {
 		public void display(PApplet theApplet, Toggle theButton) {
 			theApplet.pushMatrix();
@@ -1502,7 +1503,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			theApplet.popMatrix();
 		}
 	}
-
+*/
 	void fxCirc(int col) {
 		if (col == buttonInActCol) {
 			stroke(buttonInActCol);
@@ -1839,11 +1840,14 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					}
 
 					fxCirc1Toggle = fxCirc2Toggle = fxCirc3Toggle = fxCirc4Toggle = false;
+					
+					/*
 					((Toggle) cp5.controller("fxCirc1Toggle")).setState(false);
 					((Toggle) cp5.controller("fxCirc2Toggle")).setState(false);
 					((Toggle) cp5.controller("fxCirc3Toggle")).setState(false);
 					((Toggle) cp5.controller("fxCirc4Toggle")).setState(false);
 					((Toggle) cp5.controller("fxCirc0Toggle")).setState(false);
+					*/
 
 					break;
 				case MotionEvent.ACTION_MOVE:
