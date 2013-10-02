@@ -70,10 +70,10 @@ import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.Tracker;
 import com.twobigears.circlesynth.BpmPicker.OnBpmChangedListener;
 
-import controlP5.Button;
-import controlP5.ControlP5;
-import controlP5.ControllerView;
-import controlP5.Toggle;
+//import controlP5.Button;
+//import controlP5.ControlP5;
+//import controlP5.ControllerView;
+//import controlP5.Toggle;
 
 public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		OnSharedPreferenceChangeListener, SensorEventListener {
@@ -88,15 +88,15 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	private Tracker tracker;
 
 	public int sketchWidth() {
-		return this.displayWidth;
+		return displayWidth;
 	}
 
 	public int sketchHeight() {
-		return this.displayHeight;
+		return displayHeight;
 	}
 
 	public String sketchRenderer() {
-		return PApplet.JAVA2D;
+		return OPENGL;
 	}
 
 	private PdService pdService = null;
@@ -136,60 +136,32 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
 	boolean accel;
-	static final float ALPHA = 0.15f;
 	float currentAccel = 0;
+	static final float ALPHA = 0.15f;
 	float oldAccel = 0;
+	
+	float pX, pY;
+	public float density;
+	DecimalFormat df, df1;
 
 	float a;
 	int effect;
 	int col;
-	int scanSquareY;
-	int headerPlus;
 
 	boolean moveflag = false;
 	boolean headerflag = false;
 	public float scanline;
 
-	float circSize1; // outer circle size
-	float circSize2; // inner circle size
-	float circSize3;
-	int buttonSize; // play button size
-	int buttonSize2;
-	int button2Pad;
-	int buttonWeight; // button stroke weight
-	int buttonPad; // padding between puttons
-	float headerWidth; // header width
-	int scanHeadWidth; // width of scan line/head
-	int shadowRad; // shadow radius for header
-	int buttonSpace;
-	int button2Space;
-	float textAscent;
+	
 
-	int bpm = 120;
-	float bpmScale = constrain(bpm / 24, 4, 20);
+//	public ControlP5 cp5;
 
-	int bgCol = color(28, 28, 28);
-	int headCol = color(41, 41, 41);
-	int buttonActCol = color(255);
-	int buttonInActCol = color(175);
-	int opaInActCol = color(255, 100);
-	int scanHeadCol = color(255, 40);
-	int circ2Col = color(0, 153, 204);
-	int col1 = color(255, 68, 68); // colour choices - this can be randomly
-									// selected or cycled through
-	int col2 = color(255, 187, 51);
-	int col3 = color(153, 204, 0);
-	int col4 = color(170, 102, 204);
-	int col5 = color(51, 181, 229);
+	// Processing vars and obj
 
-	public ControlP5 cp5;
 	PFont f;
-
-	// new ui stuff
-
-	PGraphics headShad; // for generating shadow
-	PGraphics headRect;
-	PGraphics scanHead;
+	PGraphics header, sketchBG, scanSquare;
+	
+	/*
 	PGraphics bpmButtonOff;
 	PGraphics bpmButtonOn;
 	PGraphics fxToggleOff;
@@ -201,27 +173,37 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	PGraphics fxCirc4;
 	PGraphics fxClearButtonOff;
 	PGraphics fxClearButtonOn;
-	PGraphics scanSquare;
-	PGraphics scanBG;
-	PImage shareImg;
-	PImage playImg;
-	PImage stopImg;
-	PImage revImg;
-	PImage forImg;
-	PImage clearOnImg;
-	PImage clearOffImg;
-	PImage loadOffImg;
-	PImage loadOnImg;
-	PImage saveOffImg;
-	PImage saveOnImg;
-	PImage shareOffImg;
-	PImage shareOnImg;
-	PImage settingsOnImg;
-	PImage settingsOffImg;
+	*/
+	
+	// button images
+	PImage shareImg, playImg, stopImg, revImg, forImg, clearOnImg, clearOffImg,
+			loadOffImg, loadOnImg, saveOffImg, saveOnImg, shareOffImg,
+			shareOnImg, settingsOnImg, settingsOffImg;
+	
+	float outerCircSize, innerCircSize, animCircSize;
+	
+	int headerButtonSize, buttonSize2, button2Pad, buttonWeight, buttonPad,
+			buttonSpace, button2Space;
+	
+	int mainHeadHeight, shadowHeight, scanSquareY, headerHeight;
+	
+	float textAscent;
 
-	float pX, pY;
-	public float density;
-	DecimalFormat df, df1;
+	int bpm = 120;
+	float bpmScale = constrain(bpm / 24, 4, 20);
+
+	final int bgCol = color(28, 28, 28);
+	final int headCol = color(41, 41, 41);
+	final int buttonActCol = color(255);
+	final int buttonInActCol = color(175);
+	final int opaInActCol = color(255, 100);
+	final int scanHeadCol = color(255, 40);
+	final int circ2Col = color(0, 153, 204);
+	final int col1 = color(255, 68, 68);
+	final int col2 = color(255, 187, 51);
+	final int col3 = color(153, 204, 0);
+	final int col4 = color(170, 102, 204);
+	final int col5 = color(51, 181, 229);
 
 	// setup libpd stuff//
 
@@ -246,8 +228,67 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		}
 	};
-	private Toast toast = null;
+	
+	/* Bind pd service */
 
+	private void initPdService() {
+
+		new Thread() {
+			@Override
+			public void run() {
+				bindService(new Intent(SynthCircle.this, PdService.class),
+						pdConnection, BIND_AUTO_CREATE);
+			}
+		}.start();
+	}
+
+	protected void initPd() throws IOException {
+
+		// Configure the audio glue
+		int sampleRate = AudioParameters.suggestSampleRate();
+
+		// reducing sample rate based on no. of cores
+		if (getNumCores() == 1)
+			sampleRate = sampleRate / 4;
+		else
+			sampleRate = sampleRate / 2;
+
+		pdService.initAudio(sampleRate, 0, 2, 10.0f);
+		// pdService.startAudio();
+		pdService.startAudio(new Intent(this, SynthCircle.class),
+				R.drawable.notif_icon, "CircleSynth", "Return to Circle Synth");
+
+		dispatcher = new PdUiDispatcher();
+		PdBase.setReceiver(dispatcher);
+
+		dispatcher.addListener("scan", new PdListener.Adapter() {
+			@Override
+			public void receiveFloat(String source, final float x) {
+				scanline = x;
+				detect();
+			}
+		});
+
+	}
+
+	protected void loadPatch() throws IOException {
+
+		if (pd == 0) {
+			File dir = getFilesDir();
+			IoUtils.extractZipResource(
+					getResources().openRawResource(
+							com.twobigears.circlesynth.R.raw.vnsequencer), dir,
+					true);
+			File patchFile = new File(dir, "vnsequencer.pd");
+			pd = PdBase.openPatch(patchFile.getAbsolutePath());
+
+			// send initial data to the patch from preferences
+			initialisepatch();
+
+		}
+	}
+	
+	private Toast toast = null;
 	private void toast(final String msg) {
 		runOnUiThread(new Runnable() {
 			@Override
@@ -302,119 +343,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}, PhoneStateListener.LISTEN_CALL_STATE);
 	}
 
-	/* Bind pd service */
-
-	private void initPdService() {
-
-		new Thread() {
-			@Override
-			public void run() {
-				bindService(new Intent(SynthCircle.this, PdService.class),
-						pdConnection, BIND_AUTO_CREATE);
-			}
-		}.start();
-	}
-
-	protected void initPd() throws IOException {
-
-		// Configure the audio glue
-		int sampleRate = AudioParameters.suggestSampleRate();
-
-		// reducing sample rate based on no. of cores
-		if (getNumCores() == 1)
-			sampleRate = sampleRate / 4;
-		else
-			sampleRate = sampleRate / 2;
-
-		pdService.initAudio(sampleRate, 0, 2, 10.0f);
-		// pdService.startAudio();
-		pdService.startAudio(new Intent(this, SynthCircle.class),
-				R.drawable.notif_icon, "CircleSynth", "Return to Circle Synth");
-
-		dispatcher = new PdUiDispatcher();
-		PdBase.setReceiver(dispatcher);
-
-		dispatcher.addListener("scan", new PdListener.Adapter() {
-			@Override
-			public void receiveFloat(String source, final float x) {
-				scanline = x;
-				detect();
-			}
-		});
-
-	}
-
-	public void detect() {
-
-		if (dots.size() > 0) {
-			for (int i = 0; i < dots.size(); i++) {
-				Dot d = dots.get(i);
-				if (!d.touched2) {
-					if (!revValue) {
-						if (Math.abs(scanline
-								- Float.parseFloat(df.format(d.xDown / width))) <= .01)
-							d.selected1 = true;
-
-						if (Math.abs(scanline
-								- Float.parseFloat(df.format(d.xDown / width))) >= .03)
-							d.selected1 = false;
-					} else {
-						if (Math.abs(scanline
-								- Float.parseFloat(df.format(d.xUp / width))) <= .03)
-							d.selected1 = true;
-
-						if (Math.abs(scanline
-								- Float.parseFloat(df.format(d.xDown / width))) >= .03)
-							d.selected1 = false;
-					}
-
-				} else {
-					float dxd = Float.parseFloat(df.format(d.xDown / width));
-					float dxu = Float.parseFloat(df.format(d.xUp / width));
-					if (!revValue) {
-						if (Math.abs(scanline - dxd) <= .01) {
-							d.selected1 = d.selected2 = true;
-						}
-
-					}
-					if (revValue) {
-						if (Math.abs(scanline - dxu) <= .01) {
-							d.selected1 = d.selected2 = true;
-						}
-
-						if (Math.abs(scanline - dxu) >= (dxu - dxd + .03)) {
-							d.selected1 = d.selected2 = false;
-						}
-
-					}
-					if (Math.abs(scanline
-							- Float.parseFloat(df.format(d.xDown / width))) >= (dxu
-							- dxd + .03)) {
-						d.selected1 = d.selected2 = false;
-					}
-				}
-
-			}
-
-		}
-	}
-
-	protected void loadPatch() throws IOException {
-
-		if (pd == 0) {
-			File dir = getFilesDir();
-			IoUtils.extractZipResource(
-					getResources().openRawResource(
-							com.twobigears.circlesynth.R.raw.vnsequencer), dir,
-					true);
-			File patchFile = new File(dir, "vnsequencer.pd");
-			pd = PdBase.openPatch(patchFile.getAbsolutePath());
-
-			// send initial data to the patch from preferences
-			initialisepatch();
-
-		}
-	}
 
 	@Override
 	public void onDestroy() {
@@ -474,23 +402,25 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	public void setup() {
 
-		if (getNumCores() <= 1)
-			fRate = 20;
-		else
-			fRate = 30;
-		frameRate(fRate);
-		orientation(LANDSCAPE);
+//		if (getNumCores() <= 1)
+//			fRate = 20;
+//		else
+//			fRate = 30;
+//		frameRate(fRate);
+//		orientation(LANDSCAPE);
+		
 		dots = new ArrayList<Dot>();
 		stored = new ArrayList<String>();
 
 		background(bgCol);
-		smooth();
+		smooth(8);
 		CHECK = new String[10];
 		SAVE = new String[10];
 		for (int i = 0; i < maxCircle; i++) {
 			CHECK[i] = "0 5 5 5 5 0";
-
 		}
+		
+		String resSuffix = "30";
 
 		DisplayMetrics dm = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -499,91 +429,75 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		if (densityR < 0.9) {
 			density = (float) 0.75;
 			textAscent = 0.62f;
-			playImg = loadImage("play30.png");
-			stopImg = loadImage("stop30.png");
-			revImg = loadImage("reverse30.png");
-			forImg = loadImage("forward30.png");
-			clearOnImg = loadImage("clearOn30.png");
-			clearOffImg = loadImage("clearOff30.png");
-			loadOffImg = loadImage("loadOff30.png");
-			loadOnImg = loadImage("loadOn30.png");
-			saveOffImg = loadImage("saveOff30.png");
-			saveOnImg = loadImage("saveOn30.png");
-			shareOffImg = loadImage("shareOff30.png");
-			shareOnImg = loadImage("shareOn30.png");
-			settingsOffImg = loadImage("settingsOff30.png");
-			settingsOnImg = loadImage("settingsOn30.png");
+			resSuffix = "30";
 		} else if (densityR > 0.9 && densityR <= 1.2) {
 			density = (float) 1;
 			textAscent = 0.52f;
-			playImg = loadImage("play40.png");
-			stopImg = loadImage("stop40.png");
-			revImg = loadImage("reverse40.png");
-			forImg = loadImage("forward40.png");
-			clearOnImg = loadImage("clearOn40.png");
-			clearOffImg = loadImage("clearOff40.png");
-			loadOffImg = loadImage("loadOff40.png");
-			loadOnImg = loadImage("loadOn40.png");
-			saveOffImg = loadImage("saveOff40.png");
-			saveOnImg = loadImage("saveOn40.png");
-			shareOffImg = loadImage("shareOff40.png");
-			shareOnImg = loadImage("shareOn40.png");
-			settingsOffImg = loadImage("settingsOff40.png");
-			settingsOnImg = loadImage("settingsOn40.png");
+			resSuffix = "40";
 		} else if (densityR > 1.2 && densityR <= 1.6) {
 			density = (float) 1.5;
 			textAscent = 0.32f;
-			playImg = loadImage("play60.png");
-			stopImg = loadImage("stop60.png");
-			revImg = loadImage("reverse60.png");
-			forImg = loadImage("forward60.png");
-			clearOnImg = loadImage("clearOn60.png");
-			clearOffImg = loadImage("clearOff60.png");
-			loadOffImg = loadImage("loadOff60.png");
-			loadOnImg = loadImage("loadOn60.png");
-			saveOffImg = loadImage("saveOff60.png");
-			saveOnImg = loadImage("saveOn60.png");
-			shareOffImg = loadImage("shareOff60.png");
-			shareOnImg = loadImage("shareOn60.png");
-			settingsOffImg = loadImage("settingsOff60.png");
-			settingsOnImg = loadImage("settingsOn60.png");
+			resSuffix = "60";
 		} else if (densityR > 1.6) {
 			density = (float) 2;
 			textAscent = 0.22f;
-			playImg = loadImage("play80.png");
-			stopImg = loadImage("stop80.png");
-			revImg = loadImage("reverse80.png");
-			forImg = loadImage("forward80.png");
-			clearOnImg = loadImage("clearOn80.png");
-			clearOffImg = loadImage("clearOff80.png");
-			loadOffImg = loadImage("loadOff80.png");
-			loadOnImg = loadImage("loadOn80.png");
-			saveOffImg = loadImage("saveOff80.png");
-			saveOnImg = loadImage("saveOn80.png");
-			shareOffImg = loadImage("shareOff80.png");
-			shareOnImg = loadImage("shareOn80.png");
-			settingsOffImg = loadImage("settingsOff80.png");
-			settingsOnImg = loadImage("settingsOn80.png");
+			resSuffix = "80";
 		}
+		
+		playImg = loadImage("play"+"+resSuffix+"+".png");
+		stopImg = loadImage("stop"+resSuffix+".png");
+		revImg = loadImage("reverse"+resSuffix+".png");
+		forImg = loadImage("forward"+resSuffix+".png");
+		clearOnImg = loadImage("clearOn"+resSuffix+".png");
+		clearOffImg = loadImage("clearOff"+resSuffix+".png");
+		loadOffImg = loadImage("loadOff"+resSuffix+".png");
+		loadOnImg = loadImage("loadOn"+resSuffix+".png");
+		saveOffImg = loadImage("saveOff"+resSuffix+".png");
+		saveOnImg = loadImage("saveOn"+resSuffix+".png");
+		shareOffImg = loadImage("shareOff"+resSuffix+".png");
+		shareOnImg = loadImage("shareOn"+resSuffix+".png");
+		settingsOffImg = loadImage("settingsOff"+resSuffix+".png");
+		settingsOnImg = loadImage("settingsOn"+resSuffix+".png");
 
-		headerWidth = 40 * density; // header width configured to dpi
-		buttonSize = (int) (40 * density);
-		buttonWeight = (int) (2 * density);
-		scanHeadWidth = (int) (8 * density);
-		shadowRad = (int) (2 * density);
+		mainHeadHeight = (int) (40 * density); 
+		shadowHeight = (int) (density);
 		scanSquareY = (int) (3 * density);
-		headerPlus = (int) (headerWidth + scanSquareY);
+		headerHeight = mainHeadHeight + scanSquareY + shadowHeight;	 
+		
 		f = createFont("Roboto-Thin-12", 22 * density, true);
-		buttonSpace = (int) (buttonSize * 0.35f);
+		
+		headerButtonSize = (int) (40 * density);
+		buttonWeight = (int) (2 * density);		
+		buttonSpace = (int) (headerButtonSize * 0.35f);
 		buttonSize2 = (int) (27 * density);
 		button2Pad = (int) (7 * density);
 		button2Space = (int) (buttonSize2 * 0.15f);
 
-		circSize1 = 40 * density; // outer circle size configured to dpi
-		circSize2 = 15 * density; // inner circle size configured to dpi
-		circSize3 = 18 * density;
-		// setup display stuff
-		settingup();
+		outerCircSize = 40 * density; // outer circle size configured to dpi
+		innerCircSize = 15 * density; // inner circle size configured to dpi
+		animCircSize = 18 * density;
+		
+		header = createGraphics(width, headerHeight);
+		header.beginDraw();
+		header.noStroke();
+		header.background(headCol);
+		header.fill(buttonInActCol, 40);
+		header.rect(0, mainHeadHeight, width, scanSquareY);
+		header.fill(10);
+		header.rect(0, mainHeadHeight+scanSquareY, width, shadowHeight);
+		header.endDraw();
+		
+		sketchBG = createGraphics(width, height - headerHeight);
+		sketchBG.beginDraw();
+		sketchBG.background(bgCol);
+		sketchBG.endDraw();
+		
+		scanSquare = createGraphics((int) (10 * density), scanSquareY);
+		scanSquare.beginDraw();
+		scanSquare.noStroke();
+		scanSquare.fill(120);
+		scanSquare.rect(0, 0, 7 * density, 3 * density, 7 * density);
+		scanSquare.endDraw();
 
 	}
 
@@ -651,70 +565,55 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 
 	}
-
+	
+	/*
 	private void settingup() {
-
-		headRect = createGraphics(width, (int) (headerPlus));
-		headRect.beginDraw();
-		headRect.fill(headCol);
-		headRect.rect(0, 0, width, headerPlus);
-		headRect.endDraw();
-
-		headShad = createGraphics(width, (int) (headerPlus + 5)); // pgraphics
-																	// buffer
-																	// for
-																	// header
-		headShad.beginDraw();
-		headShad.background(bgCol);
-		headShad.fill(0);
-		headShad.noStroke();
-		headShad.rect(0, 0, width, headerPlus);
-		fastblur(headShad, shadowRad);
-		headShad.endDraw();
-
-		bpmButtonOn = createGraphics(buttonSize * 2, buttonSize);
+		
+		TODO Use image res >
+		  
+		bpmButtonOn = createGraphics(headerButtonSize * 2, headerButtonSize);
 		bpmButtonOn.beginDraw();
 		bpmButtonOn.stroke(buttonActCol);
 		bpmButtonOn.strokeWeight(buttonWeight);
 		bpmButtonOn.noFill();
-		bpmButtonOn.rect(0, 0, buttonSize * 2, buttonSize);
+		bpmButtonOn.rect(0, 0, headerButtonSize * 2, headerButtonSize);
 		bpmButtonOn.endDraw();
 
-		bpmButtonOff = createGraphics(buttonSize * 2, buttonSize);
+		bpmButtonOff = createGraphics(headerButtonSize * 2, headerButtonSize);
 		bpmButtonOff.beginDraw();
 		bpmButtonOff.stroke(buttonInActCol);
 		bpmButtonOff.strokeWeight(buttonWeight);
 		bpmButtonOff.noFill();
-		bpmButtonOff.rect(0, 0, buttonSize * 2, buttonSize);
+		bpmButtonOff.rect(0, 0, headerButtonSize * 2, headerButtonSize);
 		bpmButtonOff.endDraw();
 
 		float pad = (float) (buttonSize2 * 0.25);
 
-		fxToggleOff = createGraphics(buttonSize, buttonSize);
+		fxToggleOff = createGraphics(headerButtonSize, headerButtonSize);
 		fxToggleOff.beginDraw();
 		fxToggleOff.stroke(buttonInActCol);
 		fxToggleOff.strokeWeight(buttonWeight);
 		fxToggleOff.noFill();
-		fxToggleOff.rect(0, 0, buttonSize, buttonSize);
+		fxToggleOff.rect(0, 0, headerButtonSize, headerButtonSize);
 		fxToggleOff.textFont(f);
 		fxToggleOff.textAlign(CENTER);
 		fxToggleOff.fill(buttonInActCol);
 		float asc = (float) (textAscent() * 0.3 * density);
-		fxToggleOff.text("FX", (float) (buttonSize * 0.5),
-				(float) ((buttonSize * 0.5) + asc));
+		fxToggleOff.text("FX", (float) (headerButtonSize * 0.5),
+				(float) ((headerButtonSize * 0.5) + asc));
 		fxToggleOff.endDraw();
 
-		fxToggleOn = createGraphics(buttonSize, buttonSize);
+		fxToggleOn = createGraphics(headerButtonSize, headerButtonSize);
 		fxToggleOn.beginDraw();
 		fxToggleOn.stroke(buttonActCol);
 		fxToggleOn.strokeWeight(buttonWeight);
 		fxToggleOn.noFill();
-		fxToggleOn.rect(0, 0, buttonSize, buttonSize);
+		fxToggleOn.rect(0, 0, headerButtonSize, headerButtonSize);
 		fxToggleOn.textFont(f);
 		fxToggleOn.textAlign(CENTER);
 		fxToggleOn.fill(buttonActCol);
-		fxToggleOn.text("FX", (float) (buttonSize * 0.5),
-				(float) ((buttonSize * 0.5) + asc));
+		fxToggleOn.text("FX", (float) (headerButtonSize * 0.5),
+				(float) ((headerButtonSize * 0.5) + asc));
 		fxToggleOn.endDraw();
 
 		fxCirc1 = createGraphics(buttonSize2, buttonSize2);
@@ -786,49 +685,33 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				(float) (buttonSize2 - strokeSize),
 				(float) (buttonSize2 - strokeSize));
 		fxClearButtonOn.endDraw();
-
-		scanBG = createGraphics((int) (width), scanSquareY);
-		scanBG.beginDraw();
-		scanBG.noStroke();
-		scanBG.fill(buttonInActCol, 40);
-		scanBG.rect(0, 0, width, scanSquareY);
-		scanBG.endDraw();
-
-		scanSquare = createGraphics((int) (10 * density), scanSquareY);
-		scanSquare.beginDraw();
-		scanSquare.noStroke();
-		scanSquare.fill(120);
-		scanSquare.rect(0, 0, 7 * density, 3 * density, 7 * density);
-		scanSquare.endDraw();
-
-		/*
-		 * ControlP5 ui elements below
-		 */
-
+		
+		TODO Controlp5 stuff. Replace! >
+		
 		cp5 = new ControlP5(this);
 		cp5.addToggle("playValue")
 				// create play/stop toggle
-				.setPosition(buttonSpace, 0).setSize(buttonSize, buttonSize)
+				.setPosition(buttonSpace, 0).setSize(headerButtonSize, headerButtonSize)
 				.setView(new PlayToggle());
 
 		cp5.addToggle("revValue")
 				// create reverse toggle
-				.setPosition(buttonSize + (buttonSpace * 2), 0)
-				.setSize(buttonSize, buttonSize).setView(new RevToggle());
+				.setPosition(headerButtonSize + (buttonSpace * 2), 0)
+				.setSize(headerButtonSize, headerButtonSize).setView(new RevToggle());
 
 		cp5.addButton("bpmPopup")
 				// create bpm popup button
-				.setPosition((buttonSize * 2) + (buttonSpace * 3), 0)
-				.setSize(buttonSize, buttonSize).setView(new BpmButton());
+				.setPosition((headerButtonSize * 2) + (buttonSpace * 3), 0)
+				.setSize(headerButtonSize, headerButtonSize).setView(new BpmButton());
 
 		cp5.addButton("clearButton")
 				// create clear button
-				.setPosition((buttonSize * 3) + (buttonSpace * 4), 0)
-				.setSize(buttonSize, buttonSize).setView(new ClearButton());
+				.setPosition((headerButtonSize * 3) + (buttonSpace * 4), 0)
+				.setSize(headerButtonSize, headerButtonSize).setView(new ClearButton());
 		cp5.addToggle("fxToggle")
 				// create fx toggle
-				.setPosition((buttonSize * 4) + (buttonSpace * 5), 0)
-				.setSize(buttonSize, buttonSize).setView(new FxToggle());
+				.setPosition((headerButtonSize * 4) + (buttonSpace * 5), 0)
+				.setSize(headerButtonSize, headerButtonSize).setView(new FxToggle());
 
 		cp5.addToggle("fxCirc1Toggle").hide()
 				// create fx1 toggle
@@ -875,285 +758,267 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				.setSize(buttonSize2, buttonSize2).setView(new FxClearButton());
 
 		cp5.addButton("settingsButton")
-				.setPosition(width - buttonSize - buttonSpace, 0)
-				.setSize(buttonSize, buttonSize).setView(new SettingsButton());
+				.setPosition(width - headerButtonSize - buttonSpace, 0)
+				.setSize(headerButtonSize, headerButtonSize).setView(new SettingsButton());
 
 		cp5.addButton("shareButton")
-				.setPosition(width - (buttonSize * 2) - (buttonSpace * 2), 0)
-				.setSize(buttonSize, buttonSize).setView(new ShareButton());
+				.setPosition(width - (headerButtonSize * 2) - (buttonSpace * 2), 0)
+				.setSize(headerButtonSize, headerButtonSize).setView(new ShareButton());
 
 		cp5.addButton("saveButton")
-				.setPosition(width - (buttonSize * 3) - (buttonSpace * 3), 0)
-				.setSize(buttonSize, buttonSize).setView(new SaveButton());
+				.setPosition(width - (headerButtonSize * 3) - (buttonSpace * 3), 0)
+				.setSize(headerButtonSize, headerButtonSize).setView(new SaveButton());
 
 		cp5.addButton("loadButton")
-				.setPosition(width - (buttonSize * 4) - (buttonSpace * 4), 0)
-				.setSize(buttonSize, buttonSize).setView(new LoadButton());
+				.setPosition(width - (headerButtonSize * 4) - (buttonSpace * 4), 0)
+				.setSize(headerButtonSize, headerButtonSize).setView(new LoadButton());	
 	}
-
-	// Super Fast Blur v1.1
-	// by Mario Klingemann <http://incubator.quasimondo.com>
-
-	void fastblur(PImage img, int radius) {
-		if (radius < 1) {
-			return;
-		}
-		img.loadPixels();
-		int w = img.width;
-		int h = img.height;
-		int wm = w - 1;
-		int hm = h - 1;
-		int wh = w * h;
-		int div = radius + radius + 1;
-		int r[] = new int[wh];
-		int g[] = new int[wh];
-		int b[] = new int[wh];
-		int rsum, gsum, bsum, x, y, i, p, p1, p2, yp, yi, yw;
-		int vmin[] = new int[max(w, h)];
-		int vmax[] = new int[max(w, h)];
-		int[] pix = img.pixels;
-		int dv[] = new int[256 * div];
-		for (i = 0; i < 256 * div; i++) {
-			dv[i] = (i / div);
-		}
-		yw = yi = 0;
-		for (y = 0; y < h; y++) {
-			rsum = gsum = bsum = 0;
-			for (i = -radius; i <= radius; i++) {
-				p = pix[yi + min(wm, max(i, 0))];
-				rsum += (p & 0xff0000) >> 16;
-				gsum += (p & 0x00ff00) >> 8;
-				bsum += p & 0x0000ff;
-			}
-			for (x = 0; x < w; x++) {
-				r[yi] = dv[rsum];
-				g[yi] = dv[gsum];
-				b[yi] = dv[bsum];
-				if (y == 0) {
-					vmin[x] = min(x + radius + 1, wm);
-					vmax[x] = max(x - radius, 0);
-				}
-				p1 = pix[yw + vmin[x]];
-				p2 = pix[yw + vmax[x]];
-				rsum += ((p1 & 0xff0000) - (p2 & 0xff0000)) >> 16;
-				gsum += ((p1 & 0x00ff00) - (p2 & 0x00ff00)) >> 8;
-				bsum += (p1 & 0x0000ff) - (p2 & 0x0000ff);
-				yi++;
-			}
-			yw += w;
-		}
-		for (x = 0; x < w; x++) {
-			rsum = gsum = bsum = 0;
-			yp = -radius * w;
-			for (i = -radius; i <= radius; i++) {
-				yi = max(0, yp) + x;
-				rsum += r[yi];
-				gsum += g[yi];
-				bsum += b[yi];
-				yp += w;
-			}
-			yi = x;
-			for (y = 0; y < h; y++) {
-				pix[yi] = 0xff000000 | (dv[rsum] << 16) | (dv[gsum] << 8)
-						| dv[bsum];
-				if (x == 0) {
-					vmin[y] = min(y + radius + 1, hm) * w;
-					vmax[y] = max(y - radius, 0) * w;
-				}
-				p1 = x + vmin[y];
-				p2 = x + vmax[y];
-				rsum += r[p1] - r[p2];
-				gsum += g[p1] - g[p2];
-				bsum += b[p1] - b[p2];
-				yi += w;
-			}
-		}
-		img.updatePixels();
-	}
+	*/
 
 	public void draw() {
 
-		background(bgCol);
+		image(sketchBG, 0, headerHeight);
 
 		// draw dots on the screen based on touch data stored in Dot class
 		drawThis();
-
-		headerRect();
-
+		
+		image(header, 0, 0);
 		// scanline
-		image(scanSquare, scanline * width, headerWidth);
+		image(scanSquare, scanline * width, mainHeadHeight);
+		
+		
 
-		if (clearButton) {
+	}
 
-			dots.clear();
-			stored.clear();
-			PdBase.sendFloat("pd_playToggle", 0);
-			toast("Sketch Cleared");
+	/* 
+	 * TODO Move below to button listeners
+	 * 
+	if (clearButton) {
 
-		}
-		if (loadButton) {
+		dots.clear();
+		stored.clear();
+		PdBase.sendFloat("pd_playToggle", 0);
+		toast("Sketch Cleared");
 
-			File mPath = new File(Environment.getExternalStorageDirectory()
-					+ "/circlesynth");
-			fileDialog = new FileDialog(this, mPath);
-			fileDialog.setFileEndsWith(".txt");
-			fileDialog.addFileListener(new FileDialog.FileSelectedListener() {
-				public void fileSelected(File file) {
-					fName = file.getName();
-					try {
+	}
+	if (loadButton) {
 
-						dots.clear();
-						stored.clear();
+		File mPath = new File(Environment.getExternalStorageDirectory()
+				+ "/circlesynth");
+		fileDialog = new FileDialog(this, mPath);
+		fileDialog.setFileEndsWith(".txt");
+		fileDialog.addFileListener(new FileDialog.FileSelectedListener() {
+			public void fileSelected(File file) {
+				fName = file.getName();
+				try {
 
-						FileInputStream input = new FileInputStream(file);
-						DataInputStream din = new DataInputStream(input);
+					dots.clear();
+					stored.clear();
 
-						for (int i = 0; i < maxCircle; i++) { // Read lines
-							String line = din.readUTF();
-							stored.add(line);
-							dots.add(new Dot());
-							splitString(stored.get(i));
+					FileInputStream input = new FileInputStream(file);
+					DataInputStream din = new DataInputStream(input);
 
-						}
-						din.close();
-					} catch (IOException exc) {
-						exc.printStackTrace();
+					for (int i = 0; i < maxCircle; i++) { // Read lines
+						String line = din.readUTF();
+						stored.add(line);
+						dots.add(new Dot());
+						splitString(stored.get(i));
+
 					}
-					dotcleanup();
-
+					din.close();
+				} catch (IOException exc) {
+					exc.printStackTrace();
 				}
+				dotcleanup();
 
-			});
-
-			SynthCircle.this.runOnUiThread(new Runnable() {
-				public void run() {
-
-					fileDialog.showDialog();
-				}
-			});
-			loadButton = false;
-		}
-
-		if (fxClearButton) {
-
-			for (int i = 0; i < dots.size(); i++) {
-				Dot d = (Dot) dots.get(i);
-				d.fxClear();
 			}
-			toast("All FX cleared");
-			fxClearButton = false;
+
+		});
+
+		SynthCircle.this.runOnUiThread(new Runnable() {
+			public void run() {
+
+				fileDialog.showDialog();
+			}
+		});
+		loadButton = false;
+	}
+
+	if (fxClearButton) {
+
+		for (int i = 0; i < dots.size(); i++) {
+			Dot d = (Dot) dots.get(i);
+			d.fxClear();
+		}
+		toast("All FX cleared");
+		fxClearButton = false;
+	}
+
+	else {
+		if (playValue) {
+
+			PdBase.sendFloat("pd_playToggle", 1);
+			sendPdValue();
+
 		}
 
 		else {
-			if (playValue) {
+			PdBase.sendFloat("pd_playToggle", 0);
+			scanline = 0;
+		}
+	}
 
-				PdBase.sendFloat("pd_playToggle", 1);
-				sendPdValue();
+	clearButton = false;
 
+	if (bpmPopup) {
+		toast("Set BPM/Speed");
+		SynthCircle.this.runOnUiThread(new Runnable() {
+			public void run() {
+				new BpmPicker(SynthCircle.this, SynthCircle.this, bpm)
+						.show();
 			}
+		});
 
-			else {
-				PdBase.sendFloat("pd_playToggle", 0);
-				scanline = 0;
+		bpmPopup = false;
+	}
+
+	if (settingsButton) {
+		tracker.trackEvent("Buttons Category", "Settings", "", 0L);
+		Intent intent = new Intent(this, SynthSettingsTwo.class);
+		startActivity(intent);
+		prefs.registerOnSharedPreferenceChangeListener(this);
+		settingsButton = false;
+
+	}
+	if (saveButton) {
+		saveButton = false;
+		stored.clear();
+		int t1 = 0;
+		int t2 = 0;
+		int t3 = 0;
+		String SAVE = null;
+		for (int i = 0; i < maxCircle; i++) {
+			if (i < dots.size()) {
+				Dot d = (Dot) dots.get(i);
+				if (d.touched1)
+					t1 = 1;
+				if (d.touched2)
+					t2 = 1;
+				if (d.touched3)
+					t3 = 1;
+				SAVE = String.valueOf(i) + " "
+						+ String.valueOf(d.xDown / width) + " "
+						+ String.valueOf(d.yDown / height) + " "
+						+ String.valueOf(d.xUp / width) + " "
+						+ String.valueOf(d.yUp / height) + " "
+						+ String.valueOf(d.doteffect) + " "
+						+ String.valueOf(d.dotcol) + " "
+						+ String.valueOf(t1) + " " + String.valueOf(t2)
+						+ " " + String.valueOf(t3);
+			} else {
+				SAVE = String.valueOf(i) + " 5 5 5 5 0 0 0 0 0";
 			}
-		}
-
-		clearButton = false;
-
-		if (bpmPopup) {
-			toast("Set BPM/Speed");
-			SynthCircle.this.runOnUiThread(new Runnable() {
-				public void run() {
-					new BpmPicker(SynthCircle.this, SynthCircle.this, bpm)
-							.show();
-				}
-			});
-
-			bpmPopup = false;
-		}
-
-		if (settingsButton) {
-			tracker.trackEvent("Buttons Category", "Settings", "", 0L);
-			Intent intent = new Intent(this, SynthSettingsTwo.class);
-			startActivity(intent);
-			prefs.registerOnSharedPreferenceChangeListener(this);
-			settingsButton = false;
+			stored.add(i, SAVE);
 
 		}
-		if (saveButton) {
-			saveButton = false;
-			stored.clear();
-			int t1 = 0;
-			int t2 = 0;
-			int t3 = 0;
-			String SAVE = null;
-			for (int i = 0; i < maxCircle; i++) {
-				if (i < dots.size()) {
-					Dot d = (Dot) dots.get(i);
-					if (d.touched1)
-						t1 = 1;
-					if (d.touched2)
-						t2 = 1;
-					if (d.touched3)
-						t3 = 1;
-					SAVE = String.valueOf(i) + " "
-							+ String.valueOf(d.xDown / width) + " "
-							+ String.valueOf(d.yDown / height) + " "
-							+ String.valueOf(d.xUp / width) + " "
-							+ String.valueOf(d.yUp / height) + " "
-							+ String.valueOf(d.doteffect) + " "
-							+ String.valueOf(d.dotcol) + " "
-							+ String.valueOf(t1) + " " + String.valueOf(t2)
-							+ " " + String.valueOf(t3);
+
+		String root = Environment.getExternalStorageDirectory().toString();
+		File myDir = new File(root + "/circlesynth");
+		myDir.mkdirs();
+		SimpleDateFormat formatter = new SimpleDateFormat("MMddHHmm");
+		Date now = new Date();
+		String fileName = formatter.format(now);
+		String fname = "sketch_" + fileName + ".txt";
+		fName = fname;
+		File file = new File(myDir, fname);
+		try {
+			FileOutputStream output = new FileOutputStream(file);
+			DataOutputStream dout = new DataOutputStream(output);
+
+			// Save line count
+			for (String line : stored)
+				// Save lines
+				dout.writeUTF(line);
+			dout.flush(); // Flush stream ...
+			dout.close(); // ... and close.
+
+		} catch (IOException exc) {
+			exc.printStackTrace();
+		}
+
+	}
+	if (revValue)
+		PdBase.sendFloat("pd_revToggle", 1);
+	else
+		PdBase.sendFloat("pd_revToggle", 0);
+
+	if (fxCirc1Toggle == true) {
+		fxCirc(col2);
+	} else if (fxCirc2Toggle == true) {
+		fxCirc(col3);
+	} else if (fxCirc3Toggle == true) {
+		fxCirc(col4);
+	} else if (fxCirc4Toggle == true) {
+		fxCirc(col5);
+	} else if (fxCirc0Toggle == true) {
+		fxCirc(buttonInActCol);
+	}
+	
+	*/
+	
+	public void detect() {
+
+		if (dots.size() > 0) {
+			for (int i = 0; i < dots.size(); i++) {
+				Dot d = dots.get(i);
+				if (!d.touched2) {
+					if (!revValue) {
+						if (Math.abs(scanline
+								- Float.parseFloat(df.format(d.xDown / width))) <= .01)
+							d.selected1 = true;
+
+						if (Math.abs(scanline
+								- Float.parseFloat(df.format(d.xDown / width))) >= .03)
+							d.selected1 = false;
+					} else {
+						if (Math.abs(scanline
+								- Float.parseFloat(df.format(d.xUp / width))) <= .03)
+							d.selected1 = true;
+
+						if (Math.abs(scanline
+								- Float.parseFloat(df.format(d.xDown / width))) >= .03)
+							d.selected1 = false;
+					}
+
 				} else {
-					SAVE = String.valueOf(i) + " 5 5 5 5 0 0 0 0 0";
+					float dxd = Float.parseFloat(df.format(d.xDown / width));
+					float dxu = Float.parseFloat(df.format(d.xUp / width));
+					if (!revValue) {
+						if (Math.abs(scanline - dxd) <= .01) {
+							d.selected1 = d.selected2 = true;
+						}
+
+					}
+					if (revValue) {
+						if (Math.abs(scanline - dxu) <= .01) {
+							d.selected1 = d.selected2 = true;
+						}
+
+						if (Math.abs(scanline - dxu) >= (dxu - dxd + .03)) {
+							d.selected1 = d.selected2 = false;
+						}
+
+					}
+					if (Math.abs(scanline
+							- Float.parseFloat(df.format(d.xDown / width))) >= (dxu
+							- dxd + .03)) {
+						d.selected1 = d.selected2 = false;
+					}
 				}
-				stored.add(i, SAVE);
 
 			}
 
-			String root = Environment.getExternalStorageDirectory().toString();
-			File myDir = new File(root + "/circlesynth");
-			myDir.mkdirs();
-			SimpleDateFormat formatter = new SimpleDateFormat("MMddHHmm");
-			Date now = new Date();
-			String fileName = formatter.format(now);
-			String fname = "sketch_" + fileName + ".txt";
-			fName = fname;
-			File file = new File(myDir, fname);
-			try {
-				FileOutputStream output = new FileOutputStream(file);
-				DataOutputStream dout = new DataOutputStream(output);
-
-				// Save line count
-				for (String line : stored)
-					// Save lines
-					dout.writeUTF(line);
-				dout.flush(); // Flush stream ...
-				dout.close(); // ... and close.
-
-			} catch (IOException exc) {
-				exc.printStackTrace();
-			}
-
 		}
-		if (revValue)
-			PdBase.sendFloat("pd_revToggle", 1);
-		else
-			PdBase.sendFloat("pd_revToggle", 0);
-
-		if (fxCirc1Toggle == true) {
-			fxCirc(col2);
-		} else if (fxCirc2Toggle == true) {
-			fxCirc(col3);
-		} else if (fxCirc3Toggle == true) {
-			fxCirc(col4);
-		} else if (fxCirc4Toggle == true) {
-			fxCirc(col5);
-		} else if (fxCirc0Toggle == true) {
-			fxCirc(buttonInActCol);
-		}
-
 	}
 
 	// Associate touch drawing data with the dot ArrayList
@@ -1195,9 +1060,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					if (i < dots.size()) {
 						Dot d = (Dot) dots.get(i);
 						double dxd = d.xDown / width;
-						double dyd = 1.0 - ((d.yDown - headerWidth) / (height - headerWidth));
+						double dyd = 1.0 - ((d.yDown - mainHeadHeight) / (height - mainHeadHeight));
 						double dxu = d.xUp / width;
-						double dyu = 1.0 - ((d.yUp - headerWidth) / (height - headerWidth));
+						double dyu = 1.0 - ((d.yUp - mainHeadHeight) / (height - mainHeadHeight));
 						if (dxu == dxd)
 							dxu = dxd + .03;
 						TAG1 = df.format(dxd) + " " + df.format(dyd);
@@ -1272,7 +1137,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 
 	}
-
+/*
 	class PlayToggle implements ControllerView<Toggle> {
 		public void display(PApplet theApplet, Toggle theButton) {
 			theApplet.pushMatrix();
@@ -1307,15 +1172,15 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				theApplet.textAlign(CENTER);
 				theApplet.fill(buttonActCol);
 				a = textAscent() * textAscent * density;
-				theApplet.text((int) (bpm), (buttonSize) * 0.5f,
-						(buttonSize * 0.5f) + a);
+				theApplet.text((int) (bpm), (headerButtonSize) * 0.5f,
+						(headerButtonSize * 0.5f) + a);
 			} else {
 				theApplet.textFont(f);
 				theApplet.textAlign(CENTER);
 				theApplet.fill(buttonInActCol);
 				a = textAscent() * textAscent * density;
-				theApplet.text((int) (bpm), (buttonSize) * 0.5f,
-						(buttonSize * 0.5f) + a);
+				theApplet.text((int) (bpm), (headerButtonSize) * 0.5f,
+						(headerButtonSize * 0.5f) + a);
 			}
 			theApplet.popMatrix();
 		}
@@ -1402,7 +1267,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				theApplet.textAlign(CENTER);
 				theApplet.fill(buttonActCol);
 				a = textAscent() * textAscent * density;
-				theApplet.text("FX", (buttonSize) * 0.5f, (buttonSize * 0.5f)
+				theApplet.text("FX", (headerButtonSize) * 0.5f, (headerButtonSize * 0.5f)
 						+ a);
 				cp5.getController("playValue").setVisible(false);
 				cp5.getController("revValue").setVisible(false);
@@ -1419,7 +1284,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				theApplet.textAlign(CENTER);
 				theApplet.fill(buttonInActCol);
 				a = textAscent() * textAscent * density;
-				theApplet.text("FX", (buttonSize) * 0.5f, (buttonSize * 0.5f)
+				theApplet.text("FX", (headerButtonSize) * 0.5f, (headerButtonSize * 0.5f)
 						+ a);
 				cp5.getController("playValue").setVisible(true);
 				cp5.getController("revValue").setVisible(true);
@@ -1502,27 +1367,27 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			theApplet.popMatrix();
 		}
 	}
-
+*/
 	void fxCirc(int col) {
 		if (col == buttonInActCol) {
 			stroke(buttonInActCol);
 			strokeWeight(2 * density);
 			noFill();
 			ellipse((float) (mouseX), (float) (mouseY),
-					(float) (circSize1 * 1.2), (float) (circSize1 * 1.2));
+					(float) (outerCircSize * 1.2), (float) (outerCircSize * 1.2));
 		} else {
 			noStroke();
 			fill(col, 200);
 			ellipse((float) (mouseX), (float) (mouseY),
-					(float) (circSize1 * 1.2), (float) (circSize1 * 1.2));
+					(float) (outerCircSize * 1.2), (float) (outerCircSize * 1.2));
 		}
 	}
 
-	void headerRect() {
-		image(headShad, 0, (int) (density)); // draw shadow, offset by 1 pixel
-		image(headRect, 0, 0); // draw main header rectangle
-		image(scanBG, 0, headerWidth);
-	}
+//	void headerRect() {
+//		image(headShad, 0, (int) (density)); // draw shadow, offset by 1 pixel
+//		image(headRect, 0, 0); // draw main header rectangle
+//		image(scanBG, 0, mainHeadHeight);
+//	}
 
 	void band(float bX, float bY, float eX, float eY) {
 
@@ -1638,14 +1503,14 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			posX = tempX;
 			posY = tempY;
 
-			size1 = constrain(size1 += (6 * density), 0, circSize1);
+			size1 = constrain(size1 += (6 * density), 0, outerCircSize);
 			stroke(opaInActCol);
 			strokeWeight((float) (1.5 * density));
 			fill(bgCol);
 			ellipse(posX, posY, size1, size1);
 
 			if (size1 >= 10 * density) {
-				size2 = constrain(size2 += (2.5 * density), 0, circSize2);
+				size2 = constrain(size2 += (2.5 * density), 0, innerCircSize);
 				noStroke();
 				fill(dotcol);
 				ellipse(posX, posY, size2, size2);
@@ -1659,14 +1524,14 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			posX = tempX;
 			posY = tempY;
 
-			size3 = constrain(size3 += (6 * density), 0, circSize1);
+			size3 = constrain(size3 += (6 * density), 0, outerCircSize);
 			stroke(opaInActCol);
 			strokeWeight((float) (1.5 * density));
 			fill(bgCol);
 			ellipse(posX, posY, size3, size3);
 
 			if (size3 >= 10 * density) {
-				size4 = constrain(size4 += (2.5 * density), 0, circSize2);
+				size4 = constrain(size4 += (2.5 * density), 0, innerCircSize);
 				noStroke();
 				fill(dotcol);
 				ellipse(posX, posY, size4, size4);
@@ -1677,12 +1542,12 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		public void create3(float mX5, float mY5) {
 			opa = 180;
-			size5 = constrain(size5 += (2 * bpmScale * density), 0, circSize3);
+			size5 = constrain(size5 += (2 * bpmScale * density), 0, animCircSize);
 
 			noFill();
 			stroke(this.dotcol, opa);
 			strokeWeight(2.3f * density);
-			ellipse(mX5, mY5, circSize1, circSize1);
+			ellipse(mX5, mY5, outerCircSize, outerCircSize);
 
 			noStroke();
 			fill(this.dotcol);
@@ -1691,7 +1556,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		public void create4(float xDown2, float yDown2, float xUp2, float yUp2) {
 			opa = 180;
-			size5 = constrain(size5 += (2 * bpmScale * density), 0, circSize3);
+			size5 = constrain(size5 += (2 * bpmScale * density), 0, animCircSize);
 
 			stroke(this.dotcol, opa);
 			strokeWeight(2.3f * density);
@@ -1700,7 +1565,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			fill(bgCol);
 			stroke(this.dotcol, opa);
 			strokeWeight(2 * density);
-			ellipse(xDown2, yDown2, circSize1, circSize1);
+			ellipse(xDown2, yDown2, outerCircSize, outerCircSize);
 
 			fill(this.dotcol);
 			noStroke();
@@ -1709,7 +1574,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			fill(bgCol);
 			stroke(this.dotcol, opa);
 			strokeWeight(2.3f * density);
-			ellipse(xUp2, yUp2, circSize1, circSize1);
+			ellipse(xUp2, yUp2, outerCircSize, outerCircSize);
 
 			fill(this.dotcol);
 			noStroke();
@@ -1722,6 +1587,27 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			this.dotcol = col;
 		}
 
+	}
+	
+	public class CircleLine {
+		
+		PGraphics linePg;
+		
+		CircleLine() {
+			linePg = createGraphics(20, 20);
+		
+		}
+		
+		void drawIt() {
+			
+			
+			
+		}
+		
+		void computeLine() {
+			
+		}
+		
 	}
 
 	@SuppressWarnings("deprecation")
@@ -1741,11 +1627,11 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				switch (action) {
 				case MotionEvent.ACTION_DOWN:
 
-					if (y > headerWidth) {
+					if (y > mainHeadHeight) {
 						dots.add(new Dot());
 						if (checkdelete < 0) {
 							Dot d = (Dot) dots.get(dots.size() - 1);
-							if (y > headerWidth && dots.size() <= maxCircle) {
+							if (y > mainHeadHeight && dots.size() <= maxCircle) {
 								d.createCircle1(x, y);
 								pX = x;
 								pY = y;
@@ -1769,7 +1655,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 							if (checkdelete < 0) {
 								if (moveflag)
 									dots.remove(dots.size() - 1);
-								if (y < headerWidth && !moveflag) {
+								if (y < mainHeadHeight && !moveflag) {
 									dots.remove(dots.size() - 1);
 									toast("You can't draw there");
 								}
@@ -1839,11 +1725,14 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					}
 
 					fxCirc1Toggle = fxCirc2Toggle = fxCirc3Toggle = fxCirc4Toggle = false;
+					
+					/*
 					((Toggle) cp5.controller("fxCirc1Toggle")).setState(false);
 					((Toggle) cp5.controller("fxCirc2Toggle")).setState(false);
 					((Toggle) cp5.controller("fxCirc3Toggle")).setState(false);
 					((Toggle) cp5.controller("fxCirc4Toggle")).setState(false);
 					((Toggle) cp5.controller("fxCirc0Toggle")).setState(false);
+					*/
 
 					break;
 				case MotionEvent.ACTION_MOVE:
