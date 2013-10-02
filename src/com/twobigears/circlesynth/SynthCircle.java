@@ -178,7 +178,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	// button images
 	PImage shareImg, playImg, stopImg, revImg, forImg, clearOnImg, clearOffImg,
 			loadOffImg, loadOnImg, saveOffImg, saveOnImg, shareOffImg,
-			shareOnImg, settingsOnImg, settingsOffImg;
+			shareOnImg, settingsOnImg, settingsOffImg, innerCircleImg,
+			outerCircleImg, lineCircleImg;
 	
 	float outerCircSize, innerCircSize, animCircSize;
 	
@@ -429,22 +430,22 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		if (densityR < 0.9) {
 			density = (float) 0.75;
 			textAscent = 0.62f;
-			resSuffix = "30";
+			resSuffix = "_x75";
 		} else if (densityR > 0.9 && densityR <= 1.2) {
 			density = (float) 1;
 			textAscent = 0.52f;
-			resSuffix = "40";
+			resSuffix = "_x100";
 		} else if (densityR > 1.2 && densityR <= 1.6) {
 			density = (float) 1.5;
 			textAscent = 0.32f;
-			resSuffix = "60";
+			resSuffix = "_x150";
 		} else if (densityR > 1.6) {
 			density = (float) 2;
 			textAscent = 0.22f;
-			resSuffix = "80";
+			resSuffix = "_x200";
 		}
 		
-		playImg = loadImage("play"+"+resSuffix+"+".png");
+		playImg = loadImage("play"+resSuffix+".png");
 		stopImg = loadImage("stop"+resSuffix+".png");
 		revImg = loadImage("reverse"+resSuffix+".png");
 		forImg = loadImage("forward"+resSuffix+".png");
@@ -458,6 +459,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		shareOnImg = loadImage("shareOn"+resSuffix+".png");
 		settingsOffImg = loadImage("settingsOff"+resSuffix+".png");
 		settingsOnImg = loadImage("settingsOn"+resSuffix+".png");
+		innerCircleImg = loadImage("inner_circle"+resSuffix+".png");
+		outerCircleImg = loadImage("outer_circle"+resSuffix+".png");
+		lineCircleImg = loadImage("line_circle"+resSuffix+".png");
 
 		mainHeadHeight = (int) (40 * density); 
 		shadowHeight = (int) (density);
