@@ -17,6 +17,7 @@
       </intent-filter>
     </activity>
     <activity android:name="com.twobigears.circlesynth.SynthCircle"
+        android:screenOrientation="landscape"
         android:launchMode="singleTop">
       <intent-filter>
         <action android:name="com.twobigears.circlesynth.SynthCircle" android:screenOrientation="landscape"/>
