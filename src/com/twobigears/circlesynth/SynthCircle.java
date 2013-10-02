@@ -1438,7 +1438,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	public class Dot {
 
 		float xDown, xUp, yDown, yUp, xLine, yLine, posX, posY;
-		boolean touched1, touched2, touched3, selected1, selected2;
+		boolean touched1, touched2, touched3, selected1, selected2,isMoving,isDeleted;
 		float size1 = 0;
 		float size2 = 0;
 		float size3 = 0;
@@ -1449,7 +1449,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		int dotcol = color(255, 68, 68);
 
 		Dot() {
-			touched1 = touched2 = touched3 = selected1 = selected2 = false;
+			touched1 = touched2 = touched3 = selected1 = selected2 = isMoving = isDeleted = false;
 			size1 = 0;
 			size2 = 0;
 			size3 = 0;
@@ -1461,6 +1461,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 
 		public void fxClear() {
+			//effects : 0 - none, 1 - 4 are corresponding fx
 			this.doteffect = 0;
 			this.dotcol = color(255, 68, 68);
 		}
@@ -1645,6 +1646,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 						}
 						if (checkdelete >= 0) {
 							moveflag = true;
+							Dot d = (Dot) dots.get(checkdelete);
+							d.isMoving=true;
+							Log.d("dotsMove",String.valueOf(checkdelete)+" "+String.valueOf(d.isMoving));
 						}
 						headerflag = false;
 					} else
