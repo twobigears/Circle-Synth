@@ -8,11 +8,12 @@ abstract class ImageToggle {
 
 	PImage falseImage, trueImage;
 	private float tX, tY, tWidth, tHeight;
-	boolean state, isEnabled;
+	public boolean state, isEnabled;
+	private boolean isDown;
 
 	ImageToggle(PApplet p) {
 		this.p = p;
-		state = false;
+		state = isDown = false;
 		isEnabled = true;
 	}
 
@@ -41,13 +42,17 @@ abstract class ImageToggle {
 	}
 
 	public void touchDown(float x, float y) {
-
+		if ((x > tX) && (x < tX + tWidth) && (y > tY) && (y < tY + tHeight)) {
+			isDown = true;
+		}
+		else isDown = false;
 	}
 
 	public void touchUp(float x, float y) {
 		if (isEnabled) {
 
-			if ((x > tX) && (x < tX + tWidth) && (y > tY) && (y < tY + tHeight)) {
+			if ((x > tX) && (x < tX + tWidth) && (y > tY) && (y < tY + tHeight)
+					&& isDown) {
 				if (!state) {
 					state = true;
 					isTrue();
