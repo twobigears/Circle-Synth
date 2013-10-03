@@ -1470,6 +1470,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			touched1 = true;
 			touched2 = false;
 			touched3 = false;
+			
 
 		}
 
@@ -1587,6 +1588,34 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			this.doteffect = f;
 			this.dotcol = col;
 		}
+		
+		public int getNodes(){
+			int x = 0;
+			if(touched1 && touched2)
+				x=2;
+			else if(touched1 && !touched2)
+				x=1;
+			else
+				x=0;
+			return x;
+		}
+		
+		public void updateCircles(float mX, float mY){
+			if(Math.abs(mX-xDown)<outerCircSize){
+				xDown=mX;
+				yDown=mY;
+				xLine=xUp;
+				yLine=yUp;
+				
+			}
+			else{
+				xLine=xUp=mX;
+				yLine=yUp=mY;
+				
+			}
+			
+				
+		}
 
 	}
 	
@@ -1611,9 +1640,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
-	public boolean surfaceTouchEvent(MotionEvent event) {
+	public boolean dispatchTouchEvent(MotionEvent event) {
 
 		width = displayWidth;
 		height = displayHeight;
@@ -1623,7 +1651,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		int checkdelete = -1;
 		if (dots != null) {
 			checkdelete = delCheck(x, y);
-
+			Log.d("checkdelete",String.valueOf(checkdelete));
 			if (!fxToggle) {
 				switch (action) {
 				case MotionEvent.ACTION_DOWN:
@@ -1636,15 +1664,19 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 								d.createCircle1(x, y);
 								pX = x;
 								pY = y;
+								d.isMoving=false;
 								moveflag = false;
 							}
 
 						}
 						if (checkdelete >= 0) {
 							moveflag = true;
+							
 							Dot d = (Dot) dots.get(checkdelete);
 							d.isMoving=true;
-							Log.d("dotsMove",String.valueOf(checkdelete)+" "+String.valueOf(d.isMoving));
+							dots.remove(dots.size()-1);
+							
+							//Log.d("dotsMove",String.valueOf(checkdelete)+" "+String.valueOf(d.isMoving));
 						}
 						headerflag = false;
 					} else
@@ -1657,9 +1689,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 						if (dots.size() > 0) {
 							Dot d1 = (Dot) dots.get(dots.size() - 1);
 							if (checkdelete < 0) {
-								if (moveflag)
-									dots.remove(dots.size() - 1);
-								if (y < mainHeadHeight && !moveflag) {
+//								if (moveflag)
+//									dots.remove(dots.size() - 1);
+								if (y < mainHeadHeight) {
 									dots.remove(dots.size() - 1);
 									toast("You can't draw there");
 								}
@@ -1668,29 +1700,37 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 									toast("Circle Limit Reached");
 									dots.remove(dots.size() - 1);
 								}
-								if (d1.touched1 == true && !moveflag) {
+								if (d1.touched1 == true) {
 									d1.createCircle2(x, y);
 
 								}
 
 							}
-							if (checkdelete >= 0) {
-								if (Math.abs(pX - x) <= 15
-										&& Math.abs(pY - y) <= 15 && !moveflag) {
-
-									checkdelete = -1;
-								} else {
-									Dot d2 = (Dot) dots.get(dots.size() - 1);
-									if (d2.touched3 == true
-											&& d2.touched2 == false) {
-										dots.remove(dots.size() - 1);
-									} else if (!d2.touched1) {
-										dots.remove(dots.size() - 1);
-										dots.remove(checkdelete);
-									}
+							if(checkdelete>=0){
+								if (x<10 || x>width-10 || y>height-10 || y < mainHeadHeight){
+									dots.remove(checkdelete);
+									toast("Circle gone!");
 								}
-
+								
+								
 							}
+//							if (checkdelete >= 0) {
+//								if (Math.abs(pX - x) <= 15
+//										&& Math.abs(pY - y) <= 15 && !moveflag) {
+//
+//									checkdelete = -1;
+//								} else {
+//									Dot d2 = (Dot) dots.get(dots.size() - 1);
+//									if (d2.touched3 == true
+//											&& d2.touched2 == false) {
+//										dots.remove(dots.size() - 1);
+//									} else if (!d2.touched1) {
+//										dots.remove(dots.size() - 1);
+//										dots.remove(checkdelete);
+//									}
+//								}
+//
+//							}
 
 						}
 
@@ -1703,8 +1743,18 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 					break;
 				case MotionEvent.ACTION_MOVE:
+					
 					if (!headerflag) {
-						if (dots.size() > 0) {
+						if(checkdelete>=0){
+							Dot dnew = (Dot) dots.get(checkdelete);
+							if(dnew.isMoving){
+								//dnew.createCircle1(x, y);
+								dnew.updateCircles(x, y);
+								
+							}
+						}
+													
+						else if (dots.size() > 0) {
 							Dot d11 = (Dot) dots.get(dots.size() - 1);
 							if (d11.touched1)
 								d11.createLine(x, y);
