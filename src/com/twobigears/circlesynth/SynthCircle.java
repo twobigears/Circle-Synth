@@ -1828,7 +1828,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		public void isReleased() {
 			dots.clear();
 			stored.clear();
-			PdBase.sendFloat("pd_playToggle", 0);
 			toast("Sketch Cleared");
 		}
 	}
