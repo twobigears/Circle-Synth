@@ -158,7 +158,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	// Processing vars and obj
 
-	PFont f;
+	PFont robotoFont;
 	PGraphics header, sketchBG, scanSquare;
 	
 	/*
@@ -181,12 +181,15 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			shareOnImg, settingsOnImg, settingsOffImg, innerCircleImg,
 			outerCircleImg, lineCircleImg;
 	
+	PlayToggle playToggleB;
+	ReverseToggle reverseToggleB;
+	FxToggle fxToggleB; 
+	BpmButton bpmButtonB;
+	ClearButton clearButtonB;
+	
 	float outerCircSize, innerCircSize, animCircSize;
 	
-	int headerButtonSize, buttonSize2, button2Pad, buttonWeight, buttonPad,
-			buttonSpace, button2Space;
-	
-	int mainHeadHeight, shadowHeight, scanSquareY, headerHeight;
+	int mainHeadHeight, shadowHeight, scanSquareY, headerHeight, buttonPad;
 	
 	float textAscent;
 
@@ -462,20 +465,29 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		innerCircleImg = loadImage("inner_circle"+resSuffix+".png");
 		outerCircleImg = loadImage("outer_circle"+resSuffix+".png");
 		lineCircleImg = loadImage("line_circle"+resSuffix+".png");
+		
+		robotoFont = createFont("Roboto-Thin-12", 22 * density, true);
+		
+		// buttons
+		playToggleB = new PlayToggle(this);
+		playToggleB.load(playImg, stopImg);
+		reverseToggleB = new ReverseToggle(this);
+		reverseToggleB.load(revImg, forImg);
+		fxToggleB = new FxToggle(this);
+		fxToggleB.load(robotoFont);
+		fxToggleB.setSize(revImg.width, revImg.height);
+		bpmButtonB = new BpmButton(this);
+		bpmButtonB.load(robotoFont);
+		bpmButtonB.setSize(revImg.width, revImg.height);
+		clearButtonB = new ClearButton(this);
+		clearButtonB.load(clearOffImg, clearOnImg);
+		
 
 		mainHeadHeight = (int) (40 * density); 
 		shadowHeight = (int) (density);
 		scanSquareY = (int) (3 * density);
 		headerHeight = mainHeadHeight + scanSquareY + shadowHeight;	 
-		
-		f = createFont("Roboto-Thin-12", 22 * density, true);
-		
-		headerButtonSize = (int) (40 * density);
-		buttonWeight = (int) (2 * density);		
-		buttonSpace = (int) (headerButtonSize * 0.35f);
-		buttonSize2 = (int) (27 * density);
-		button2Pad = (int) (7 * density);
-		button2Space = (int) (buttonSize2 * 0.15f);
+		buttonPad = (int) (10 * density);
 
 		outerCircSize = 40 * density; // outer circle size configured to dpi
 		innerCircSize = 15 * density; // inner circle size configured to dpi
@@ -719,15 +731,15 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		cp5.addToggle("fxCirc1Toggle").hide()
 				// create fx1 toggle
-				.setPosition(button2Pad + button2Space, button2Pad)
+				.setPosition(buttonPad + button2Space, buttonPad)
 				.setSize(buttonSize2, buttonSize2).setView(new FxCircle1());
 
 		cp5.addToggle("fxCirc2Toggle")
 				.hide()
 				// create fx2 toggle
 				.setPosition(
-						buttonSize2 + (button2Space * 2) + (button2Pad * 2),
-						button2Pad).setSize(buttonSize2, buttonSize2)
+						buttonSize2 + (button2Space * 2) + (buttonPad * 2),
+						buttonPad).setSize(buttonSize2, buttonSize2)
 				.setView(new FxCircle2());
 
 		cp5.addToggle("fxCirc3Toggle")
@@ -735,7 +747,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				// create fx3 toggle
 				.setPosition(
 						(buttonSize2 * 2) + (button2Space * 3)
-								+ (button2Pad * 3), button2Pad)
+								+ (buttonPad * 3), buttonPad)
 				.setSize(buttonSize2, buttonSize2).setView(new FxCircle3());
 
 		cp5.addToggle("fxCirc4Toggle")
@@ -743,7 +755,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				// create fx4 toggle
 				.setPosition(
 						(buttonSize2 * 3) + (button2Space * 4)
-								+ (button2Pad * 4), button2Pad)
+								+ (buttonPad * 4), buttonPad)
 				.setSize(buttonSize2, buttonSize2).setView(new FxCircle4());
 
 		cp5.addToggle("fxCirc0Toggle")
@@ -751,14 +763,14 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				// create fx clear toggle
 				.setPosition(
 						(buttonSize2 * 4) + (button2Space * 5)
-								+ (button2Pad * 5), button2Pad)
+								+ (buttonPad * 5), buttonPad)
 				.setSize(buttonSize2, buttonSize2).setView(new FxCircle0());
 
 		cp5.addButton("fxClearButton")
 				// create clear button
 				.setPosition(
 						(buttonSize2 * 5) + (button2Space * 6)
-								+ (button2Pad * 6), button2Pad)
+								+ (buttonPad * 6), buttonPad)
 				.setSize(buttonSize2, buttonSize2).setView(new FxClearButton());
 
 		cp5.addButton("settingsButton")
@@ -787,10 +799,14 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		drawThis();
 		
 		image(header, 0, 0);
-		// scanline
 		image(scanSquare, scanline * width, mainHeadHeight);
 		
-		
+		//buttons
+		playToggleB.drawIt(buttonPad, 0);
+		reverseToggleB.drawIt(playToggleB.getWidth()+buttonPad, 0);
+		bpmButtonB.drawIt(String.valueOf(bpm), (playToggleB.getWidth()+buttonPad)*2, 0);
+		clearButtonB.drawIt((playToggleB.getWidth()+buttonPad)*3, 0);
+		fxToggleB.drawIt("FX", (playToggleB.getWidth()+buttonPad)*4, 0);
 
 	}
 
@@ -1387,12 +1403,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 	}
 
-//	void headerRect() {
-//		image(headShad, 0, (int) (density)); // draw shadow, offset by 1 pixel
-//		image(headRect, 0, 0); // draw main header rectangle
-//		image(scanBG, 0, mainHeadHeight);
-//	}
-
 	void band(float bX, float bY, float eX, float eY) {
 
 		stroke(opaInActCol);
@@ -1593,31 +1603,10 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 
 	}
-	
-	public class CircleLine {
-		
-		PGraphics linePg;
-		
-		CircleLine() {
-			linePg = createGraphics(20, 20);
-		
-		}
-		
-		void drawIt() {
-			
-			
-			
-		}
-		
-		void computeLine() {
-			
-		}
-		
-	}
 
-	@SuppressWarnings("deprecation")
+	
 	@Override
-	public boolean surfaceTouchEvent(MotionEvent event) {
+	public boolean dispatchTouchEvent(MotionEvent event) {
 
 		width = displayWidth;
 		height = displayHeight;
@@ -1628,96 +1617,108 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		if (dots != null) {
 			checkdelete = delCheck(x, y);
 
-			if (!fxToggle) {
-				switch (action) {
-				case MotionEvent.ACTION_DOWN:
+			
+			switch (action) {
+			case MotionEvent.ACTION_DOWN:
 
-					if (y > mainHeadHeight) {
-						dots.add(new Dot());
+				// button interfaces here
+				bpmButtonB.touchDown(x, y);
+				clearButtonB.touchDown(x, y);
+
+				if (y > mainHeadHeight) {
+					dots.add(new Dot());
+					if (checkdelete < 0) {
+						Dot d = (Dot) dots.get(dots.size() - 1);
+						if (y > mainHeadHeight && dots.size() <= maxCircle) {
+							d.createCircle1(x, y);
+							pX = x;
+							pY = y;
+							moveflag = false;
+						}
+
+					}
+					if (checkdelete >= 0) {
+						moveflag = true;
+						Dot d = (Dot) dots.get(checkdelete);
+						d.isMoving = true;
+						Log.d("dotsMove", String.valueOf(checkdelete) + " "
+								+ String.valueOf(d.isMoving));
+					}
+					headerflag = false;
+				} else
+					headerflag = true;
+
+				break;
+				
+			case MotionEvent.ACTION_UP:
+
+				// button interfaces here
+				playToggleB.touchUp(x, y);
+				reverseToggleB.touchUp(x, y);
+				fxToggleB.touchUp(x, y);
+				bpmButtonB.touchUp(x, y);
+				clearButtonB.touchUp(x, y);
+
+				if (!headerflag) {
+					if (dots.size() > 0) {
+						Dot d1 = (Dot) dots.get(dots.size() - 1);
 						if (checkdelete < 0) {
-							Dot d = (Dot) dots.get(dots.size() - 1);
-							if (y > mainHeadHeight && dots.size() <= maxCircle) {
-								d.createCircle1(x, y);
-								pX = x;
-								pY = y;
-								moveflag = false;
+							if (moveflag)
+								dots.remove(dots.size() - 1);
+							if (y < mainHeadHeight && !moveflag) {
+								dots.remove(dots.size() - 1);
+								toast("You can't draw there");
+							}
+
+							if (dots.size() > maxCircle) {
+								toast("Circle Limit Reached");
+								dots.remove(dots.size() - 1);
+							}
+							if (d1.touched1 == true && !moveflag) {
+								d1.createCircle2(x, y);
+
 							}
 
 						}
 						if (checkdelete >= 0) {
-							moveflag = true;
-							Dot d = (Dot) dots.get(checkdelete);
-							d.isMoving=true;
-							Log.d("dotsMove",String.valueOf(checkdelete)+" "+String.valueOf(d.isMoving));
-						}
-						headerflag = false;
-					} else
-						headerflag = true;
+							if (Math.abs(pX - x) <= 15
+									&& Math.abs(pY - y) <= 15 && !moveflag) {
 
-					break;
-				case MotionEvent.ACTION_UP:
-
-					if (!headerflag) {
-						if (dots.size() > 0) {
-							Dot d1 = (Dot) dots.get(dots.size() - 1);
-							if (checkdelete < 0) {
-								if (moveflag)
+								checkdelete = -1;
+							} else {
+								Dot d2 = (Dot) dots.get(dots.size() - 1);
+								if (d2.touched3 == true && d2.touched2 == false) {
 									dots.remove(dots.size() - 1);
-								if (y < mainHeadHeight && !moveflag) {
+								} else if (!d2.touched1) {
 									dots.remove(dots.size() - 1);
-									toast("You can't draw there");
+									dots.remove(checkdelete);
 								}
-
-								if (dots.size() > maxCircle) {
-									toast("Circle Limit Reached");
-									dots.remove(dots.size() - 1);
-								}
-								if (d1.touched1 == true && !moveflag) {
-									d1.createCircle2(x, y);
-
-								}
-
-							}
-							if (checkdelete >= 0) {
-								if (Math.abs(pX - x) <= 15
-										&& Math.abs(pY - y) <= 15 && !moveflag) {
-
-									checkdelete = -1;
-								} else {
-									Dot d2 = (Dot) dots.get(dots.size() - 1);
-									if (d2.touched3 == true
-											&& d2.touched2 == false) {
-										dots.remove(dots.size() - 1);
-									} else if (!d2.touched1) {
-										dots.remove(dots.size() - 1);
-										dots.remove(checkdelete);
-									}
-								}
-
 							}
 
 						}
 
 					}
-					break;
-				case MotionEvent.ACTION_POINTER_DOWN:
 
-					break;
-				case MotionEvent.ACTION_POINTER_UP:
-
-					break;
-				case MotionEvent.ACTION_MOVE:
-					if (!headerflag) {
-						if (dots.size() > 0) {
-							Dot d11 = (Dot) dots.get(dots.size() - 1);
-							if (d11.touched1)
-								d11.createLine(x, y);
-						}
-					}
-					break;
 				}
+				break;
+			case MotionEvent.ACTION_POINTER_DOWN:
 
-			} else {
+				break;
+			case MotionEvent.ACTION_POINTER_UP:
+
+				break;
+			case MotionEvent.ACTION_MOVE:
+				if (!headerflag) {
+					if (dots.size() > 0) {
+						Dot d11 = (Dot) dots.get(dots.size() - 1);
+						if (d11.touched1)
+							d11.createLine(x, y);
+					}
+				}
+				break;
+			}
+
+				/*
 
 				switch (action) {
 				case MotionEvent.ACTION_DOWN:
@@ -1733,14 +1734,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					}
 
 					fxCirc1Toggle = fxCirc2Toggle = fxCirc3Toggle = fxCirc4Toggle = false;
-					
-					/*
-					((Toggle) cp5.controller("fxCirc1Toggle")).setState(false);
-					((Toggle) cp5.controller("fxCirc2Toggle")).setState(false);
-					((Toggle) cp5.controller("fxCirc3Toggle")).setState(false);
-					((Toggle) cp5.controller("fxCirc4Toggle")).setState(false);
-					((Toggle) cp5.controller("fxCirc0Toggle")).setState(false);
-					*/
+
 
 					break;
 				case MotionEvent.ACTION_MOVE:
@@ -1769,8 +1763,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					break;
 				}
 			}
+	*/
 		}
-
+		
 		return super.surfaceTouchEvent(event);
 	}
 
@@ -1940,6 +1935,90 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			startActivity(Intent.createChooser(sharingIntent, "Share via"));
 		} else
 			toast("Please save the sketch before sharing");
+	}
+	
+	// Button interfaces here
+	class PlayToggle extends ImageToggle {
+
+		PlayToggle(PApplet p) {
+			super(p);
+		}
+
+		@Override
+		public void isTrue() {
+			PdBase.sendFloat("pd_playToggle", 1);
+			sendPdValue();
+		}	
+		
+		@Override
+		public void isFalse() {
+			PdBase.sendFloat("pd_playToggle", 0);
+			scanline = 0;
+		}
+	}
+	
+	class ReverseToggle extends ImageToggle {
+		
+		ReverseToggle(PApplet p) {
+			super(p);
+		}
+
+		@Override
+		public void isTrue() {
+			PdBase.sendFloat("pd_revToggle", 1);
+		}	
+		
+		@Override
+		public void isFalse() {
+			PdBase.sendFloat("pd_revToggle", 0);
+		}
+		
+	}
+	
+	class FxToggle extends TextToggle {
+		
+		public FxToggle(PApplet p) {
+			super(p);
+		}
+
+		@Override
+		public void isFalse() {
+		}
+		
+	}
+	
+	class BpmButton extends TextButton {
+		
+		public BpmButton(PApplet p) {
+			super(p);
+		}
+
+		@Override
+		public void isReleased() {
+			toast("Set BPM/Speed");
+			SynthCircle.this.runOnUiThread(new Runnable() {
+				public void run() {
+					new BpmPicker(SynthCircle.this, SynthCircle.this, bpm)
+							.show();
+				}
+			});
+			
+		}
+	}
+	
+	class ClearButton extends ImageButton {
+
+		ClearButton(PApplet p) {
+			super(p);
+		}
+
+		@Override
+		public void isReleased() {
+			dots.clear();
+			stored.clear();
+			PdBase.sendFloat("pd_playToggle", 0);
+			toast("Sketch Cleared");
+		}
 	}
 
 }
