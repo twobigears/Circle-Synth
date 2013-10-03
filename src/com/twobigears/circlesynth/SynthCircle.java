@@ -42,6 +42,7 @@ import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PGraphics;
 import processing.core.PImage;
+import android.animation.ValueAnimator;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -186,6 +187,10 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	FxToggle fxToggleB; 
 	BpmButton bpmButtonB;
 	ClearButton clearButtonB;
+	LoadButton loadButtonB;
+	SaveButton saveButtonB;
+	ShareButton shareButtonB;
+	SettingsButton settingsButtonB;
 	
 	float outerCircSize, innerCircSize, animCircSize;
 	
@@ -481,16 +486,24 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		bpmButtonB.setSize(revImg.width, revImg.height);
 		clearButtonB = new ClearButton(this);
 		clearButtonB.load(clearOffImg, clearOnImg);
+		loadButtonB = new LoadButton(this);
+		loadButtonB.load(loadOffImg, loadOnImg);
+		saveButtonB = new SaveButton(this);
+		saveButtonB.load(saveOffImg, saveOnImg);
+		shareButtonB = new ShareButton(this);
+		shareButtonB.load(shareOffImg, shareOnImg);
+		settingsButtonB = new SettingsButton(this);
+		settingsButtonB.load(settingsOffImg, settingsOnImg);
 		
-
+		// header
 		mainHeadHeight = (int) (40 * density); 
 		shadowHeight = (int) (density);
 		scanSquareY = (int) (3 * density);
 		headerHeight = mainHeadHeight + scanSquareY + shadowHeight;	 
 		buttonPad = (int) (10 * density);
 
-		outerCircSize = 40 * density; // outer circle size configured to dpi
-		innerCircSize = 15 * density; // inner circle size configured to dpi
+		outerCircSize = 40 * density;
+		innerCircSize = 15 * density;
 		animCircSize = 18 * density;
 		
 		header = createGraphics(width, headerHeight);
@@ -807,62 +820,17 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		bpmButtonB.drawIt(String.valueOf(bpm), (playToggleB.getWidth()+buttonPad)*2, 0);
 		clearButtonB.drawIt((playToggleB.getWidth()+buttonPad)*3, 0);
 		fxToggleB.drawIt("FX", (playToggleB.getWidth()+buttonPad)*4, 0);
-
+		settingsButtonB.drawIt(width-(playToggleB.getWidth()+buttonPad), 0);
+		shareButtonB.drawIt(width-((playToggleB.getWidth()+buttonPad)*2), 0);
+		saveButtonB.drawIt(width-((playToggleB.getWidth()+buttonPad)*3), 0);
+		loadButtonB.drawIt(width-((playToggleB.getWidth()+buttonPad)*4), 0);
 	}
 
 	/* 
 	 * TODO Move below to button listeners
 	 * 
-	if (clearButton) {
 
-		dots.clear();
-		stored.clear();
-		PdBase.sendFloat("pd_playToggle", 0);
-		toast("Sketch Cleared");
-
-	}
-	if (loadButton) {
-
-		File mPath = new File(Environment.getExternalStorageDirectory()
-				+ "/circlesynth");
-		fileDialog = new FileDialog(this, mPath);
-		fileDialog.setFileEndsWith(".txt");
-		fileDialog.addFileListener(new FileDialog.FileSelectedListener() {
-			public void fileSelected(File file) {
-				fName = file.getName();
-				try {
-
-					dots.clear();
-					stored.clear();
-
-					FileInputStream input = new FileInputStream(file);
-					DataInputStream din = new DataInputStream(input);
-
-					for (int i = 0; i < maxCircle; i++) { // Read lines
-						String line = din.readUTF();
-						stored.add(line);
-						dots.add(new Dot());
-						splitString(stored.get(i));
-
-					}
-					din.close();
-				} catch (IOException exc) {
-					exc.printStackTrace();
-				}
-				dotcleanup();
-
-			}
-
-		});
-
-		SynthCircle.this.runOnUiThread(new Runnable() {
-			public void run() {
-
-				fileDialog.showDialog();
-			}
-		});
-		loadButton = false;
-	}
+	
 
 	if (fxClearButton) {
 
@@ -890,87 +858,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	clearButton = false;
 
-	if (bpmPopup) {
-		toast("Set BPM/Speed");
-		SynthCircle.this.runOnUiThread(new Runnable() {
-			public void run() {
-				new BpmPicker(SynthCircle.this, SynthCircle.this, bpm)
-						.show();
-			}
-		});
-
-		bpmPopup = false;
-	}
-
-	if (settingsButton) {
-		tracker.trackEvent("Buttons Category", "Settings", "", 0L);
-		Intent intent = new Intent(this, SynthSettingsTwo.class);
-		startActivity(intent);
-		prefs.registerOnSharedPreferenceChangeListener(this);
-		settingsButton = false;
-
-	}
-	if (saveButton) {
-		saveButton = false;
-		stored.clear();
-		int t1 = 0;
-		int t2 = 0;
-		int t3 = 0;
-		String SAVE = null;
-		for (int i = 0; i < maxCircle; i++) {
-			if (i < dots.size()) {
-				Dot d = (Dot) dots.get(i);
-				if (d.touched1)
-					t1 = 1;
-				if (d.touched2)
-					t2 = 1;
-				if (d.touched3)
-					t3 = 1;
-				SAVE = String.valueOf(i) + " "
-						+ String.valueOf(d.xDown / width) + " "
-						+ String.valueOf(d.yDown / height) + " "
-						+ String.valueOf(d.xUp / width) + " "
-						+ String.valueOf(d.yUp / height) + " "
-						+ String.valueOf(d.doteffect) + " "
-						+ String.valueOf(d.dotcol) + " "
-						+ String.valueOf(t1) + " " + String.valueOf(t2)
-						+ " " + String.valueOf(t3);
-			} else {
-				SAVE = String.valueOf(i) + " 5 5 5 5 0 0 0 0 0";
-			}
-			stored.add(i, SAVE);
-
-		}
-
-		String root = Environment.getExternalStorageDirectory().toString();
-		File myDir = new File(root + "/circlesynth");
-		myDir.mkdirs();
-		SimpleDateFormat formatter = new SimpleDateFormat("MMddHHmm");
-		Date now = new Date();
-		String fileName = formatter.format(now);
-		String fname = "sketch_" + fileName + ".txt";
-		fName = fname;
-		File file = new File(myDir, fname);
-		try {
-			FileOutputStream output = new FileOutputStream(file);
-			DataOutputStream dout = new DataOutputStream(output);
-
-			// Save line count
-			for (String line : stored)
-				// Save lines
-				dout.writeUTF(line);
-			dout.flush(); // Flush stream ...
-			dout.close(); // ... and close.
-
-		} catch (IOException exc) {
-			exc.printStackTrace();
-		}
-
-	}
-	if (revValue)
-		PdBase.sendFloat("pd_revToggle", 1);
-	else
-		PdBase.sendFloat("pd_revToggle", 0);
 
 	if (fxCirc1Toggle == true) {
 		fxCirc(col2);
@@ -1047,21 +934,30 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		for (int i = 0; i < dots.size(); i++) {
 
 			Dot d = (Dot) dots.get(i);
+			
+			// turning lights off
 			if (!d.selected1)
 				d.size5 = 0;
 			if (!playValue)
 				d.selected1 = d.selected2 = false;
-
+			
+			// for line
 			if (d.touched3)
 				band(d.xDown, d.yDown, d.xLine, d.yLine);
-
+			
+			// single dot
 			if (d.touched1)
-				d.create1(d.xDown, d.yDown);
-
+				d.circleOne();
+//				d.create1(d.xDown, d.yDown);
+			
+			// second circle
 			if (d.touched2)
-				d.create2(d.xUp, d.yUp);
+				d.circleTwo();
+//				d.create2(d.xUp, d.yUp);
+			// both lights and line
 			if (d.selected1 && d.selected2)
 				d.create4(d.xDown, d.yDown, d.xUp, d.yUp);
+			// single lights
 			if (d.selected1 && !d.selected2)
 				d.create3(d.xDown, d.yDown);
 
@@ -1158,65 +1054,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	}
 /*
-	class PlayToggle implements ControllerView<Toggle> {
-		public void display(PApplet theApplet, Toggle theButton) {
-			theApplet.pushMatrix();
-			if (playValue == true) {
-				theApplet.image(stopImg, 0, 0);
 
-			} else {
-				theApplet.image(playImg, 0, 0);
-			}
-			theApplet.popMatrix();
-		}
-	}
-
-	class RevToggle implements ControllerView<Toggle> {
-		public void display(PApplet theApplet, Toggle theButton) {
-			theApplet.pushMatrix();
-			if (revValue == true) {
-				theApplet.image(forImg, 0, 0);
-			} else {
-				theApplet.image(revImg, 0, 0);
-			}
-			theApplet.popMatrix();
-		}
-	}
-
-	class BpmButton implements ControllerView<Button> {
-		public void display(PApplet theApplet, Button theButton) {
-			float a;
-			theApplet.pushMatrix();
-			if (theButton.isPressed()) {
-				theApplet.textFont(f);
-				theApplet.textAlign(CENTER);
-				theApplet.fill(buttonActCol);
-				a = textAscent() * textAscent * density;
-				theApplet.text((int) (bpm), (headerButtonSize) * 0.5f,
-						(headerButtonSize * 0.5f) + a);
-			} else {
-				theApplet.textFont(f);
-				theApplet.textAlign(CENTER);
-				theApplet.fill(buttonInActCol);
-				a = textAscent() * textAscent * density;
-				theApplet.text((int) (bpm), (headerButtonSize) * 0.5f,
-						(headerButtonSize * 0.5f) + a);
-			}
-			theApplet.popMatrix();
-		}
-	}
-
-	class ClearButton implements ControllerView<Button> {
-		public void display(PApplet theApplet, Button theButton) {
-			theApplet.pushMatrix();
-			if (theButton.isPressed()) {
-				theApplet.image(clearOnImg, 0, 0);
-			} else {
-				theApplet.image(clearOffImg, 0, 0);
-			}
-			theApplet.popMatrix();
-		}
-	}
 
 	class FxCircle1 implements ControllerView<Toggle> {
 		public void display(PApplet theApplet, Toggle theButton) {
@@ -1278,114 +1116,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 	}
 
-	class FxToggle implements ControllerView<Toggle> {
-		public void display(PApplet theApplet, Toggle theButton) {
-			float a;
-			theApplet.pushMatrix();
-			if (fxToggle == true) {
-				theApplet.textFont(f);
-				theApplet.textAlign(CENTER);
-				theApplet.fill(buttonActCol);
-				a = textAscent() * textAscent * density;
-				theApplet.text("FX", (headerButtonSize) * 0.5f, (headerButtonSize * 0.5f)
-						+ a);
-				cp5.getController("playValue").setVisible(false);
-				cp5.getController("revValue").setVisible(false);
-				cp5.getController("bpmPopup").setVisible(false);
-				cp5.getController("clearButton").setVisible(false);
-				cp5.getController("fxCirc1Toggle").setVisible(true);
-				cp5.getController("fxCirc2Toggle").setVisible(true);
-				cp5.getController("fxCirc3Toggle").setVisible(true);
-				cp5.getController("fxCirc4Toggle").setVisible(true);
-				cp5.getController("fxCirc0Toggle").setVisible(true);
-				cp5.getController("fxClearButton").setVisible(true);
-			} else {
-				theApplet.textFont(f);
-				theApplet.textAlign(CENTER);
-				theApplet.fill(buttonInActCol);
-				a = textAscent() * textAscent * density;
-				theApplet.text("FX", (headerButtonSize) * 0.5f, (headerButtonSize * 0.5f)
-						+ a);
-				cp5.getController("playValue").setVisible(true);
-				cp5.getController("revValue").setVisible(true);
-				cp5.getController("bpmPopup").setVisible(true);
-				cp5.getController("clearButton").setVisible(true);
-				cp5.getController("fxCirc1Toggle").setVisible(false);
-				cp5.getController("fxCirc2Toggle").setVisible(false);
-				cp5.getController("fxCirc3Toggle").setVisible(false);
-				cp5.getController("fxCirc4Toggle").setVisible(false);
-				cp5.getController("fxCirc0Toggle").setVisible(false);
-				cp5.getController("fxClearButton").setVisible(false);
-			}
-			theApplet.popMatrix();
-		}
-	}
+	
 
-	class SettingsButton implements ControllerView<Button> {
-		public void display(PApplet theApplet, Button theButton) {
-			theApplet.pushMatrix();
-			if (theButton.isPressed()) {
-				theApplet.image(settingsOnImg, 0, 0);
-			} else {
-				theApplet.image(settingsOffImg, 0, 0);
-			}
-			theApplet.popMatrix();
-		}
-	}
-
-	class FxClearButton implements ControllerView<Button> {
-		public void display(PApplet theApplet, Button theButton) {
-			theApplet.pushMatrix();
-			if (theButton.isPressed()) {
-				theApplet.image(fxClearButtonOn, 0, 0);
-			} else {
-				theApplet.image(fxClearButtonOff, 0, 0);
-			}
-			theApplet.popMatrix();
-		}
-	}
-
-	class SaveButton implements ControllerView<Button> {
-		public void display(PApplet theApplet, Button theButton) {
-			theApplet.pushMatrix();
-			if (theButton.isPressed()) {
-				theApplet.image(saveOnImg, 0, 0);
-				toast("Sketch Saved in /circlesynth");
-
-			} else {
-				theApplet.image(saveOffImg, 0, 0);
-			}
-			theApplet.popMatrix();
-		}
-	}
-
-	class LoadButton implements ControllerView<Button> {
-		public void display(PApplet theApplet, Button theButton) {
-			theApplet.pushMatrix();
-			if (theButton.isPressed()) {
-				theApplet.image(loadOnImg, 0, 0);
-				toast("Load Sketch");
-
-			} else {
-				theApplet.image(loadOffImg, 0, 0);
-			}
-			theApplet.popMatrix();
-		}
-
-	}
-
-	class ShareButton implements ControllerView<Button> {
-		public void display(PApplet theApplet, Button theButton) {
-			theApplet.pushMatrix();
-			if (theButton.isPressed()) {
-				theApplet.image(shareOnImg, 0, 0);
-				shareIt();
-				shareButton = false;
-			} else {
-				theApplet.image(shareOffImg, 0, 0);
-			}
-			theApplet.popMatrix();
-		}
 	}
 */
 	void fxCirc(int col) {
@@ -1440,7 +1172,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		double squareY1 = Math.pow(ydist, 2);
 		float distance = (float) Math.sqrt(squareX1 + squareY1);
 		return distance;
-
 	}
 
 	// The Dot class
@@ -1455,8 +1186,10 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		float size4 = 0;
 		float size5 = 0;
 		float opa = 0;
-		int doteffect;
+		int doteffect, innerCircleWidth, outerCircleWidth;
 		int dotcol = color(255, 68, 68);
+		
+		ValueAnimator circleGrow;
 
 		Dot() {
 			touched1 = touched2 = touched3 = selected1 = selected2 = isMoving = isDeleted = false;
@@ -1467,7 +1200,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			size5 = 0;
 			opa = 100;
 			effect = 0;
-
+			circleGrow = ValueAnimator.ofFloat(0f, 1f);
+			
 		}
 
 		public void fxClear() {
@@ -1597,6 +1331,30 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			ellipse(xUp2, yUp2, size5, size5);
 
 		}
+		
+		public void circleOne() {
+			pushMatrix();
+			pushStyle();
+			translate(xDown, yDown);
+			imageMode(CENTER);
+			image(outerCircleImg, 0, 0);
+		    tint(dotcol);
+		    image(innerCircleImg, 0, 0);			
+			popStyle();
+			popMatrix();
+		}
+		
+		public void circleTwo() {
+			pushMatrix();
+			pushStyle();
+			translate(xUp, yUp);
+			imageMode(CENTER);
+			image(outerCircleImg, 0, 0);
+		    tint(dotcol);
+		    image(innerCircleImg, 0, 0);			
+			popStyle();
+			popMatrix();
+		}
 
 		public void fx(int f, int col) {
 			this.doteffect = f;
@@ -1652,6 +1410,10 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					// button interfaces here
 					bpmButtonB.touchDown(x, y);
 					clearButtonB.touchDown(x, y);
+					shareButtonB.touchDown(x, y);
+					settingsButtonB.touchDown(x, y);
+					loadButtonB.touchDown(x, y);
+					saveButtonB.touchDown(x, y);
 
 					if (y > mainHeadHeight) {
 						dots.add(new Dot());
@@ -1688,6 +1450,10 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					fxToggleB.touchUp(x, y);
 					bpmButtonB.touchUp(x, y);
 					clearButtonB.touchUp(x, y);
+					shareButtonB.touchUp(x, y);
+					settingsButtonB.touchUp(x, y);
+					loadButtonB.touchUp(x, y);
+					saveButtonB.touchUp(x, y);
 
 					if (!headerflag) {
 						if (dots.size() > 0) {
@@ -1825,9 +1591,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	@Override
 	protected void onResume() {
-
 		super.onResume();
-
 	}
 
 	@Override
@@ -2064,8 +1828,151 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		public void isReleased() {
 			dots.clear();
 			stored.clear();
-			PdBase.sendFloat("pd_playToggle", 0);
 			toast("Sketch Cleared");
+		}
+	}
+	
+	class LoadButton extends ImageButton {
+		
+		LoadButton(PApplet p) {
+			super(p);
+		}
+		
+		@Override
+		public void isReleased() {
+			File mPath = new File(Environment.getExternalStorageDirectory()
+					+ "/circlesynth");
+			fileDialog = new FileDialog(SynthCircle.this, mPath);
+			fileDialog.setFileEndsWith(".txt");
+			fileDialog.addFileListener(new FileDialog.FileSelectedListener() {
+				public void fileSelected(File file) {
+					fName = file.getName();
+					try {
+
+						dots.clear();
+						stored.clear();
+
+						FileInputStream input = new FileInputStream(file);
+						DataInputStream din = new DataInputStream(input);
+
+						for (int i = 0; i < maxCircle; i++) { // Read lines
+							String line = din.readUTF();
+							stored.add(line);
+							dots.add(new Dot());
+							splitString(stored.get(i));
+
+						}
+						din.close();
+					} catch (IOException exc) {
+						exc.printStackTrace();
+					}
+					dotcleanup();
+
+				}
+
+			});
+
+			SynthCircle.this.runOnUiThread(new Runnable() {
+				public void run() {
+
+					fileDialog.showDialog();
+				}
+			});
+		}
+	}
+	
+	class SaveButton extends ImageButton {
+		
+		SaveButton(PApplet p) {
+			super(p);
+		}
+		
+		@Override
+		public void isReleased() {
+			toast("Sketch Saved in /circlesynth");
+			stored.clear();
+			int t1 = 0;
+			int t2 = 0;
+			int t3 = 0;
+			String SAVE = null;
+			for (int i = 0; i < maxCircle; i++) {
+				if (i < dots.size()) {
+					Dot d = (Dot) dots.get(i);
+					if (d.touched1)
+						t1 = 1;
+					if (d.touched2)
+						t2 = 1;
+					if (d.touched3)
+						t3 = 1;
+					SAVE = String.valueOf(i) + " "
+							+ String.valueOf(d.xDown / width) + " "
+							+ String.valueOf(d.yDown / height) + " "
+							+ String.valueOf(d.xUp / width) + " "
+							+ String.valueOf(d.yUp / height) + " "
+							+ String.valueOf(d.doteffect) + " "
+							+ String.valueOf(d.dotcol) + " "
+							+ String.valueOf(t1) + " " + String.valueOf(t2)
+							+ " " + String.valueOf(t3);
+				} else {
+					SAVE = String.valueOf(i) + " 5 5 5 5 0 0 0 0 0";
+				}
+				stored.add(i, SAVE);
+
+			}
+
+			String root = Environment.getExternalStorageDirectory().toString();
+			File myDir = new File(root + "/circlesynth");
+			myDir.mkdirs();
+			SimpleDateFormat formatter = new SimpleDateFormat("MMddHHmm");
+			Date now = new Date();
+			String fileName = formatter.format(now);
+			String fname = "sketch_" + fileName + ".txt";
+			fName = fname;
+			File file = new File(myDir, fname);
+			try {
+				FileOutputStream output = new FileOutputStream(file);
+				DataOutputStream dout = new DataOutputStream(output);
+
+				// Save line count
+				for (String line : stored)
+					// Save lines
+					dout.writeUTF(line);
+				dout.flush(); // Flush stream ...
+				dout.close(); // ... and close.
+
+			} catch (IOException exc) {
+				exc.printStackTrace();
+			}
+			
+		}
+	}
+
+	class ShareButton extends ImageButton {
+
+		ShareButton(PApplet p) {
+			super(p);
+		}
+
+		@Override
+		public void isReleased() {
+			shareIt();
+		}
+	}
+	
+	class SettingsButton extends ImageButton {
+
+		SettingsButton(PApplet p) {
+			super(p);
+		}
+
+		@Override
+		public void isReleased() {
+			tracker.trackEvent("Buttons Category", "Settings", "", 0L);
+			Intent intent = new Intent(SynthCircle.this, SynthSettingsTwo.class);
+			startActivity(intent);
+			prefs.registerOnSharedPreferenceChangeListener(SynthCircle.this);
+			settingsButton = false;
+
 		}
 	}
 
