@@ -275,6 +275,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			public void receiveFloat(String source, final float x) {
 				scanline = x;
 				detect();
+				sendPdValue();
 			}
 		});
 
@@ -1179,7 +1180,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	public class Dot {
 
 		float xDown, xUp, yDown, yUp, xLine, yLine, posX, posY;
-		boolean touched1, touched2, touched3, selected1, selected2,isMoving,isDeleted;
+		boolean touched1, touched2, touched3, selected1, selected2,isMoving,isDeleted,hasLine;
 		float size1 = 0;
 		float size2 = 0;
 		float size3 = 0;
@@ -1192,7 +1193,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		ValueAnimator circleGrow;
 
 		Dot() {
-			touched1 = touched2 = touched3 = selected1 = selected2 = isMoving = isDeleted = false;
+			touched1 = touched2 = touched3 = selected1 = selected2 = isMoving = isDeleted = hasLine = false;
 			size1 = 0;
 			size2 = 0;
 			size3 = 0;
@@ -1237,13 +1238,14 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			xLine = xUp;
 			yLine = yUp;
 			touched2 = true;
+			
 
 		}
 
 		public void createLine(float mX3, float mY3) {
 			xLine = mX3;
 			yLine = mY3;
-
+			hasLine=true;
 			touched3 = true;
 
 		}
@@ -1376,8 +1378,14 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			if(Math.abs(mX-xDown)<outerCircSize){
 				xDown=mX;
 				yDown=mY;
-				xLine=xUp;
-				yLine=yUp;
+				if(hasLine){
+					xLine=xUp;
+					yLine=yUp;
+				}
+				else{
+					xUp=xDown;
+					yUp=yDown;
+				}
 				
 			}
 			else{
@@ -1472,17 +1480,22 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 								}
 								if (d1.touched1 == true) {
 									d1.createCircle2(x, y);
+									d1.isMoving = false;
 
 								}
 
 							}
 							if (checkdelete >= 0) {
-								if (x < 10 || x > width - 10 || y > height - 10
+								if (x < 20 || x > width - 20 || y > height - 20
 										|| y < mainHeadHeight) {
 									dots.remove(checkdelete);
 									toast("Circle gone!");
 								}
-
+								Dot d = (Dot) dots.get(dots.size()-1);
+								if (d.hasLine && !d.touched2)
+									dots.remove(dots.size()-1);
+								
+							
 							}
 							// if (checkdelete >= 0) {
 							// if (Math.abs(pX - x) <= 15
