@@ -42,7 +42,6 @@ import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PGraphics;
 import processing.core.PImage;
-import android.animation.ValueAnimator;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -71,10 +70,6 @@ import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.Tracker;
 import com.twobigears.circlesynth.BpmPicker.OnBpmChangedListener;
 
-//import controlP5.Button;
-//import controlP5.ControlP5;
-//import controlP5.ControllerView;
-//import controlP5.Toggle;
 
 public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		OnSharedPreferenceChangeListener, SensorEventListener {
@@ -153,30 +148,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	boolean headerflag = false;
 	public float scanline;
 
-	
-
-//	public ControlP5 cp5;
-
-	// Processing vars and obj
-
 	PFont robotoFont;
 	PGraphics header, sketchBG, scanSquare;
-	
-	/*
-	PGraphics bpmButtonOff;
-	PGraphics bpmButtonOn;
-	PGraphics fxToggleOff;
-	PGraphics fxToggleOn;
-	PGraphics fxCirc0;
-	PGraphics fxCirc1;
-	PGraphics fxCirc2;
-	PGraphics fxCirc3;
-	PGraphics fxCirc4;
-	PGraphics fxClearButtonOff;
-	PGraphics fxClearButtonOn;
-	*/
-	
-	// button images
+
 	PImage shareImg, playImg, stopImg, revImg, forImg, clearOnImg, clearOffImg,
 			loadOffImg, loadOnImg, saveOffImg, saveOnImg, shareOffImg,
 			shareOnImg, settingsOnImg, settingsOffImg, innerCircleImg,
@@ -192,7 +166,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	ShareButton shareButtonB;
 	SettingsButton settingsButtonB;
 	
-	float outerCircSize, innerCircSize, animCircSize;
+	float outerCircSize, innerCircSize;
 	
 	int mainHeadHeight, shadowHeight, scanSquareY, headerHeight, buttonPad;
 	
@@ -502,9 +476,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		headerHeight = mainHeadHeight + scanSquareY + shadowHeight;	 
 		buttonPad = (int) (10 * density);
 
-		outerCircSize = 40 * density;
-		innerCircSize = 15 * density;
-		animCircSize = 18 * density;
+		outerCircSize = outerCircleImg.width;
+		innerCircSize = innerCircleImg.width;
 		
 		header = createGraphics(width, headerHeight);
 		header.beginDraw();
@@ -824,6 +797,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		shareButtonB.drawIt(width-((playToggleB.getWidth()+buttonPad)*2), 0);
 		saveButtonB.drawIt(width-((playToggleB.getWidth()+buttonPad)*3), 0);
 		loadButtonB.drawIt(width-((playToggleB.getWidth()+buttonPad)*4), 0);
+		
 	}
 
 	/* 
@@ -943,23 +917,24 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			
 			// for line
 			if (d.touched3)
-				band(d.xDown, d.yDown, d.xLine, d.yLine);
+				d.drawLine();
 			
 			// single dot
 			if (d.touched1)
-				d.circleOne();
-//				d.create1(d.xDown, d.yDown);
+				d.drawCircleOne();
 			
 			// second circle
 			if (d.touched2)
-				d.circleTwo();
-//				d.create2(d.xUp, d.yUp);
+				d.drawCircleTwo();
+			
+			/*
 			// both lights and line
 			if (d.selected1 && d.selected2)
 				d.create4(d.xDown, d.yDown, d.xUp, d.yUp);
 			// single lights
 			if (d.selected1 && !d.selected2)
 				d.create3(d.xDown, d.yDown);
+				*/
 
 		}
 	}
@@ -1186,10 +1161,13 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		float size4 = 0;
 		float size5 = 0;
 		float opa = 0;
-		int doteffect, innerCircleWidth, outerCircleWidth;
+		int doteffect;
 		int dotcol = color(255, 68, 68);
-		
-		ValueAnimator circleGrow;
+		private Animations circle1InnerAnim, circle1OuterAnim,
+				circle2InnerAnim, circle2OuterAnim;
+		private PGraphics lineBuffer;
+		private float angle, dist;
+		private int lineImgWidth, outerCircleWidth;
 
 		Dot() {
 			touched1 = touched2 = touched3 = selected1 = selected2 = isMoving = isDeleted = false;
@@ -1200,8 +1178,13 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			size5 = 0;
 			opa = 100;
 			effect = 0;
-			circleGrow = ValueAnimator.ofFloat(0f, 1f);
-			
+			circle1InnerAnim = new Animations(10);
+			circle1OuterAnim = new Animations(10);
+			circle2InnerAnim = new Animations(10);
+			circle2OuterAnim = new Animations(10);
+			lineBuffer = createGraphics(20, lineCircleImg.height);
+			lineImgWidth = (int) (lineCircleImg.width - density);
+			outerCircleWidth = (int) (outerCircleImg.width - density);
 		}
 
 		public void fxClear() {
@@ -1247,113 +1230,105 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			touched3 = true;
 
 		}
-
-		public void create1(float tempX, float tempY) {
-
-			posX = tempX;
-			posY = tempY;
-
-			size1 = constrain(size1 += (6 * density), 0, outerCircSize);
-			stroke(opaInActCol);
-			strokeWeight((float) (1.5 * density));
-			fill(bgCol);
-			ellipse(posX, posY, size1, size1);
-
-			if (size1 >= 10 * density) {
-				size2 = constrain(size2 += (2.5 * density), 0, innerCircSize);
-				noStroke();
-				fill(dotcol);
-				ellipse(posX, posY, size2, size2);
-
-			}
-
-		}
-
-		public void create2(float tempX, float tempY) {
-
-			posX = tempX;
-			posY = tempY;
-
-			size3 = constrain(size3 += (6 * density), 0, outerCircSize);
-			stroke(opaInActCol);
-			strokeWeight((float) (1.5 * density));
-			fill(bgCol);
-			ellipse(posX, posY, size3, size3);
-
-			if (size3 >= 10 * density) {
-				size4 = constrain(size4 += (2.5 * density), 0, innerCircSize);
-				noStroke();
-				fill(dotcol);
-				ellipse(posX, posY, size4, size4);
-
-			}
-
-		}
-
-		public void create3(float mX5, float mY5) {
-			opa = 180;
-			size5 = constrain(size5 += (2 * bpmScale * density), 0, animCircSize);
-
-			noFill();
-			stroke(this.dotcol, opa);
-			strokeWeight(2.3f * density);
-			ellipse(mX5, mY5, outerCircSize, outerCircSize);
-
-			noStroke();
-			fill(this.dotcol);
-			ellipse(posX, posY, size5, size5);
-		}
-
-		public void create4(float xDown2, float yDown2, float xUp2, float yUp2) {
-			opa = 180;
-			size5 = constrain(size5 += (2 * bpmScale * density), 0, animCircSize);
-
-			stroke(this.dotcol, opa);
-			strokeWeight(2.3f * density);
-			line(xDown2, yDown2, xUp2, yUp2);
-
-			fill(bgCol);
-			stroke(this.dotcol, opa);
-			strokeWeight(2 * density);
-			ellipse(xDown2, yDown2, outerCircSize, outerCircSize);
-
-			fill(this.dotcol);
-			noStroke();
-			ellipse(xDown2, yDown2, size5, size5);
-
-			fill(bgCol);
-			stroke(this.dotcol, opa);
-			strokeWeight(2.3f * density);
-			ellipse(xUp2, yUp2, outerCircSize, outerCircSize);
-
-			fill(this.dotcol);
-			noStroke();
-			ellipse(xUp2, yUp2, size5, size5);
-
-		}
 		
-		public void circleOne() {
+		public void drawCircleOne() {
 			pushMatrix();
 			pushStyle();
 			translate(xDown, yDown);
 			imageMode(CENTER);
+			
+			pushMatrix();
+			if(selected1) tint(dotcol);
+			else noTint();
+			circle1OuterAnim.animate();
+			scale(circle1OuterAnim.animateValue);
 			image(outerCircleImg, 0, 0);
-		    tint(dotcol);
-		    image(innerCircleImg, 0, 0);			
+			popMatrix();
+		    
+			pushMatrix();
+			if(selected1) scale(1.5f);
+			else scale(1);
+			tint(dotcol);
+			if (circle1OuterAnim.animateValue > 0.5)
+				circle1InnerAnim.animate();
+			scale(circle1InnerAnim.animateValue);
+			image(innerCircleImg, 0, 0);
+			popMatrix();
+
 			popStyle();
 			popMatrix();
 		}
 		
-		public void circleTwo() {
+		public void drawCircleTwo() {
 			pushMatrix();
 			pushStyle();
 			translate(xUp, yUp);
 			imageMode(CENTER);
+			
+			pushMatrix();
+			if(selected2) tint(dotcol);
+			else noTint();
+			circle2OuterAnim.animate();
+			scale(circle2OuterAnim.animateValue);
 			image(outerCircleImg, 0, 0);
-		    tint(dotcol);
-		    image(innerCircleImg, 0, 0);			
+			popMatrix();
+		    
+			pushMatrix();
+			if(selected2) scale(1.5f);
+			else scale(1);
+			tint(dotcol);
+			if (circle2OuterAnim.animateValue > 0.5)
+				circle2InnerAnim.animate();
+			scale(circle2InnerAnim.animateValue);
+			image(innerCircleImg, 0, 0);
+			popMatrix();
+
 			popStyle();
 			popMatrix();
+		}
+		
+		private void computeLine(float distanceVal) {
+			int countMax = (int) (distanceVal / lineImgWidth);
+			if (countMax > 0)
+				lineBuffer = createGraphics((int) distanceVal,
+						lineCircleImg.height);
+			pushStyle();
+			lineBuffer.beginDraw();
+			lineBuffer.noTint();
+			lineBuffer.imageMode(CORNER);
+			for (int i = 0; i < countMax; i++) {
+				lineBuffer.image(lineCircleImg, lineImgWidth * i, 0);
+				if (i == countMax - 1)
+					dist = distanceVal;
+			}
+			lineBuffer.endDraw();
+			popStyle();
+		}
+		
+		public void drawLine() {
+			
+			float deltaX = xLine - xDown;
+			float deltaY = yLine - yDown;
+			
+			angle = atan(deltaY/deltaX);
+			if (deltaX < 0) angle += PI;
+			
+			float tempDist = (float) (sqrt((deltaX * deltaX)
+					+ (deltaY * deltaY)) - outerCircleWidth);
+			
+			if(tempDist != dist) computeLine(tempDist);
+
+			pushMatrix();
+			pushStyle();
+			translate(xDown, yDown);
+			rotate(angle);
+			if(selected1 && selected2) tint(dotcol);
+			else noTint();
+			imageMode(CORNER);
+			image(lineBuffer, (float) (outerCircleWidth*0.5), (float) (-lineCircleImg.height*0.5));
+			popStyle();
+			popMatrix();
+
 		}
 
 		public void fx(int f, int col) {
@@ -1390,7 +1365,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 
 	}
-
+	
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent event) {
 
@@ -1408,6 +1383,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				case MotionEvent.ACTION_DOWN:
 
 					// button interfaces here
+					playToggleB.touchDown(x, y);
+					reverseToggleB.touchDown(x, y);
+					fxToggleB.touchDown(x, y);
 					bpmButtonB.touchDown(x, y);
 					clearButtonB.touchDown(x, y);
 					shareButtonB.touchDown(x, y);

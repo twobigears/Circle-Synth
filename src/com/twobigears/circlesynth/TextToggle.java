@@ -11,11 +11,11 @@ public abstract class TextToggle {
 	public int offColor, onColor;
 	private float tX, tY, tWidth, tHeight;
 	public boolean boundBox, state, isEnabled;
+	private boolean isDown;
 
 	TextToggle(final PApplet p) {
 		this.p = p;
-		boundBox = false;
-		state = false;
+		boundBox = state = isDown = false;
 		isEnabled = true;
 		onColor = p.color(255, 255, 255);
 		offColor = p.color(175, 175, 175);
@@ -58,15 +58,18 @@ public abstract class TextToggle {
 
 	}
 
-	private void touchDown(float x, float y) {
-		// not used
-
+	public void touchDown(float x, float y) {
+		if ((x > tX) && (x < tX + tWidth) && (y > tY) && (y < tY + tHeight)) {
+			isDown = true;
+		}
+		else isDown = false;
 	}
 
 	public void touchUp(float x, float y) {
 		if (isEnabled) {
 
-			if ((x > tX) && (x < tX + tWidth) && (y > tY) && (y < tY + tHeight)) {
+			if ((x > tX) && (x < tX + tWidth) && (y > tY) && (y < tY + tHeight)
+					&& isDown) {
 				if (!state) {
 					state = true;
 					isTrue();

@@ -72,11 +72,11 @@ public abstract class TextButton {
 
 	public void touchUp(float x, float y) {
 		if (isEnabled) {
-			state = false;
 			if ((x > tX) && (x < tX + tWidth) && (y > tY)
-					&& (y < tY + tHeight)) {
+					&& (y < tY + tHeight) && state) {
 				isReleased();
 			}
+			state = false;
 		}
 	}
 
