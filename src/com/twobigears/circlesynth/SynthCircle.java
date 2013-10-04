@@ -837,6 +837,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		private PGraphics lineBuffer;
 		private float angle, dist;
 		private int lineImgWidth, outerCircleWidth;
+		boolean node1,node2;
 
 		Dot() {
 			touched1 = touched2 = touched3 = selected1 = selected2 = isMoving = isDeleted = hasLine = false;
@@ -864,6 +865,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			touched1 = true;
 			touched2 = false;
 			touched3 = false;
+			node1=true;
 			
 
 		}
@@ -883,6 +885,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			xLine = xUp;
 			yLine = yUp;
 			touched2 = true;
+			node2=true;
 			
 
 		}
@@ -1075,7 +1078,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 						dots.add(new Dot());
 						if (checkdelete < 0) {
 							Dot d = (Dot) dots.get(dots.size() - 1);
-							if (y > mainHeadHeight && dots.size() <= maxCircle) {
+							if (dots.size() <= maxCircle) {
 								d.createCircle1(x, y);
 								pX = x;
 								pY = y;
@@ -1139,13 +1142,14 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 								}
 
 							}
-							if (checkdelete >= 0) {
+							if (checkdelete >= 0 && dots.size()>0) {
+								Dot d = (Dot) dots.get(dots.size()-1);
 								if (x < 20 || x > width - 20 || y > height - 20
 										|| y < mainHeadHeight) {
 									dots.remove(checkdelete);
 									toast("Circle gone!");
 								}
-								Dot d = (Dot) dots.get(dots.size()-1);
+								
 								if (d.hasLine && !d.touched2)
 									dots.remove(dots.size()-1);
 								
