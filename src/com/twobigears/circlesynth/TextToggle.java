@@ -59,15 +59,16 @@ public abstract class TextToggle {
 	}
 
 	public void touchDown(float x, float y) {
-		if ((x > tX) && (x < tX + tWidth) && (y > tY) && (y < tY + tHeight)) {
-			isDown = true;
+		if (isEnabled) {
+			if ((x > tX) && (x < tX + tWidth) && (y > tY) && (y < tY + tHeight)) {
+				isDown = true;
+			}
+			else isDown = false;
 		}
-		else isDown = false;
 	}
 
 	public void touchUp(float x, float y) {
 		if (isEnabled) {
-
 			if ((x > tX) && (x < tX + tWidth) && (y > tY) && (y < tY + tHeight)
 					&& isDown) {
 				if (!state) {
