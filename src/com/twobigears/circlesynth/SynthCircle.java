@@ -112,22 +112,22 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	String baseDir = Environment.getExternalStorageDirectory()
 			.getAbsolutePath();
 
-	boolean playValue = false; // global boolean of the play button state
-	boolean revValue = false; // global reverse value for play
-	boolean bpmPopup = false; // bpm popup button value
-	boolean clearButton = false;
-	boolean fxToggle = false;
-	boolean fxCirc1Toggle = false;
-	boolean fxCirc2Toggle = false;
-	boolean fxCirc3Toggle = false;
-	boolean fxCirc4Toggle = false;
-	boolean fxCirc0Toggle = false;
+//	boolean playValue = false; // global boolean of the play button state
+//	boolean revValue = false; // global reverse value for play
+//	boolean bpmPopup = false; // bpm popup button value
+//	boolean clearButton = false;
+//	boolean fxToggle = false;
+//	boolean fxCirc1Toggle = false;
+//	boolean fxCirc2Toggle = false;
+//	boolean fxCirc3Toggle = false;
+//	boolean fxCirc4Toggle = false;
+//	boolean fxCirc0Toggle = false;
 	boolean fxCheck = false;
-	boolean settingsButton = false;
-	boolean fxClearButton = false;
-	boolean saveButton = false;
-	boolean loadButton = false;
-	boolean shareButton = false;
+//	boolean settingsButton = false;
+//	boolean fxClearButton = false;
+//	boolean saveButton = false;
+//	boolean loadButton = false;
+//	boolean shareButton = false;
 
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
@@ -154,8 +154,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	PImage shareImg, playImg, stopImg, revImg, forImg, clearOnImg, clearOffImg,
 			loadOffImg, loadOnImg, saveOffImg, saveOnImg, shareOffImg,
 			shareOnImg, settingsOnImg, settingsOffImg, innerCircleImg,
-			outerCircleImg, lineCircleImg;
-	
+			outerCircleImg, lineCircleImg, fxCircleToggleImg, fxEmptyToggleImg,
+			fxClearOffImg, fxClearOnImg, fxDragFilledImg, fxDragEmptyImg, fxFilledImg;
+
 	PlayToggle playToggleB;
 	ReverseToggle reverseToggleB;
 	FxToggle fxToggleB; 
@@ -165,10 +166,18 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	SaveButton saveButtonB;
 	ShareButton shareButtonB;
 	SettingsButton settingsButtonB;
+	Fx1Toggle fx1ToggleB;
+	Fx2Toggle fx2ToggleB;
+	Fx3Toggle fx3ToggleB;
+	Fx4Toggle fx4ToggleB;
+	FxEmptyToggle fxEmptyToggleB;
+	FxClearButton fxClearButtonB;
+	
+	FxCircleDrag fxCircleDrag;
 	
 	float outerCircSize, innerCircSize;
 	
-	int mainHeadHeight, shadowHeight, scanSquareY, headerHeight, buttonPad;
+	int mainHeadHeight, shadowHeight, scanSquareY, headerHeight, buttonPad1, buttonPad2, buttonFxPad;
 	
 	float textAscent;
 
@@ -177,11 +186,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	final int bgCol = color(28, 28, 28);
 	final int headCol = color(41, 41, 41);
-	final int buttonActCol = color(255);
 	final int buttonInActCol = color(175);
-	final int opaInActCol = color(255, 100);
-	final int scanHeadCol = color(255, 40);
-	final int circ2Col = color(0, 153, 204);
 	final int col1 = color(255, 68, 68);
 	final int col2 = color(255, 187, 51);
 	final int col3 = color(153, 204, 0);
@@ -385,13 +390,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	// processing code begins//
 
 	public void setup() {
-
-//		if (getNumCores() <= 1)
-//			fRate = 20;
-//		else
-//			fRate = 30;
-//		frameRate(fRate);
-//		orientation(LANDSCAPE);
+		
+		frameRate(60);
 		
 		dots = new ArrayList<Dot>();
 		stored = new ArrayList<String>();
@@ -445,8 +445,13 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		innerCircleImg = loadImage("inner_circle"+resSuffix+".png");
 		outerCircleImg = loadImage("outer_circle"+resSuffix+".png");
 		lineCircleImg = loadImage("line_circle"+resSuffix+".png");
+		fxCircleToggleImg = loadImage("fxCircleToggle"+resSuffix+".png");
+		fxEmptyToggleImg = loadImage("fxCircleEmpty"+resSuffix+".png");
+		fxClearOffImg = loadImage("fxClearOff"+resSuffix+".png");
+		fxClearOnImg = loadImage("fxClearOn"+resSuffix+".png");
+		fxFilledImg = loadImage("fxFilled"+resSuffix+".png");
 		
-		robotoFont = createFont("Roboto-Thin-12", 22 * density, true);
+		robotoFont = createFont("Roboto-Thin-12", 24 * density, true);
 		
 		// buttons
 		playToggleB = new PlayToggle(this);
@@ -469,13 +474,31 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		shareButtonB.load(shareOffImg, shareOnImg);
 		settingsButtonB = new SettingsButton(this);
 		settingsButtonB.load(settingsOffImg, settingsOnImg);
+		fx1ToggleB = new Fx1Toggle(this, false);
+		fx1ToggleB.load(fxCircleToggleImg, fxCircleToggleImg);
+		fx2ToggleB = new Fx2Toggle(this, false);
+		fx2ToggleB.load(fxCircleToggleImg, fxCircleToggleImg);
+		fx3ToggleB = new Fx3Toggle(this, false);
+		fx3ToggleB.load(fxCircleToggleImg, fxCircleToggleImg);
+		fx4ToggleB = new Fx4Toggle(this, false);
+		fx4ToggleB.load(fxCircleToggleImg, fxCircleToggleImg);
+		fxEmptyToggleB = new FxEmptyToggle(this, false);
+		fxEmptyToggleB.load(fxEmptyToggleImg, fxEmptyToggleImg);
+		fxClearButtonB = new FxClearButton(this, false);
+		fxClearButtonB.load(fxClearOffImg, fxClearOnImg);
+		
+		fxCircleDrag = new FxCircleDrag(this);
+		fxCircleDrag.emptyCircle = outerCircleImg;
+		fxCircleDrag.filledCircle = fxFilledImg;
 		
 		// header
 		mainHeadHeight = (int) (40 * density); 
 		shadowHeight = (int) (density);
 		scanSquareY = (int) (3 * density);
 		headerHeight = mainHeadHeight + scanSquareY + shadowHeight;	 
-		buttonPad = (int) (10 * density);
+		buttonPad1 = (int) (10 * density);
+		buttonPad2 = (int) (20 * density);
+		buttonFxPad = (int) (1 * density);
 
 		outerCircSize = outerCircleImg.width;
 		innerCircSize = innerCircleImg.width;
@@ -568,215 +591,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 
 	}
-	
-	/*
-	private void settingup() {
-		
-		TODO Use image res >
-		  
-		bpmButtonOn = createGraphics(headerButtonSize * 2, headerButtonSize);
-		bpmButtonOn.beginDraw();
-		bpmButtonOn.stroke(buttonActCol);
-		bpmButtonOn.strokeWeight(buttonWeight);
-		bpmButtonOn.noFill();
-		bpmButtonOn.rect(0, 0, headerButtonSize * 2, headerButtonSize);
-		bpmButtonOn.endDraw();
-
-		bpmButtonOff = createGraphics(headerButtonSize * 2, headerButtonSize);
-		bpmButtonOff.beginDraw();
-		bpmButtonOff.stroke(buttonInActCol);
-		bpmButtonOff.strokeWeight(buttonWeight);
-		bpmButtonOff.noFill();
-		bpmButtonOff.rect(0, 0, headerButtonSize * 2, headerButtonSize);
-		bpmButtonOff.endDraw();
-
-		float pad = (float) (buttonSize2 * 0.25);
-
-		fxToggleOff = createGraphics(headerButtonSize, headerButtonSize);
-		fxToggleOff.beginDraw();
-		fxToggleOff.stroke(buttonInActCol);
-		fxToggleOff.strokeWeight(buttonWeight);
-		fxToggleOff.noFill();
-		fxToggleOff.rect(0, 0, headerButtonSize, headerButtonSize);
-		fxToggleOff.textFont(f);
-		fxToggleOff.textAlign(CENTER);
-		fxToggleOff.fill(buttonInActCol);
-		float asc = (float) (textAscent() * 0.3 * density);
-		fxToggleOff.text("FX", (float) (headerButtonSize * 0.5),
-				(float) ((headerButtonSize * 0.5) + asc));
-		fxToggleOff.endDraw();
-
-		fxToggleOn = createGraphics(headerButtonSize, headerButtonSize);
-		fxToggleOn.beginDraw();
-		fxToggleOn.stroke(buttonActCol);
-		fxToggleOn.strokeWeight(buttonWeight);
-		fxToggleOn.noFill();
-		fxToggleOn.rect(0, 0, headerButtonSize, headerButtonSize);
-		fxToggleOn.textFont(f);
-		fxToggleOn.textAlign(CENTER);
-		fxToggleOn.fill(buttonActCol);
-		fxToggleOn.text("FX", (float) (headerButtonSize * 0.5),
-				(float) ((headerButtonSize * 0.5) + asc));
-		fxToggleOn.endDraw();
-
-		fxCirc1 = createGraphics(buttonSize2, buttonSize2);
-		fxCirc1.beginDraw();
-		fxCirc1.noStroke();
-		fxCirc1.fill(col2);
-		fxCirc1.ellipseMode(CORNER);
-		fxCirc1.ellipse(0, 0, buttonSize2, buttonSize2);
-		fxCirc1.endDraw();
-
-		fxCirc2 = createGraphics(buttonSize2, buttonSize2);
-		fxCirc2.beginDraw();
-		fxCirc2.noStroke();
-		fxCirc2.fill(col3);
-		fxCirc2.ellipseMode(CORNER);
-		fxCirc2.ellipse(0, 0, buttonSize2, buttonSize2);
-		fxCirc2.endDraw();
-
-		fxCirc3 = createGraphics(buttonSize2, buttonSize2);
-		fxCirc3.beginDraw();
-		fxCirc3.noStroke();
-		fxCirc3.fill(col4);
-		fxCirc3.ellipseMode(CORNER);
-		fxCirc3.ellipse(0, 0, buttonSize2, buttonSize2);
-		fxCirc3.endDraw();
-
-		fxCirc4 = createGraphics(buttonSize2, buttonSize2);
-		fxCirc4.beginDraw();
-		fxCirc4.noStroke();
-		fxCirc4.fill(col5);
-		fxCirc4.ellipseMode(CORNER);
-		fxCirc4.ellipse(0, 0, buttonSize2, buttonSize2);
-		fxCirc4.endDraw();
-
-		float strokeSize = 2 * density;
-		fxCirc0 = createGraphics((int) (buttonSize2 + strokeSize),
-				(int) (buttonSize2 + strokeSize));
-		fxCirc0.beginDraw();
-		fxCirc0.stroke(buttonInActCol);
-		fxCirc0.strokeWeight(strokeSize);
-		fxCirc0.noFill();
-		fxCirc0.ellipseMode(CENTER);
-		fxCirc0.ellipse(buttonSize2 * 0.5f, buttonSize2 * 0.5f, buttonSize2
-				- strokeSize, buttonSize2 - strokeSize);
-		fxCirc0.endDraw();
-
-		fxClearButtonOff = createGraphics(buttonSize2, buttonSize2);
-		fxClearButtonOff.beginDraw();
-		fxClearButtonOff.stroke(buttonInActCol);
-		fxClearButtonOff.noFill();
-		fxClearButtonOff.strokeWeight(strokeSize);
-		fxClearButtonOff.line(pad, pad, buttonSize2 - pad, buttonSize2 - pad);
-		fxClearButtonOff.line(pad, buttonSize2 - pad, buttonSize2 - pad, pad);
-		fxClearButtonOff.ellipse((float) (buttonSize2 * 0.5f),
-				(float) (buttonSize2 * 0.5f),
-				(float) (buttonSize2 - strokeSize),
-				(float) (buttonSize2 - strokeSize));
-		fxClearButtonOff.endDraw();
-
-		fxClearButtonOn = createGraphics(buttonSize2, buttonSize2);
-		fxClearButtonOn.beginDraw();
-		fxClearButtonOn.stroke(buttonActCol);
-		fxClearButtonOn.noFill();
-		fxClearButtonOn.strokeWeight(strokeSize);
-		fxClearButtonOn.line(pad, pad, buttonSize2 - pad, buttonSize2 - pad);
-		fxClearButtonOn.line(pad, buttonSize2 - pad, buttonSize2 - pad, pad);
-		fxClearButtonOn.ellipse((float) (buttonSize2 * 0.5f),
-				(float) (buttonSize2 * 0.5f),
-				(float) (buttonSize2 - strokeSize),
-				(float) (buttonSize2 - strokeSize));
-		fxClearButtonOn.endDraw();
-		
-		TODO Controlp5 stuff. Replace! >
-		
-		cp5 = new ControlP5(this);
-		cp5.addToggle("playValue")
-				// create play/stop toggle
-				.setPosition(buttonSpace, 0).setSize(headerButtonSize, headerButtonSize)
-				.setView(new PlayToggle());
-
-		cp5.addToggle("revValue")
-				// create reverse toggle
-				.setPosition(headerButtonSize + (buttonSpace * 2), 0)
-				.setSize(headerButtonSize, headerButtonSize).setView(new RevToggle());
-
-		cp5.addButton("bpmPopup")
-				// create bpm popup button
-				.setPosition((headerButtonSize * 2) + (buttonSpace * 3), 0)
-				.setSize(headerButtonSize, headerButtonSize).setView(new BpmButton());
-
-		cp5.addButton("clearButton")
-				// create clear button
-				.setPosition((headerButtonSize * 3) + (buttonSpace * 4), 0)
-				.setSize(headerButtonSize, headerButtonSize).setView(new ClearButton());
-		cp5.addToggle("fxToggle")
-				// create fx toggle
-				.setPosition((headerButtonSize * 4) + (buttonSpace * 5), 0)
-				.setSize(headerButtonSize, headerButtonSize).setView(new FxToggle());
-
-		cp5.addToggle("fxCirc1Toggle").hide()
-				// create fx1 toggle
-				.setPosition(buttonPad + button2Space, buttonPad)
-				.setSize(buttonSize2, buttonSize2).setView(new FxCircle1());
-
-		cp5.addToggle("fxCirc2Toggle")
-				.hide()
-				// create fx2 toggle
-				.setPosition(
-						buttonSize2 + (button2Space * 2) + (buttonPad * 2),
-						buttonPad).setSize(buttonSize2, buttonSize2)
-				.setView(new FxCircle2());
-
-		cp5.addToggle("fxCirc3Toggle")
-				.hide()
-				// create fx3 toggle
-				.setPosition(
-						(buttonSize2 * 2) + (button2Space * 3)
-								+ (buttonPad * 3), buttonPad)
-				.setSize(buttonSize2, buttonSize2).setView(new FxCircle3());
-
-		cp5.addToggle("fxCirc4Toggle")
-				.hide()
-				// create fx4 toggle
-				.setPosition(
-						(buttonSize2 * 3) + (button2Space * 4)
-								+ (buttonPad * 4), buttonPad)
-				.setSize(buttonSize2, buttonSize2).setView(new FxCircle4());
-
-		cp5.addToggle("fxCirc0Toggle")
-				.hide()
-				// create fx clear toggle
-				.setPosition(
-						(buttonSize2 * 4) + (button2Space * 5)
-								+ (buttonPad * 5), buttonPad)
-				.setSize(buttonSize2, buttonSize2).setView(new FxCircle0());
-
-		cp5.addButton("fxClearButton")
-				// create clear button
-				.setPosition(
-						(buttonSize2 * 5) + (button2Space * 6)
-								+ (buttonPad * 6), buttonPad)
-				.setSize(buttonSize2, buttonSize2).setView(new FxClearButton());
-
-		cp5.addButton("settingsButton")
-				.setPosition(width - headerButtonSize - buttonSpace, 0)
-				.setSize(headerButtonSize, headerButtonSize).setView(new SettingsButton());
-
-		cp5.addButton("shareButton")
-				.setPosition(width - (headerButtonSize * 2) - (buttonSpace * 2), 0)
-				.setSize(headerButtonSize, headerButtonSize).setView(new ShareButton());
-
-		cp5.addButton("saveButton")
-				.setPosition(width - (headerButtonSize * 3) - (buttonSpace * 3), 0)
-				.setSize(headerButtonSize, headerButtonSize).setView(new SaveButton());
-
-		cp5.addButton("loadButton")
-				.setPosition(width - (headerButtonSize * 4) - (buttonSpace * 4), 0)
-				.setSize(headerButtonSize, headerButtonSize).setView(new LoadButton());	
-	}
-	*/
 
 	public void draw() {
 
@@ -789,64 +603,24 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		image(scanSquare, scanline * width, mainHeadHeight);
 		
 		//buttons
-		playToggleB.drawIt(buttonPad, 0);
-		reverseToggleB.drawIt(playToggleB.getWidth()+buttonPad, 0);
-		bpmButtonB.drawIt(String.valueOf(bpm), (playToggleB.getWidth()+buttonPad)*2, 0);
-		clearButtonB.drawIt((playToggleB.getWidth()+buttonPad)*3, 0);
-		fxToggleB.drawIt("FX", (playToggleB.getWidth()+buttonPad)*4, 0);
-		settingsButtonB.drawIt(width-(playToggleB.getWidth()+buttonPad), 0);
-		shareButtonB.drawIt(width-((playToggleB.getWidth()+buttonPad)*2), 0);
-		saveButtonB.drawIt(width-((playToggleB.getWidth()+buttonPad)*3), 0);
-		loadButtonB.drawIt(width-((playToggleB.getWidth()+buttonPad)*4), 0);
-		
+		playToggleB.drawIt(buttonPad1, 0);
+		reverseToggleB.drawIt(playToggleB.getWidth()+buttonPad2, 0);
+		bpmButtonB.drawIt(String.valueOf(bpm), (playToggleB.getWidth()+buttonPad2)*2, 0);
+		clearButtonB.drawIt((playToggleB.getWidth()+buttonPad2)*3, 0);
+		fxToggleB.drawIt("FX", (playToggleB.getWidth()+buttonPad2)*4, 0);
+		settingsButtonB.drawIt(width-(playToggleB.getWidth()+buttonPad1), 0);
+		shareButtonB.drawIt(width-((playToggleB.getWidth()+buttonPad1)*2), 0);
+		saveButtonB.drawIt(width-((playToggleB.getWidth()+buttonPad1)*3), 0);
+		loadButtonB.drawIt(width-((playToggleB.getWidth()+buttonPad1)*4), 0);
+		fx1ToggleB.drawIt(buttonFxPad, 0);
+		fx2ToggleB.drawIt(fx1ToggleB.getWidth()+buttonFxPad, 0);
+		fx3ToggleB.drawIt((fx1ToggleB.getWidth())*2+buttonFxPad, 0);
+		fx4ToggleB.drawIt((fx1ToggleB.getWidth())*3+buttonFxPad, 0);
+		fxEmptyToggleB.drawIt((fx1ToggleB.getWidth())*4+buttonFxPad, 0);
+		fxClearButtonB.drawIt((fx1ToggleB.getWidth())*5+buttonFxPad, 0);
+
+		fxCircleDrag.drawIt();
 	}
-
-	/* 
-	 * TODO Move below to button listeners
-	 * 
-
-	
-
-	if (fxClearButton) {
-
-		for (int i = 0; i < dots.size(); i++) {
-			Dot d = (Dot) dots.get(i);
-			d.fxClear();
-		}
-		toast("All FX cleared");
-		fxClearButton = false;
-	}
-
-	else {
-		if (playValue) {
-
-			PdBase.sendFloat("pd_playToggle", 1);
-			sendPdValue();
-
-		}
-
-		else {
-			PdBase.sendFloat("pd_playToggle", 0);
-			scanline = 0;
-		}
-	}
-
-	clearButton = false;
-
-
-	if (fxCirc1Toggle == true) {
-		fxCirc(col2);
-	} else if (fxCirc2Toggle == true) {
-		fxCirc(col3);
-	} else if (fxCirc3Toggle == true) {
-		fxCirc(col4);
-	} else if (fxCirc4Toggle == true) {
-		fxCirc(col5);
-	} else if (fxCirc0Toggle == true) {
-		fxCirc(buttonInActCol);
-	}
-	
-	*/
 	
 	public void detect() {
 
@@ -854,7 +628,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			for (int i = 0; i < dots.size(); i++) {
 				Dot d = dots.get(i);
 				if (!d.touched2) {
-					if (!revValue) {
+					if (!reverseToggleB.state) {
 						if (Math.abs(scanline
 								- Float.parseFloat(df.format(d.xDown / width))) <= .01)
 							d.selected1 = true;
@@ -875,13 +649,13 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				} else {
 					float dxd = Float.parseFloat(df.format(d.xDown / width));
 					float dxu = Float.parseFloat(df.format(d.xUp / width));
-					if (!revValue) {
+					if (!reverseToggleB.state) {
 						if (Math.abs(scanline - dxd) <= .01) {
 							d.selected1 = d.selected2 = true;
 						}
 
 					}
-					if (revValue) {
+					if (reverseToggleB.state) {
 						if (Math.abs(scanline - dxu) <= .01) {
 							d.selected1 = d.selected2 = true;
 						}
@@ -911,9 +685,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			Dot d = (Dot) dots.get(i);
 			
 			// turning lights off
-			if (!d.selected1)
-				d.size5 = 0;
-			if (!playValue)
+			if (!playToggleB.state)
 				d.selected1 = d.selected2 = false;
 			
 			// for line
@@ -927,15 +699,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			// second circle
 			if (d.touched2)
 				d.drawCircleTwo();
-			
-			/*
-			// both lights and line
-			if (d.selected1 && d.selected2)
-				d.create4(d.xDown, d.yDown, d.xUp, d.yUp);
-			// single lights
-			if (d.selected1 && !d.selected2)
-				d.create3(d.xDown, d.yDown);
-				*/
 
 		}
 	}
@@ -1029,95 +792,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 
 	}
-/*
-
-
-	class FxCircle1 implements ControllerView<Toggle> {
-		public void display(PApplet theApplet, Toggle theButton) {
-			theApplet.pushMatrix();
-			if (fxCirc1Toggle == true) {
-				theApplet.image(fxCirc1, 0, 0);
-			} else {
-				theApplet.image(fxCirc1, 0, 0);
-			}
-			theApplet.popMatrix();
-		}
-	}
-
-	class FxCircle2 implements ControllerView<Toggle> {
-		public void display(PApplet theApplet, Toggle theButton) {
-			theApplet.pushMatrix();
-			if (fxCirc2Toggle == true) {
-				theApplet.image(fxCirc2, 0, 0);
-			} else {
-				theApplet.image(fxCirc2, 0, 0);
-			}
-			theApplet.popMatrix();
-		}
-	}
-
-	class FxCircle3 implements ControllerView<Toggle> {
-		public void display(PApplet theApplet, Toggle theButton) {
-			theApplet.pushMatrix();
-			if (fxCirc3Toggle == true) {
-				theApplet.image(fxCirc3, 0, 0);
-			} else {
-				theApplet.image(fxCirc3, 0, 0);
-			}
-			theApplet.popMatrix();
-		}
-	}
-
-	class FxCircle4 implements ControllerView<Toggle> {
-		public void display(PApplet theApplet, Toggle theButton) {
-			theApplet.pushMatrix();
-			if (fxCirc4Toggle == true) {
-				theApplet.image(fxCirc4, 0, 0);
-			} else {
-				theApplet.image(fxCirc4, 0, 0);
-			}
-			theApplet.popMatrix();
-		}
-	}
-
-	class FxCircle0 implements ControllerView<Toggle> {
-		public void display(PApplet theApplet, Toggle theButton) {
-			theApplet.pushMatrix();
-			if (fxCirc0Toggle == true) {
-				theApplet.image(fxCirc0, 0, 0);
-			} else {
-				theApplet.image(fxCirc0, 0, 0);
-			}
-			theApplet.popMatrix();
-		}
-	}
-
-	
-
-	}
-*/
-	void fxCirc(int col) {
-		if (col == buttonInActCol) {
-			stroke(buttonInActCol);
-			strokeWeight(2 * density);
-			noFill();
-			ellipse((float) (mouseX), (float) (mouseY),
-					(float) (outerCircSize * 1.2), (float) (outerCircSize * 1.2));
-		} else {
-			noStroke();
-			fill(col, 200);
-			ellipse((float) (mouseX), (float) (mouseY),
-					(float) (outerCircSize * 1.2), (float) (outerCircSize * 1.2));
-		}
-	}
-
-	void band(float bX, float bY, float eX, float eY) {
-
-		stroke(opaInActCol);
-		strokeWeight(1.5f * density);
-		line(bX, bY, eX, eY);
-
-	}
 
 	public int delCheck(float mX, float mY) {
 		int checkdelete = -1;
@@ -1156,12 +830,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		float xDown, xUp, yDown, yUp, xLine, yLine, posX, posY;
 		boolean touched1, touched2, touched3, selected1, selected2,isMoving,isDeleted,hasLine;
-		float size1 = 0;
-		float size2 = 0;
-		float size3 = 0;
-		float size4 = 0;
-		float size5 = 0;
-		float opa = 0;
 		int doteffect;
 		int dotcol = color(255, 68, 68);
 		private Animations circle1InnerAnim, circle1OuterAnim,
@@ -1172,12 +840,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		Dot() {
 			touched1 = touched2 = touched3 = selected1 = selected2 = isMoving = isDeleted = hasLine = false;
-			size1 = 0;
-			size2 = 0;
-			size3 = 0;
-			size4 = 0;
-			size5 = 0;
-			opa = 100;
 			effect = 0;
 			circle1InnerAnim = new Animations(10);
 			circle1OuterAnim = new Animations(10);
@@ -1387,6 +1049,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			checkdelete = delCheck(x, y);
 			Log.d("checkdelete", String.valueOf(checkdelete));
 			
+			fxCircleDrag.setXY(x, y);
+			
 				switch (action) {
 				case MotionEvent.ACTION_DOWN:
 
@@ -1400,6 +1064,12 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					settingsButtonB.touchDown(x, y);
 					loadButtonB.touchDown(x, y);
 					saveButtonB.touchDown(x, y);
+					fx1ToggleB.altTouchDown(x, y);
+					fx2ToggleB.altTouchDown(x, y);
+					fx3ToggleB.altTouchDown(x, y);
+					fx4ToggleB.altTouchDown(x, y);
+					fxEmptyToggleB.altTouchDown(x, y);
+					fxClearButtonB.touchDown(x, y);
 
 					if (y > mainHeadHeight) {
 						dots.add(new Dot());
@@ -1440,6 +1110,12 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					settingsButtonB.touchUp(x, y);
 					loadButtonB.touchUp(x, y);
 					saveButtonB.touchUp(x, y);
+					fx1ToggleB.altTouchUp(x, y);
+					fx2ToggleB.altTouchUp(x, y);
+					fx3ToggleB.altTouchUp(x, y);
+					fx4ToggleB.altTouchUp(x, y);
+					fxEmptyToggleB.altTouchUp(x, y);
+					fxClearButtonB.touchUp(x, y);
 
 					if (!headerflag) {
 						if (dots.size() > 0) {
@@ -1496,6 +1172,13 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 						}
 
 					}
+					
+					//assign fx dragged in and dropped
+					if (checkdelete >= 0 && fxCheck) {
+						Dot d = dots.get(checkdelete);
+						d.fx(effect, col);
+					}
+					
 					break;
 				case MotionEvent.ACTION_POINTER_DOWN:
 
@@ -1521,53 +1204,34 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 								d11.createLine(x, y);
 						}
 					}
-					break;
-				}
-
-				/*
-				switch (action) {
-				case MotionEvent.ACTION_DOWN:
-					if (!fxCirc1Toggle && !fxCirc2Toggle && !fxCirc3Toggle
-							&& !fxCirc4Toggle && !fxCirc0Toggle)
-						fxCheck = false;
-
-					break;
-				case MotionEvent.ACTION_UP:
-					if (checkdelete >= 0 && fxCheck) {
-						Dot d = dots.get(checkdelete);
-						d.fx(effect, col);
-					}
-
-					fxCirc1Toggle = fxCirc2Toggle = fxCirc3Toggle = fxCirc4Toggle = false;
-
-					break;
-				case MotionEvent.ACTION_MOVE:
-					if (fxCirc1Toggle) {
+					
+					// set fx assign color/value based on move
+					if (fx1ToggleB.state) {
 						effect = 1;
 						col = col2;
 						fxCheck = true;
-					} else if (fxCirc2Toggle) {
+					} else if (fx2ToggleB.state) {
 						effect = 2;
 						col = col3;
 						fxCheck = true;
-					} else if (fxCirc3Toggle) {
+					} else if (fx3ToggleB.state) {
 						effect = 3;
 						col = col4;
 						fxCheck = true;
-					} else if (fxCirc4Toggle) {
+					} else if (fx4ToggleB.state) {
 						effect = 4;
 						col = col5;
 						fxCheck = true;
-					} else if (fxCirc0Toggle) {
+					} else if (fxEmptyToggleB.state) {
 						effect = 0;
 						col = col1;
 						fxCheck = true;
 					}
-
+					else fxCheck = false;
+					
 					break;
 				}
-			}
-			*/
+
 		}
 		
 		return super.surfaceTouchEvent(event);
@@ -1783,11 +1447,19 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		public FxToggle(PApplet p) {
 			super(p);
 		}
+		
+		@Override
+		public void isTrue() {
+			playToggleB.isEnabled = reverseToggleB.isEnabled = bpmButtonB.isEnabled = clearButtonB.isEnabled = false;
+			fx1ToggleB.isEnabled = fx2ToggleB.isEnabled = fx3ToggleB.isEnabled = fx4ToggleB.isEnabled = fxEmptyToggleB.isEnabled = fxClearButtonB.isEnabled = true;
+		}
 
 		@Override
 		public void isFalse() {
+			playToggleB.isEnabled = reverseToggleB.isEnabled = bpmButtonB.isEnabled = clearButtonB.isEnabled = true;
+			fx1ToggleB.isEnabled = fx2ToggleB.isEnabled = fx3ToggleB.isEnabled = fx4ToggleB.isEnabled = fxEmptyToggleB.isEnabled = fxClearButtonB.isEnabled = false;
 		}
-		
+
 	}
 	
 	class BpmButton extends TextButton {
@@ -1962,9 +1634,119 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			Intent intent = new Intent(SynthCircle.this, SynthSettingsTwo.class);
 			startActivity(intent);
 			prefs.registerOnSharedPreferenceChangeListener(SynthCircle.this);
-			settingsButton = false;
-
 		}
 	}
+	
+	class Fx1Toggle extends ImageToggle {
+
+		Fx1Toggle(PApplet p, boolean enabled) {
+			super(p, enabled);
+			tintValue = col2;
+		}
+		
+		@Override
+		public void isTrue() {
+			fxCircleDrag.color = col2;
+			fxCircleDrag.isEnabled = true;
+		}	
+		
+		@Override
+		public void isFalse() {
+			fxCircleDrag.isEnabled = false;
+		}
+		
+	}
+	
+	class Fx2Toggle extends ImageToggle {
+
+		Fx2Toggle(PApplet p, boolean enabled) {
+			super(p, enabled);
+			tintValue = col3;
+		}
+		
+		@Override
+		public void isTrue() {
+			fxCircleDrag.color = col3;
+			fxCircleDrag.isEnabled = true;
+		}	
+		
+		@Override
+		public void isFalse() {
+			fxCircleDrag.isEnabled = false;
+		}
+	}
+	
+	class Fx3Toggle extends ImageToggle {
+
+		Fx3Toggle(PApplet p, boolean enabled) {
+			super(p, enabled);
+			tintValue = col4;
+		}
+		
+		@Override
+		public void isTrue() {
+			fxCircleDrag.color = col4;
+			fxCircleDrag.isEnabled = true;
+		}	
+		
+		@Override
+		public void isFalse() {
+			fxCircleDrag.isEnabled = false;
+		}
+	}
+	
+	class Fx4Toggle extends ImageToggle {
+
+		Fx4Toggle(PApplet p, boolean enabled) {
+			super(p, enabled);
+			tintValue = col5;
+		}
+		
+		@Override
+		public void isTrue() {
+			fxCircleDrag.color = col5;
+			fxCircleDrag.isEnabled = true;
+		}	
+		
+		@Override
+		public void isFalse() {
+			fxCircleDrag.isEnabled = false;
+		}
+	}
+	
+	class FxEmptyToggle extends ImageToggle {
+
+		FxEmptyToggle(PApplet p, boolean enabled) {
+			super(p, enabled);
+		}
+		
+		@Override
+		public void isTrue() {
+			fxCircleDrag.color = -1;
+			fxCircleDrag.isEnabled = true;
+		}	
+		
+		@Override
+		public void isFalse() {
+			fxCircleDrag.isEnabled = false;
+		}
+	}
+	
+	class FxClearButton extends ImageButton {
+
+		FxClearButton(PApplet p, boolean enabled) {
+			super(p, enabled);
+		}
+		
+		@Override
+		public void isReleased() {
+			for (int i = 0; i < dots.size(); i++) {
+				Dot d = (Dot) dots.get(i);
+				d.fxClear();
+			}
+			toast("All FX cleared");
+		}
+	}
+
 
 }

@@ -3,17 +3,25 @@ package com.twobigears.circlesynth;
 import processing.core.*;
 
 public abstract class ImageButton {
-	
+
 	final PApplet p;
 
 	PImage falseImage, trueImage;
 	private float tX, tY, tWidth, tHeight;
 	boolean state, isEnabled;
+	public int tintValue;
 
 	ImageButton(final PApplet p) {
 		this.p = p;
 		state = false;
 		isEnabled = true;
+	}
+
+	ImageButton(PApplet p, boolean enabled) {
+		this.p = p;
+		state = false;
+		isEnabled = enabled;
+		tintValue = 0;
 	}
 
 	void load(PImage falseImg, PImage trueImg) {
@@ -28,6 +36,12 @@ public abstract class ImageButton {
 		tX = tempx;
 		tY = tempy;
 
+		p.pushStyle();
+
+		if (tintValue != 0) {
+			p.tint(tintValue);
+		}
+
 		p.imageMode(PConstants.CORNER);
 
 		if (isEnabled) {
@@ -37,13 +51,14 @@ public abstract class ImageButton {
 				p.image(trueImage, tempx, tempy);
 
 		}
+		
+		p.popStyle();
 
 	}
 
 	public void touchDown(float x, float y) {
-		if (isEnabled) {		
-			if ((x > tX) && (x < tX + tWidth) && (y > tY)
-					&& (y < tY + tHeight)) {
+		if (isEnabled) {
+			if ((x > tX) && (x < tX + tWidth) && (y > tY) && (y < tY + tHeight)) {
 				state = true;
 				isPressed();
 			}
@@ -53,8 +68,8 @@ public abstract class ImageButton {
 
 	public void touchUp(float x, float y) {
 		if (isEnabled) {
-			if ((x > tX) && (x < tX + tWidth) && (y > tY)
-					&& (y < tY + tHeight) && state) {
+			if ((x > tX) && (x < tX + tWidth) && (y > tY) && (y < tY + tHeight)
+					&& state) {
 				isReleased();
 			}
 			state = false;
