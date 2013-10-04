@@ -1155,7 +1155,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	public class Dot {
 
 		float xDown, xUp, yDown, yUp, xLine, yLine, posX, posY;
-		boolean touched1, touched2, touched3, selected1, selected2,isMoving,isDeleted,hasLine;
+		boolean touched1, touched2, touched3, selected1, selected2,isMoving,isDeleted,hasLine,node1,node2;
 		float size1 = 0;
 		float size2 = 0;
 		float size3 = 0;
@@ -1202,6 +1202,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			touched1 = true;
 			touched2 = false;
 			touched3 = false;
+			node1=true;
 			
 
 		}
@@ -1221,6 +1222,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			xLine = xUp;
 			yLine = yUp;
 			touched2 = true;
+			node2=true;
 			
 
 		}
@@ -1389,7 +1391,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			
 				switch (action) {
 				case MotionEvent.ACTION_DOWN:
-
+					
 					// button interfaces here
 					playToggleB.touchDown(x, y);
 					reverseToggleB.touchDown(x, y);
@@ -1405,7 +1407,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 						dots.add(new Dot());
 						if (checkdelete < 0) {
 							Dot d = (Dot) dots.get(dots.size() - 1);
-							if (y > mainHeadHeight && dots.size() <= maxCircle) {
+							if (dots.size() <= maxCircle) {
 								d.createCircle1(x, y);
 								pX = x;
 								pY = y;
@@ -1443,8 +1445,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 					if (!headerflag) {
 						if (dots.size() > 0) {
-							Dot d1 = (Dot) dots.get(dots.size() - 1);
+							
 							if (checkdelete < 0) {
+								Dot d1 = (Dot) dots.get(dots.size() - 1);
 								// if (moveflag)
 								// dots.remove(dots.size() - 1);
 								if (y < mainHeadHeight) {
@@ -1463,13 +1466,14 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 								}
 
 							}
-							if (checkdelete >= 0) {
+							if (checkdelete >= 0 && dots.size()>0) {
+								Dot d = (Dot) dots.get(dots.size()-1);
 								if (x < 20 || x > width - 20 || y > height - 20
 										|| y < mainHeadHeight) {
 									dots.remove(checkdelete);
 									toast("Circle gone!");
 								}
-								Dot d = (Dot) dots.get(dots.size()-1);
+								
 								if (d.hasLine && !d.touched2)
 									dots.remove(dots.size()-1);
 								
@@ -1504,7 +1508,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 					break;
 				case MotionEvent.ACTION_MOVE:
-
+					
 					if (!headerflag) {
 						if (checkdelete >= 0) {
 							Dot dnew = (Dot) dots.get(checkdelete);
