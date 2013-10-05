@@ -1054,7 +1054,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	}
 
-	
+	int checkdelete;
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent event) {
 		
@@ -1067,9 +1067,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		float x = (event.getX());
 		float y = (event.getY());
 		int action = event.getActionMasked();
-		int checkdelete = -1;
+		//int checkdelete = -1;
 		if (dots != null) {
-			checkdelete = delCheck(x, y);
+			//checkdelete = delCheck(x, y);
 			Log.d("checkdelete", String.valueOf(checkdelete));
 			
 			fxCircleDrag.setXY(x, y);
@@ -1094,6 +1094,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					fxEmptyToggleB.altTouchDown(x, y);
 					fxClearButtonB.touchDown(x, y);
 					
+					checkdelete = delCheck(x, y);
 					
 					
 					
@@ -1145,7 +1146,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					fxEmptyToggleB.altTouchUp(x, y);
 					fxClearButtonB.touchUp(x, y);
 					
-					
+					//reset checkdelete
+					//checkdelete = -1;
 					
 					
 					if (!headerflag) {
@@ -1230,8 +1232,12 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 						if (checkdelete >= 0) {
 							Dot dnew = (Dot) dots.get(checkdelete);
 							if (dnew.isMoving) {
-								// dnew.createCircle1(x, y);
-								dnew.updateCircles(x, y);
+								int historySize = event.getHistorySize();
+							    for (int i = 0; i < historySize; i++) {
+							          float historicalX = event.getHistoricalX(i);
+							          float historicalY = event.getHistoricalY(i);
+							          dnew.updateCircles(historicalX,historicalY);
+							    }
 								
 
 							}
