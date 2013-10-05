@@ -1055,6 +1055,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	}
 
 	int checkdelete;
+	int fxcheckdelete;
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent event) {
 		
@@ -1069,7 +1070,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		int action = event.getActionMasked();
 		//int checkdelete = -1;
 		if (dots != null) {
-			//checkdelete = delCheck(x, y);
+			fxcheckdelete = delCheck(x, y);
 			Log.d("checkdelete", String.valueOf(checkdelete));
 			
 			fxCircleDrag.setXY(x, y);
@@ -1208,8 +1209,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					}
 					
 					//assign fx dragged in and dropped
-					if (checkdelete >= 0 && fxCheck) {
-						Dot d = dots.get(checkdelete);
+					if (fxcheckdelete >= 0 && fxCheck) {
+						Dot d = dots.get(fxcheckdelete);
 						d.fx(effect, col);
 					}
 					
