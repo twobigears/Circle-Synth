@@ -2,7 +2,7 @@ package com.twobigears.circlesynth;
 
 import processing.core.*;
 
-public abstract class ImageButton {
+public abstract class UiImageButton extends ProcessingTouchEvents {
 
 	final PApplet p;
 
@@ -11,13 +11,15 @@ public abstract class ImageButton {
 	boolean state, isEnabled;
 	public int tintValue;
 
-	ImageButton(final PApplet p) {
+	UiImageButton(final PApplet p) {
+		super(p);
 		this.p = p;
 		state = false;
 		isEnabled = true;
 	}
 
-	ImageButton(PApplet p, boolean enabled) {
+	UiImageButton(PApplet p, boolean enabled) {
+		super(p);
 		this.p = p;
 		state = false;
 		isEnabled = enabled;
@@ -55,7 +57,8 @@ public abstract class ImageButton {
 		p.popStyle();
 
 	}
-
+	
+	@Override
 	public void touchDown(float x, float y) {
 		if (isEnabled) {
 			if ((x > tX) && (x < tX + tWidth) && (y > tY) && (y < tY + tHeight)) {
@@ -65,7 +68,8 @@ public abstract class ImageButton {
 		}
 
 	}
-
+	
+	@Override
 	public void touchUp(float x, float y) {
 		if (isEnabled) {
 			if ((x > tX) && (x < tX + tWidth) && (y > tY) && (y < tY + tHeight)
