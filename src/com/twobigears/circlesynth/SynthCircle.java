@@ -536,7 +536,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		dragFocus.endDraw();
 
 	}
-
+	int save_preset,save_bpm,save_scale,save_octTrans,save_noteTrans;
 	private void initialisepatch() {
 
 		String value = prefs.getString("preset", null);
@@ -558,20 +558,25 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		String pres = prefs.getString("preset", "1");
 		int presf = Integer.valueOf(pres);
 		PdBase.sendFloat("pd_presets", presf);
+		save_preset=presf;
 
 		String val = prefs.getString("scale", "1");
 		int valf = Integer.valueOf(val);
 		PdBase.sendFloat("pd_scales", valf);
-
+		save_scale=valf;
+		
 		String tran = prefs.getString("transposeOct", "3");
 		int tranf = Integer.valueOf(tran);
 		tranf = tranf - 3;
 		PdBase.sendFloat("pd_octTrans", tranf);
-
+		save_octTrans=tranf;
+		
 		String tran1 = prefs.getString("transposeNote", "0");
 		int tranf1 = Integer.valueOf(tran1);
 		PdBase.sendFloat("pd_noteTrans", tranf1);
-
+		save_noteTrans = tranf1;
+		
+		
 		boolean accely = prefs1.getBoolean("accel", false);
 		if (accely)
 			PdBase.sendFloat("pd_accelToggle", 1);
@@ -600,6 +605,18 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			editor.commit();
 		}
 
+	}
+	
+	public void loadSettings(){
+		PdBase.sendFloat("pd_presets", save_preset);
+		PdBase.sendFloat("pd_scales", save_scale);
+		PdBase.sendFloat("pd_octTrans", save_octTrans);
+		PdBase.sendFloat("pd_noteTrans", save_noteTrans);
+		PdBase.sendFloat("pd_bpm", save_bpm);
+		bpm=save_bpm;
+		
+		
+		
 	}
 
 	public void draw() {
@@ -772,7 +789,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		int index = Integer.parseInt(pieces[0]);
 		Dot d = dots.get(index);
-
+		if(index<10){
 		if (Float.parseFloat(pieces[1]) <= 1) {
 			d.xDown = (Float.parseFloat(pieces[1]) * width);
 			d.yDown = (Float.parseFloat(pieces[2]) * height);
@@ -803,6 +820,17 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			d.xLine = d.xUp = (Float.parseFloat(pieces[3]));
 			d.yLine = d.yUp = (Float.parseFloat(pieces[4]));
 		}
+		}
+		else{
+			save_preset=(int)Float.parseFloat(pieces[1]);
+			save_scale=(int)Float.parseFloat(pieces[2]);
+			save_octTrans=(int)Float.parseFloat(pieces[3]);
+			save_noteTrans=(int)Float.parseFloat(pieces[4]);
+			save_bpm=(int)Float.parseFloat(pieces[5]);
+			loadSettings();
+			
+		}
+			
 
 	}
 
@@ -1562,7 +1590,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 						FileInputStream input = new FileInputStream(file);
 						DataInputStream din = new DataInputStream(input);
 
-						for (int i = 0; i < maxCircle; i++) { // Read lines
+						for (int i = 0; i <= maxCircle; i++) { // Read lines
 							String line = din.readUTF();
 							stored.add(line);
 							dots.add(new Dot());
@@ -1601,6 +1629,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			int t1 = 0;
 			int t2 = 0;
 			int t3 = 0;
+			int count=0;
 			String SAVE = null;
 			for (int i = 0; i < maxCircle; i++) {
 				if (i < dots.size()) {
@@ -1624,9 +1653,14 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					SAVE = String.valueOf(i) + " 5 5 5 5 0 0 0 0 0";
 				}
 				stored.add(i, SAVE);
-
+				count=i;
 			}
-
+			save_bpm=bpm;
+			
+			String SAVE_EXTRA=String.valueOf(++count)+" "+String.valueOf(save_preset)+" "+String.valueOf(save_scale)
+					+" "+String.valueOf(save_octTrans)+" "+String.valueOf(save_noteTrans)+" "+String.valueOf(save_bpm);
+			stored.add(count,SAVE_EXTRA);
+			
 			String root = Environment.getExternalStorageDirectory().toString();
 			File myDir = new File(root + "/circlesynth");
 			myDir.mkdirs();
