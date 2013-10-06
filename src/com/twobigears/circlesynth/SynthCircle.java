@@ -149,7 +149,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	public float scanline;
 
 	PFont robotoFont;
-	PGraphics header, sketchBG, scanSquare;
+	PGraphics header, sketchBG, scanSquare, dragFocus;
 
 	PImage shareImg, playImg, stopImg, revImg, forImg, clearOnImg, clearOffImg,
 			loadOffImg, loadOnImg, saveOffImg, saveOnImg, shareOffImg,
@@ -179,7 +179,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	
 	int mainHeadHeight, shadowHeight, scanSquareY, headerHeight, buttonPad1, buttonPad2, buttonFxPad;
 	
-	float textAscent;
+	float textAscent, dragDeleteBoundary;
 
 	int bpm = 120;
 	float bpmScale = constrain(bpm / 24, 4, 20);
@@ -499,6 +499,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		buttonPad1 = (int) (10 * density);
 		buttonPad2 = (int) (20 * density);
 		buttonFxPad = (int) (1 * density);
+		
+		dragDeleteBoundary = 10*density;
 
 		outerCircSize = outerCircleImg.width;
 		innerCircSize = innerCircleImg.width;
@@ -524,6 +526,14 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		scanSquare.fill(120);
 		scanSquare.rect(0, 0, 7 * density, 3 * density, 7 * density);
 		scanSquare.endDraw();
+		
+		dragFocus = createGraphics(width, height - headerHeight);
+		dragFocus.beginDraw();
+		dragFocus.noFill();
+		dragFocus.stroke(255, 30);
+		dragFocus.strokeWeight(dragDeleteBoundary);
+		dragFocus.rect(0, 0, dragFocus.width, dragFocus.height);
+		dragFocus.endDraw();
 
 	}
 
@@ -601,6 +611,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		
 		image(header, 0, 0);
 		image(scanSquare, scanline * width, mainHeadHeight);
+		
+		if (moveflag)
+			image(dragFocus, 0, headerHeight);
 		
 		//buttons
 		playToggleB.drawIt(buttonPad1, 0);
@@ -802,7 +815,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				Dot d = (Dot) dots.get(i);
 				disp1 = distancecalc(d.xDown, d.yDown, mX, mY);
 				disp2 = distancecalc(d.xUp, d.yUp, mX, mY);
-				if (disp1 < 40 || disp2 < 40) {
+				if (disp1 < outerCircSize || disp2 < outerCircSize) {
 					checkdelete = i;
 					i = dots.size();
 				}
@@ -983,18 +996,18 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			if (deltaX < 0) angle += PI;
 			
 			float tempDist = (float) (sqrt((deltaX * deltaX)
-					+ (deltaY * deltaY)) - outerCircleWidth);
+					+ (deltaY * deltaY)) - (outerCircleWidth-density*3));
 			
 			if(tempDist != dist) computeLine(tempDist);
 
 			pushMatrix();
 			pushStyle();
 			translate(xDown, yDown);
-			rotate(angle);
+			rotate(angle);	
 			if(selected1 && selected2) tint(dotcol);
 			else noTint();
 			imageMode(CORNER);
-			image(lineBuffer, (float) (outerCircleWidth*0.5), (float) (-lineCircleImg.height*0.5));
+			image(lineBuffer, (float) ((outerCircleWidth*0.5)-density), (float) (-lineCircleImg.height*0.5));
 			popStyle();
 			popMatrix();
 
@@ -1143,10 +1156,12 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 							}
 							if (checkdelete >= 0 && dots.size()>0) {
 								Dot d = (Dot) dots.get(dots.size()-1);
-								if (x < 20 || x > width - 20 || y > height - 20
-										|| y < mainHeadHeight) {
-									dots.remove(checkdelete);
-									toast("Circle gone!");
+							if (x < dragDeleteBoundary
+									|| x > width - dragDeleteBoundary
+									|| y > height - dragDeleteBoundary
+									|| y < mainHeadHeight + dragDeleteBoundary) {
+								dots.remove(checkdelete);
+								toast("Circle gone!");
 								}
 								
 								if (d.hasLine && !d.touched2)
@@ -1207,8 +1222,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 							          float historicalY = event.getHistoricalY(i);
 							          dnew.updateCircles(historicalX,historicalY);
 							    }
-								
-
 							}
 						}
 
