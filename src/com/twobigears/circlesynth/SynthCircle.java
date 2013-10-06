@@ -1077,7 +1077,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			
 				switch (action) {
 				case MotionEvent.ACTION_DOWN:
-
+					
 					// button interfaces here
 					playToggleB.touchDown(x, y);
 					reverseToggleB.touchDown(x, y);
@@ -1129,7 +1129,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 					break;
 				case MotionEvent.ACTION_UP:
-
+					
 					// button interfaces here
 					playToggleB.touchUp(x, y);
 					reverseToggleB.touchUp(x, y);
@@ -1167,6 +1167,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 									dots.remove(dots.size() - 1);
 								}
 								if (d1.hasLine == true && !d1.isLocked) {
+									
 									d1.createCircle2(x, y);
 									d1.isMoving = false;
 
@@ -1246,7 +1247,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 						else if (!moveflag){
 							Dot d11 = (Dot) dots.get(dots.size() - 1);
-							if (d11.node1)
+							if (d11.node1 && distanceChecker(d11.xDown,d11.yDown,x,y))
 								d11.createLine(x, y);
 								
 							
@@ -1285,7 +1286,22 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		return super.dispatchTouchEvent(event);
 	}
 		
-
+	
+	public boolean distanceChecker(float x1,float y1,float x2,float y2){
+		boolean check = false;
+		
+		double dist = Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+		if(dist< outerCircSize)
+			check=false;
+		else
+			check = true;
+		
+		return check;
+	}
+	
+	
+	
+	
 	@Override
 	public void bpmChanged(int t) {
 		bpm = t;
