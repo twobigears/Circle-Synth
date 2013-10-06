@@ -2,27 +2,30 @@ package com.twobigears.circlesynth;
 
 import processing.core.*;
 
-abstract class ImageToggle {
-	
+abstract class UiImageToggle extends ProcessingTouchEvents {
+
 	final PApplet p;
 
 	PImage falseImage, trueImage;
 	private float tX, tY, tWidth, tHeight;
-	public boolean state, isEnabled;
+	public boolean state, isEnabled, isAlternateMode;
 	private boolean isDown;
 	public int tintValue;
 
-	ImageToggle(PApplet p) {
+	UiImageToggle(PApplet p) {
+		super(p);
 		this.p = p;
 		state = isDown = false;
 		isEnabled = true;
 	}
-	
-	ImageToggle(PApplet p, boolean enabled) {
+
+	UiImageToggle(PApplet p, boolean enabled, boolean alternateMode) {
+		super(p);
 		this.p = p;
 		state = isDown = false;
 		isEnabled = enabled;
 		tintValue = 0;
+		isAlternateMode = alternateMode;
 	}
 
 	void load(PImage falseImg, PImage trueImg) {
@@ -36,10 +39,10 @@ abstract class ImageToggle {
 	void drawIt(float tempx, float tempy) {
 		tX = tempx;
 		tY = tempy;
-		
+
 		p.pushStyle();
-		
-		if(tintValue != 0) {
+
+		if (tintValue != 0) {
 			p.tint(tintValue);
 		}
 
@@ -51,55 +54,61 @@ abstract class ImageToggle {
 			} else
 				p.image(trueImage, tempx, tempy);
 		}
-		
+
 		p.popStyle();
 
 	}
 
+	@Override
 	public void touchDown(float x, float y) {
-		if ((x > tX) && (x < tX + tWidth) && (y > tY) && (y < tY + tHeight)) {
-			isDown = true;
-		}
-		else isDown = false;
-	}
-
-	public void touchUp(float x, float y) {
 		if (isEnabled) {
-
-			if ((x > tX) && (x < tX + tWidth) && (y > tY) && (y < tY + tHeight)
-					&& isDown) {
-				if (!state) {
+			if (isAlternateMode) {
+				if ((x > tX) && (x < tX + tWidth) && (y > tY)
+						&& (y < tY + tHeight)) {
+					isDown = true;
 					state = true;
 					isTrue();
-				} else {
-					state = false;
-					isFalse();
 				}
+
+			} else {
+				if ((x > tX) && (x < tX + tWidth) && (y > tY)
+						&& (y < tY + tHeight)) {
+					isDown = true;
+				} else
+					isDown = false;
 			}
 		}
-	}
-	
-	public void altTouchDown(float x, float y) {
-		if (isEnabled) {
-			if ((x > tX) && (x < tX + tWidth) && (y > tY) && (y < tY + tHeight)) {
-				isDown = true;
-				state = true;
-				isTrue();
-			}
-		}	
+
 	}
 
-	public void altTouchUp(float x, float y) {
+	@Override
+	public void touchUp(float x, float y) {
 		if (isEnabled) {
 			
-			state = false;
-			isDown = false;
-			isFalse();
+			if (isAlternateMode) {
+				state = false;
+				isDown = false;
+				isFalse();
 
-			if ((x > tX) && (x < tX + tWidth) && (y > tY) && (y < tY + tHeight)
-					&& isDown) {
-				
+				if ((x > tX) && (x < tX + tWidth) && (y > tY)
+						&& (y < tY + tHeight) && isDown) {
+
+				}
+
+			} else {
+				if ((x > tX) && (x < tX + tWidth) && (y > tY)
+						&& (y < tY + tHeight) && isDown) {
+					if (!state) {
+						state = true;
+						isTrue();
+					} else {
+						state = false;
+						isFalse();
+					}
+				}
+
 			}
+
 		}
 	}
 

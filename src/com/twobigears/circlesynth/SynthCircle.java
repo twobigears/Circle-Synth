@@ -474,15 +474,15 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		shareButtonB.load(shareOffImg, shareOnImg);
 		settingsButtonB = new SettingsButton(this);
 		settingsButtonB.load(settingsOffImg, settingsOnImg);
-		fx1ToggleB = new Fx1Toggle(this, false);
+		fx1ToggleB = new Fx1Toggle(this, false, true);
 		fx1ToggleB.load(fxCircleToggleImg, fxCircleToggleImg);
-		fx2ToggleB = new Fx2Toggle(this, false);
+		fx2ToggleB = new Fx2Toggle(this, false, true);
 		fx2ToggleB.load(fxCircleToggleImg, fxCircleToggleImg);
-		fx3ToggleB = new Fx3Toggle(this, false);
+		fx3ToggleB = new Fx3Toggle(this, false, true);
 		fx3ToggleB.load(fxCircleToggleImg, fxCircleToggleImg);
-		fx4ToggleB = new Fx4Toggle(this, false);
+		fx4ToggleB = new Fx4Toggle(this, false, true);
 		fx4ToggleB.load(fxCircleToggleImg, fxCircleToggleImg);
-		fxEmptyToggleB = new FxEmptyToggle(this, false);
+		fxEmptyToggleB = new FxEmptyToggle(this, false, true);
 		fxEmptyToggleB.load(fxEmptyToggleImg, fxEmptyToggleImg);
 		fxClearButtonB = new FxClearButton(this, false);
 		fxClearButtonB.load(fxClearOffImg, fxClearOnImg);
@@ -843,10 +843,11 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		Dot() {
 			touched1 = touched2 = touched3 = selected1 = selected2 = isMoving = isDeleted = hasLine = false;
 			effect = 0;
-			circle1InnerAnim = new Animations(10);
-			circle1OuterAnim = new Animations(10);
-			circle2InnerAnim = new Animations(10);
-			circle2OuterAnim = new Animations(10);
+			col = col1;
+			circle1InnerAnim = new Animations(20);
+			circle1OuterAnim = new Animations(20);
+			circle2InnerAnim = new Animations(20);
+			circle2OuterAnim = new Animations(20);
 			lineBuffer = createGraphics(20, lineCircleImg.height);
 			lineImgWidth = (int) (lineCircleImg.width - density);
 			outerCircleWidth = (int) (outerCircleImg.width - density);
@@ -1078,23 +1079,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				switch (action) {
 				case MotionEvent.ACTION_DOWN:
 					
-					// button interfaces here
-					playToggleB.touchDown(x, y);
-					reverseToggleB.touchDown(x, y);
-					fxToggleB.touchDown(x, y);
-					bpmButtonB.touchDown(x, y);
-					clearButtonB.touchDown(x, y);
-					shareButtonB.touchDown(x, y);
-					settingsButtonB.touchDown(x, y);
-					loadButtonB.touchDown(x, y);
-					saveButtonB.touchDown(x, y);
-					fx1ToggleB.altTouchDown(x, y);
-					fx2ToggleB.altTouchDown(x, y);
-					fx3ToggleB.altTouchDown(x, y);
-					fx4ToggleB.altTouchDown(x, y);
-					fxEmptyToggleB.altTouchDown(x, y);
-					fxClearButtonB.touchDown(x, y);
-					
 					checkdelete = delCheck(x, y);
 					
 					
@@ -1129,23 +1113,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 					break;
 				case MotionEvent.ACTION_UP:
-					
-					// button interfaces here
-					playToggleB.touchUp(x, y);
-					reverseToggleB.touchUp(x, y);
-					fxToggleB.touchUp(x, y);
-					bpmButtonB.touchUp(x, y);
-					clearButtonB.touchUp(x, y);
-					shareButtonB.touchUp(x, y);
-					settingsButtonB.touchUp(x, y);
-					loadButtonB.touchUp(x, y);
-					saveButtonB.touchUp(x, y);
-					fx1ToggleB.altTouchUp(x, y);
-					fx2ToggleB.altTouchUp(x, y);
-					fx3ToggleB.altTouchUp(x, y);
-					fx4ToggleB.altTouchUp(x, y);
-					fxEmptyToggleB.altTouchUp(x, y);
-					fxClearButtonB.touchUp(x, y);
 					
 					//reset checkdelete
 					//checkdelete = -1;
@@ -1469,7 +1436,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	}
 	
 	// Button interfaces here
-	class PlayToggle extends ImageToggle {
+	class PlayToggle extends UiImageToggle {
 
 		PlayToggle(PApplet p) {
 			super(p);
@@ -1488,7 +1455,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 	}
 	
-	class ReverseToggle extends ImageToggle {
+	class ReverseToggle extends UiImageToggle {
 		
 		ReverseToggle(PApplet p) {
 			super(p);
@@ -1506,7 +1473,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		
 	}
 	
-	class FxToggle extends TextToggle {
+	class FxToggle extends UiTextToggle {
 		
 		public FxToggle(PApplet p) {
 			super(p);
@@ -1526,7 +1493,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	}
 	
-	class BpmButton extends TextButton {
+	class BpmButton extends UiTextButton {
 		
 		public BpmButton(PApplet p) {
 			super(p);
@@ -1545,7 +1512,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 	}
 	
-	class ClearButton extends ImageButton {
+	class ClearButton extends UiImageButton {
 
 		ClearButton(PApplet p) {
 			super(p);
@@ -1559,7 +1526,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 	}
 	
-	class LoadButton extends ImageButton {
+	class LoadButton extends UiImageButton {
 		
 		LoadButton(PApplet p) {
 			super(p);
@@ -1608,7 +1575,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 	}
 	
-	class SaveButton extends ImageButton {
+	class SaveButton extends UiImageButton {
 		
 		SaveButton(PApplet p) {
 			super(p);
@@ -1674,7 +1641,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 	}
 
-	class ShareButton extends ImageButton {
+	class ShareButton extends UiImageButton {
 
 		ShareButton(PApplet p) {
 			super(p);
@@ -1686,7 +1653,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 	}
 	
-	class SettingsButton extends ImageButton {
+	class SettingsButton extends UiImageButton {
 
 		SettingsButton(PApplet p) {
 			super(p);
@@ -1701,10 +1668,10 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 	}
 	
-	class Fx1Toggle extends ImageToggle {
+	class Fx1Toggle extends UiImageToggle {
 
-		Fx1Toggle(PApplet p, boolean enabled) {
-			super(p, enabled);
+		Fx1Toggle(PApplet p, boolean enabled, boolean alternateMode) {
+			super(p, enabled, alternateMode);
 			tintValue = col2;
 		}
 		
@@ -1721,10 +1688,10 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		
 	}
 	
-	class Fx2Toggle extends ImageToggle {
+	class Fx2Toggle extends UiImageToggle {
 
-		Fx2Toggle(PApplet p, boolean enabled) {
-			super(p, enabled);
+		Fx2Toggle(PApplet p, boolean enabled, boolean alternateMode) {
+			super(p, enabled, alternateMode);
 			tintValue = col3;
 		}
 		
@@ -1740,10 +1707,10 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 	}
 	
-	class Fx3Toggle extends ImageToggle {
+	class Fx3Toggle extends UiImageToggle {
 
-		Fx3Toggle(PApplet p, boolean enabled) {
-			super(p, enabled);
+		Fx3Toggle(PApplet p, boolean enabled, boolean alternateMode) {
+			super(p, enabled, alternateMode);
 			tintValue = col4;
 		}
 		
@@ -1759,10 +1726,10 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 	}
 	
-	class Fx4Toggle extends ImageToggle {
+	class Fx4Toggle extends UiImageToggle {
 
-		Fx4Toggle(PApplet p, boolean enabled) {
-			super(p, enabled);
+		Fx4Toggle(PApplet p, boolean enabled, boolean alternateMode) {
+			super(p, enabled, alternateMode);
 			tintValue = col5;
 		}
 		
@@ -1778,10 +1745,10 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 	}
 	
-	class FxEmptyToggle extends ImageToggle {
+	class FxEmptyToggle extends UiImageToggle {
 
-		FxEmptyToggle(PApplet p, boolean enabled) {
-			super(p, enabled);
+		FxEmptyToggle(PApplet p, boolean enabled, boolean alternateMode) {
+			super(p, enabled, alternateMode);
 		}
 		
 		@Override
@@ -1796,7 +1763,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 	}
 	
-	class FxClearButton extends ImageButton {
+	class FxClearButton extends UiImageButton {
 
 		FxClearButton(PApplet p, boolean enabled) {
 			super(p, enabled);

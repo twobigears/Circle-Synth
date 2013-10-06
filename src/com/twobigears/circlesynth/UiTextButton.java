@@ -2,7 +2,7 @@ package com.twobigears.circlesynth;
 
 import processing.core.*;
 
-public abstract class TextButton {
+public abstract class UiTextButton extends ProcessingTouchEvents {
 	
 	final PApplet p;
 
@@ -12,7 +12,8 @@ public abstract class TextButton {
 	private float tX, tY, tWidth, tHeight;
 	public boolean boundBox, state, isEnabled;
 
-	TextButton(final PApplet p) {
+	UiTextButton(final PApplet p) {
+		super(p);
 		this.p = p;
 		boundBox = false;
 		state = false;
@@ -58,7 +59,8 @@ public abstract class TextButton {
 
 		
 	}
-
+	
+	@Override
 	public void touchDown(float x, float y) {
 		if (isEnabled) {		
 			if ((x > tX) && (x < tX + tWidth) && (y > tY)
@@ -69,7 +71,8 @@ public abstract class TextButton {
 		}
 
 	}
-
+	
+	@Override
 	public void touchUp(float x, float y) {
 		if (isEnabled) {
 			if ((x > tX) && (x < tX + tWidth) && (y > tY)
