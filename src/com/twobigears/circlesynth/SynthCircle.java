@@ -838,6 +838,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		private float angle, dist;
 		private int lineImgWidth, outerCircleWidth;
 		boolean node1,node2;
+		boolean isLocked;
 
 		Dot() {
 			touched1 = touched2 = touched3 = selected1 = selected2 = isMoving = isDeleted = hasLine = false;
@@ -1015,7 +1016,12 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 		
 		public void updateCircles(float mX, float mY){
-			if(Math.abs(mX-xDown)<outerCircSize){
+			float deltaX = Math.abs(mX-xDown);
+			float deltaY = Math.abs(mY-yDown);
+			
+			double dist = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
+			
+			if(dist < outerCircSize/2){
 				xDown=mX;
 				yDown=mY;
 				if(hasLine){
@@ -1034,29 +1040,44 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				
 			}
 			
+			if(xDown>xUp){
+				float tempX=xDown;
+				float tempY=yDown;
+				xDown=xUp;
+				yDown=yUp;
+				xUp=tempX;
+				yUp=tempY;
+			}
+			
 				
 		}
 
 	}
-	
+
+	int checkdelete;
+	int fxcheckdelete;
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent event) {
-
+		
+		
+		//System.out.println(String.valueOf(moveflag));
+		
+		
 		width = displayWidth;
 		height = displayHeight;
 		float x = (event.getX());
 		float y = (event.getY());
 		int action = event.getActionMasked();
-		int checkdelete = -1;
+		//int checkdelete = -1;
 		if (dots != null) {
-			checkdelete = delCheck(x, y);
+			fxcheckdelete = delCheck(x, y);
 			Log.d("checkdelete", String.valueOf(checkdelete));
 			
 			fxCircleDrag.setXY(x, y);
 			
 				switch (action) {
 				case MotionEvent.ACTION_DOWN:
-
+					
 					// button interfaces here
 					playToggleB.touchDown(x, y);
 					reverseToggleB.touchDown(x, y);
@@ -1073,13 +1094,18 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					fx4ToggleB.altTouchDown(x, y);
 					fxEmptyToggleB.altTouchDown(x, y);
 					fxClearButtonB.touchDown(x, y);
-
+					
+					checkdelete = delCheck(x, y);
+					
+					
+					
 					if (y > mainHeadHeight) {
 						dots.add(new Dot());
 						if (checkdelete < 0) {
 							Dot d = (Dot) dots.get(dots.size() - 1);
 							if (dots.size() <= maxCircle) {
 								d.createCircle1(x, y);
+								d.isLocked=false;
 								pX = x;
 								pY = y;
 								d.isMoving = false;
@@ -1092,8 +1118,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 							Dot d = (Dot) dots.get(checkdelete);
 							d.isMoving = true;
+							d.isLocked=true;
 							dots.remove(dots.size() - 1);
-
+							
 							// Log.d("dotsMove",String.valueOf(checkdelete)+" "+String.valueOf(d.isMoving));
 						}
 						headerflag = false;
@@ -1102,7 +1129,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 					break;
 				case MotionEvent.ACTION_UP:
-
+					
 					// button interfaces here
 					playToggleB.touchUp(x, y);
 					reverseToggleB.touchUp(x, y);
@@ -1119,14 +1146,18 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					fx4ToggleB.altTouchUp(x, y);
 					fxEmptyToggleB.altTouchUp(x, y);
 					fxClearButtonB.touchUp(x, y);
-
+					
+					//reset checkdelete
+					//checkdelete = -1;
+					
+					
 					if (!headerflag) {
 						if (dots.size() > 0) {
 							Dot d1 = (Dot) dots.get(dots.size() - 1);
 							if (checkdelete < 0) {
 								// if (moveflag)
 								// dots.remove(dots.size() - 1);
-								if (y < mainHeadHeight) {
+								if (y < mainHeadHeight && !moveflag) {
 									dots.remove(dots.size() - 1);
 									toast("You can't draw there");
 								}
@@ -1135,7 +1166,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 									toast("Circle Limit Reached");
 									dots.remove(dots.size() - 1);
 								}
-								if (d1.touched1 == true) {
+								if (d1.hasLine == true && !d1.isLocked) {
+									
 									d1.createCircle2(x, y);
 									d1.isMoving = false;
 
@@ -1178,10 +1210,14 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					}
 					
 					//assign fx dragged in and dropped
-					if (checkdelete >= 0 && fxCheck) {
-						Dot d = dots.get(checkdelete);
+					if (fxcheckdelete >= 0 && fxCheck) {
+						Dot d = dots.get(fxcheckdelete);
 						d.fx(effect, col);
 					}
+					
+					
+					//reset moveflag to false
+					moveflag = false;
 					
 					break;
 				case MotionEvent.ACTION_POINTER_DOWN:
@@ -1191,21 +1227,30 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 					break;
 				case MotionEvent.ACTION_MOVE:
-
-					if (!headerflag) {
+					
+					
+					
+					if (!headerflag && dots.size()>0) {
 						if (checkdelete >= 0) {
 							Dot dnew = (Dot) dots.get(checkdelete);
 							if (dnew.isMoving) {
-								// dnew.createCircle1(x, y);
-								dnew.updateCircles(x, y);
+								int historySize = event.getHistorySize();
+							    for (int i = 0; i < historySize; i++) {
+							          float historicalX = event.getHistoricalX(i);
+							          float historicalY = event.getHistoricalY(i);
+							          dnew.updateCircles(historicalX,historicalY);
+							    }
+								
 
 							}
 						}
 
-						else if (dots.size() > 0) {
+						else if (!moveflag){
 							Dot d11 = (Dot) dots.get(dots.size() - 1);
-							if (d11.touched1)
+							if (d11.node1 && distanceChecker(d11.xDown,d11.yDown,x,y))
 								d11.createLine(x, y);
+								
+							
 						}
 					}
 					
@@ -1238,10 +1283,25 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		}
 		
-		return super.surfaceTouchEvent(event);
+		return super.dispatchTouchEvent(event);
 	}
 		
-
+	
+	public boolean distanceChecker(float x1,float y1,float x2,float y2){
+		boolean check = false;
+		
+		double dist = Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+		if(dist< outerCircSize)
+			check=false;
+		else
+			check = true;
+		
+		return check;
+	}
+	
+	
+	
+	
 	@Override
 	public void bpmChanged(int t) {
 		bpm = t;
