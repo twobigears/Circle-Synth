@@ -2,7 +2,7 @@ package com.twobigears.circlesynth;
 
 import processing.core.*;
 
-public abstract class TextToggle {
+public abstract class UiTextToggle extends ProcessingTouchEvents {
 
 	final PApplet p;
 
@@ -13,7 +13,8 @@ public abstract class TextToggle {
 	public boolean boundBox, state, isEnabled;
 	private boolean isDown;
 
-	TextToggle(final PApplet p) {
+	UiTextToggle(final PApplet p) {
+		super(p);
 		this.p = p;
 		boundBox = state = isDown = false;
 		isEnabled = true;
@@ -57,7 +58,8 @@ public abstract class TextToggle {
 		}
 
 	}
-
+	
+	@Override
 	public void touchDown(float x, float y) {
 		if (isEnabled) {
 			if ((x > tX) && (x < tX + tWidth) && (y > tY) && (y < tY + tHeight)) {
@@ -66,7 +68,8 @@ public abstract class TextToggle {
 			else isDown = false;
 		}
 	}
-
+	
+	@Override
 	public void touchUp(float x, float y) {
 		if (isEnabled) {
 			if ((x > tX) && (x < tX + tWidth) && (y > tY) && (y < tY + tHeight)
