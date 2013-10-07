@@ -61,10 +61,11 @@ public class AdPreference extends Preference {
 		// Initiate a generic request to load it with an ad
 		AdRequest request = new AdRequest();
 		adView.loadAd(request);
-		// request.setTesting(true);
+		request.setTesting(true);
 
-		// request.addTestDevice("B6DE158C61D1A52D63734AE5A4DC3D22");
-		// request.addTestDevice("56A90CA18D3C91AA8F87A566BE1507FB");
+		//request.addTestDevice("B6DE158C61D1A52D63734AE5A4DC3D22");
+		request.addTestDevice("B4F5B9DA474E70A297C4302325DE1D6E");
+
 
 		return view;
 	}

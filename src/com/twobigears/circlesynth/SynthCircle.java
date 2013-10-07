@@ -680,7 +680,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					}
 
 					if (CHECK[i] != FINAL) {
-						// Log.d("pdsend",FINAL);
+						Log.d("pdsend",FINAL);
 						// send list of dot values to pd
 						String[] pieces = FINAL.split(" ");
 						Object[] list = new Object[pieces.length];
@@ -707,8 +707,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		String[] pieces = string.split(" ");
 
 		int index = Integer.parseInt(pieces[0]);
-		Dot d = dots.get(index);
 		if(index<10){
+		Dot d = dots.get(index);
+		
 		if (Float.parseFloat(pieces[1]) <= 1) {
 			d.xDown = (Float.parseFloat(pieces[1]) * width);
 			d.yDown = (Float.parseFloat(pieces[2]) * height);
@@ -723,15 +724,26 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				d.touched1 = true;
 			else
 				d.touched1 = false;
-			if (t2 == 1)
+			if (t2 == 1){
 				d.touched2 = true;
-			else
+				//d.hasLine=true;
+			}
+			else{
 				d.touched2 = false;
+				//d.hasLine=false;
+			}
 
-			if (t3 == 1)
+			if (t3 == 1){
 				d.touched3 = true;
-			else
+				if(d.xDown!=d.xUp)
+					d.hasLine=true;
+				else
+					d.hasLine=false;
+			}
+			else{
 				d.touched3 = false;
+				d.hasLine=false;
+			}
 
 		} else {
 			d.xDown = (Float.parseFloat(pieces[1]));
@@ -1653,7 +1665,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 							for (int i = 0; i <= maxCircle; i++) { // Read lines
 								String line = din.readUTF();
 								stored.add(line);
-								dots.add(new Dot());
+								if(i<maxCircle)
+									dots.add(new Dot());
 								splitString(stored.get(i));
 
 							}
@@ -1712,7 +1725,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					} else {
 						SAVE = String.valueOf(i) + " 5 5 5 5 0 0 0 0 0";
 					}
+					Log.d("saved",SAVE);
 					stored.add(i, SAVE);
+					t1=0;t2=0;t3=0;
 					count=i;
 				}
 				save_bpm=bpm;
