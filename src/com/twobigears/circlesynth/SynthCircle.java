@@ -148,30 +148,13 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	boolean headerflag = false;
 	public float scanline;
 
-	PFont robotoFont;
+	PFont robotoFont, robotoSmallFont;
 	PGraphics header, sketchBG, scanSquare, dragFocus;
 
-	PImage shareImg, playImg, stopImg, revImg, forImg, clearOnImg, clearOffImg,
-			loadOffImg, loadOnImg, saveOffImg, saveOnImg, shareOffImg,
-			shareOnImg, settingsOnImg, settingsOffImg, innerCircleImg,
-			outerCircleImg, lineCircleImg, fxCircleToggleImg, fxEmptyToggleImg,
-			fxClearOffImg, fxClearOnImg, fxDragFilledImg, fxDragEmptyImg, fxFilledImg;
-
-	PlayToggle playToggleB;
-	ReverseToggle reverseToggleB;
-	FxToggle fxToggleB; 
-	BpmButton bpmButtonB;
-	ClearButton clearButtonB;
-	LoadButton loadButtonB;
-	SaveButton saveButtonB;
-	ShareButton shareButtonB;
-	SettingsButton settingsButtonB;
-	Fx1Toggle fx1ToggleB;
-	Fx2Toggle fx2ToggleB;
-	Fx3Toggle fx3ToggleB;
-	Fx4Toggle fx4ToggleB;
-	FxEmptyToggle fxEmptyToggleB;
-	FxClearButton fxClearButtonB;
+	PImage fxDragFilledImg, fxDragEmptyImg, fxFilledImg, innerCircleImg,
+			outerCircleImg, lineCircleImg;
+	
+	Toolbar toolbar;
 	
 	FxCircleDrag fxCircleDrag;
 	
@@ -180,6 +163,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	int mainHeadHeight, shadowHeight, scanSquareY, headerHeight, buttonPad1, buttonPad2, buttonFxPad;
 	
 	float textAscent, dragDeleteBoundary;
+	
+	String resSuffix = "30";
 
 	int bpm = 120;
 	float bpmScale = constrain(bpm / 24, 4, 20);
@@ -403,8 +388,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		for (int i = 0; i < maxCircle; i++) {
 			CHECK[i] = "0 5 5 5 5 0";
 		}
-		
-		String resSuffix = "30";
 
 		DisplayMetrics dm = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -428,64 +411,15 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			resSuffix = "_x200";
 		}
 		
-		playImg = loadImage("play"+resSuffix+".png");
-		stopImg = loadImage("stop"+resSuffix+".png");
-		revImg = loadImage("reverse"+resSuffix+".png");
-		forImg = loadImage("forward"+resSuffix+".png");
-		clearOnImg = loadImage("clearOn"+resSuffix+".png");
-		clearOffImg = loadImage("clearOff"+resSuffix+".png");
-		loadOffImg = loadImage("loadOff"+resSuffix+".png");
-		loadOnImg = loadImage("loadOn"+resSuffix+".png");
-		saveOffImg = loadImage("saveOff"+resSuffix+".png");
-		saveOnImg = loadImage("saveOn"+resSuffix+".png");
-		shareOffImg = loadImage("shareOff"+resSuffix+".png");
-		shareOnImg = loadImage("shareOn"+resSuffix+".png");
-		settingsOffImg = loadImage("settingsOff"+resSuffix+".png");
-		settingsOnImg = loadImage("settingsOn"+resSuffix+".png");
 		innerCircleImg = loadImage("inner_circle"+resSuffix+".png");
 		outerCircleImg = loadImage("outer_circle"+resSuffix+".png");
 		lineCircleImg = loadImage("line_circle"+resSuffix+".png");
-		fxCircleToggleImg = loadImage("fxCircleToggle"+resSuffix+".png");
-		fxEmptyToggleImg = loadImage("fxCircleEmpty"+resSuffix+".png");
-		fxClearOffImg = loadImage("fxClearOff"+resSuffix+".png");
-		fxClearOnImg = loadImage("fxClearOn"+resSuffix+".png");
 		fxFilledImg = loadImage("fxFilled"+resSuffix+".png");
 		
 		robotoFont = createFont("Roboto-Thin-12", 24 * density, true);
+		robotoSmallFont = createFont("Roboto-Thin-12", 18 * density, true);
 		
-		// buttons
-		playToggleB = new PlayToggle(this);
-		playToggleB.load(playImg, stopImg);
-		reverseToggleB = new ReverseToggle(this);
-		reverseToggleB.load(revImg, forImg);
-		fxToggleB = new FxToggle(this);
-		fxToggleB.load(robotoFont);
-		fxToggleB.setSize(revImg.width, revImg.height);
-		bpmButtonB = new BpmButton(this);
-		bpmButtonB.load(robotoFont);
-		bpmButtonB.setSize(revImg.width, revImg.height);
-		clearButtonB = new ClearButton(this);
-		clearButtonB.load(clearOffImg, clearOnImg);
-		loadButtonB = new LoadButton(this);
-		loadButtonB.load(loadOffImg, loadOnImg);
-		saveButtonB = new SaveButton(this);
-		saveButtonB.load(saveOffImg, saveOnImg);
-		shareButtonB = new ShareButton(this);
-		shareButtonB.load(shareOffImg, shareOnImg);
-		settingsButtonB = new SettingsButton(this);
-		settingsButtonB.load(settingsOffImg, settingsOnImg);
-		fx1ToggleB = new Fx1Toggle(this, false, true);
-		fx1ToggleB.load(fxCircleToggleImg, fxCircleToggleImg);
-		fx2ToggleB = new Fx2Toggle(this, false, true);
-		fx2ToggleB.load(fxCircleToggleImg, fxCircleToggleImg);
-		fx3ToggleB = new Fx3Toggle(this, false, true);
-		fx3ToggleB.load(fxCircleToggleImg, fxCircleToggleImg);
-		fx4ToggleB = new Fx4Toggle(this, false, true);
-		fx4ToggleB.load(fxCircleToggleImg, fxCircleToggleImg);
-		fxEmptyToggleB = new FxEmptyToggle(this, false, true);
-		fxEmptyToggleB.load(fxEmptyToggleImg, fxEmptyToggleImg);
-		fxClearButtonB = new FxClearButton(this, false);
-		fxClearButtonB.load(fxClearOffImg, fxClearOnImg);
+		toolbar = new Toolbar();
 		
 		fxCircleDrag = new FxCircleDrag(this);
 		fxCircleDrag.emptyCircle = outerCircleImg;
@@ -632,22 +566,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		if (moveflag)
 			image(dragFocus, 0, headerHeight);
 		
-		//buttons
-		playToggleB.drawIt(buttonPad1, 0);
-		reverseToggleB.drawIt(playToggleB.getWidth()+buttonPad2, 0);
-		bpmButtonB.drawIt(String.valueOf(bpm), (playToggleB.getWidth()+buttonPad2)*2, 0);
-		clearButtonB.drawIt((playToggleB.getWidth()+buttonPad2)*3, 0);
-		fxToggleB.drawIt("FX", (playToggleB.getWidth()+buttonPad2)*4, 0);
-		settingsButtonB.drawIt(width-(playToggleB.getWidth()+buttonPad1), 0);
-		shareButtonB.drawIt(width-((playToggleB.getWidth()+buttonPad1)*2), 0);
-		saveButtonB.drawIt(width-((playToggleB.getWidth()+buttonPad1)*3), 0);
-		loadButtonB.drawIt(width-((playToggleB.getWidth()+buttonPad1)*4), 0);
-		fx1ToggleB.drawIt(buttonFxPad, 0);
-		fx2ToggleB.drawIt(fx1ToggleB.getWidth()+buttonFxPad, 0);
-		fx3ToggleB.drawIt((fx1ToggleB.getWidth())*2+buttonFxPad, 0);
-		fx4ToggleB.drawIt((fx1ToggleB.getWidth())*3+buttonFxPad, 0);
-		fxEmptyToggleB.drawIt((fx1ToggleB.getWidth())*4+buttonFxPad, 0);
-		fxClearButtonB.drawIt((fx1ToggleB.getWidth())*5+buttonFxPad, 0);
+		toolbar.drawIt();
 
 		fxCircleDrag.drawIt();
 	}
@@ -658,7 +577,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			for (int i = 0; i < dots.size(); i++) {
 				Dot d = dots.get(i);
 				if (!d.touched2) {
-					if (!reverseToggleB.state) {
+					if (!toolbar.reverseToggleB.state) {
 						if (Math.abs(scanline
 								- Float.parseFloat(df.format(d.xDown / width))) <= .01)
 							d.selected1 = true;
@@ -679,13 +598,13 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				} else {
 					float dxd = Float.parseFloat(df.format(d.xDown / width));
 					float dxu = Float.parseFloat(df.format(d.xUp / width));
-					if (!reverseToggleB.state) {
+					if (!toolbar.reverseToggleB.state) {
 						if (Math.abs(scanline - dxd) <= .01) {
 							d.selected1 = d.selected2 = true;
 						}
 
 					}
-					if (reverseToggleB.state) {
+					if (toolbar.reverseToggleB.state) {
 						if (Math.abs(scanline - dxu) <= .01) {
 							d.selected1 = d.selected2 = true;
 						}
@@ -715,7 +634,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			Dot d = (Dot) dots.get(i);
 			
 			// turning lights off
-			if (!playToggleB.state)
+			if (!toolbar.playToggleB.state)
 				d.selected1 = d.selected2 = false;
 			
 			// for line
@@ -1263,23 +1182,23 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					}
 					
 					// set fx assign color/value based on move
-					if (fx1ToggleB.state) {
+					if (toolbar.fx1ToggleB.state) {
 						effect = 1;
 						col = col2;
 						fxCheck = true;
-					} else if (fx2ToggleB.state) {
+					} else if (toolbar.fx2ToggleB.state) {
 						effect = 2;
 						col = col3;
 						fxCheck = true;
-					} else if (fx3ToggleB.state) {
+					} else if (toolbar.fx3ToggleB.state) {
 						effect = 3;
 						col = col4;
 						fxCheck = true;
-					} else if (fx4ToggleB.state) {
+					} else if (toolbar.fx4ToggleB.state) {
 						effect = 4;
 						col = col5;
 						fxCheck = true;
-					} else if (fxEmptyToggleB.state) {
+					} else if (toolbar.fxEmptyToggleB.state) {
 						effect = 0;
 						col = col1;
 						fxCheck = true;
@@ -1476,355 +1395,531 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			toast("Please save the sketch before sharing");
 	}
 	
-	// Button interfaces here
-	class PlayToggle extends UiImageToggle {
-
-		PlayToggle(PApplet p) {
-			super(p);
-		}
-
-		@Override
-		public void isTrue() {
-			PdBase.sendFloat("pd_playToggle", 1);
-			sendPdValue();
-		}	
-		
-		@Override
-		public void isFalse() {
-			PdBase.sendFloat("pd_playToggle", 0);
-			scanline = 0;
-		}
-	}
 	
-	class ReverseToggle extends UiImageToggle {
+	public class Toolbar {
 		
-		ReverseToggle(PApplet p) {
-			super(p);
-		}
-
-		@Override
-		public void isTrue() {
-			PdBase.sendFloat("pd_revToggle", 1);
-		}	
+		PImage shareImg, playImg, stopImg, revImg, forImg, clearOnImg, clearOffImg,
+		loadOffImg, loadOnImg, saveOffImg, saveOnImg, shareOffImg,
+		shareOnImg, settingsOnImg, settingsOffImg, fxCircleToggleImg, fxEmptyToggleImg,
+		fxClearOffImg, fxClearOnImg, moreToggleImg, lessToggleImg;
 		
-		@Override
-		public void isFalse() {
-			PdBase.sendFloat("pd_revToggle", 0);
-		}
+		PlayToggle playToggleB;
+		ReverseToggle reverseToggleB;
+		FxToggle fxToggleB; 
+		BpmButton bpmButtonB;
+		ClearButton clearButtonB;
+		LoadButton loadButtonB;
+		SaveButton saveButtonB;
+		ShareButton shareButtonB;
+		SettingsButton settingsButtonB;
+		Fx1Toggle fx1ToggleB;
+		Fx2Toggle fx2ToggleB;
+		Fx3Toggle fx3ToggleB;
+		Fx4Toggle fx4ToggleB;
+		FxEmptyToggle fxEmptyToggleB;
+		FxClearButton fxClearButtonB;
+		MoreToggle moreToggleB;
+		RecordToggle recordToggleB;
 		
-	}
-	
-	class FxToggle extends UiTextToggle {
+		Animations toolbarAnimate;
 		
-		public FxToggle(PApplet p) {
-			super(p);
-		}
+		private float slideX;
 		
-		@Override
-		public void isTrue() {
-			playToggleB.isEnabled = reverseToggleB.isEnabled = bpmButtonB.isEnabled = clearButtonB.isEnabled = false;
-			fx1ToggleB.isEnabled = fx2ToggleB.isEnabled = fx3ToggleB.isEnabled = fx4ToggleB.isEnabled = fxEmptyToggleB.isEnabled = fxClearButtonB.isEnabled = true;
-		}
-
-		@Override
-		public void isFalse() {
-			playToggleB.isEnabled = reverseToggleB.isEnabled = bpmButtonB.isEnabled = clearButtonB.isEnabled = true;
-			fx1ToggleB.isEnabled = fx2ToggleB.isEnabled = fx3ToggleB.isEnabled = fx4ToggleB.isEnabled = fxEmptyToggleB.isEnabled = fxClearButtonB.isEnabled = false;
-		}
-
-	}
-	
-	class BpmButton extends UiTextButton {
-		
-		public BpmButton(PApplet p) {
-			super(p);
-		}
-
-		@Override
-		public void isReleased() {
-			toast("Set BPM/Speed");
-			SynthCircle.this.runOnUiThread(new Runnable() {
-				public void run() {
-					new BpmPicker(SynthCircle.this, SynthCircle.this, bpm)
-							.show();
-				}
-			});
+		Toolbar () {
+			playImg = loadImage("play"+resSuffix+".png");
+			stopImg = loadImage("stop"+resSuffix+".png");
+			revImg = loadImage("reverse"+resSuffix+".png");
+			forImg = loadImage("forward"+resSuffix+".png");
+			clearOnImg = loadImage("clearOn"+resSuffix+".png");
+			clearOffImg = loadImage("clearOff"+resSuffix+".png");
+			loadOffImg = loadImage("loadOff"+resSuffix+".png");
+			loadOnImg = loadImage("loadOn"+resSuffix+".png");
+			saveOffImg = loadImage("saveOff"+resSuffix+".png");
+			saveOnImg = loadImage("saveOn"+resSuffix+".png");
+			shareOffImg = loadImage("shareOff"+resSuffix+".png");
+			shareOnImg = loadImage("shareOn"+resSuffix+".png");
+			settingsOffImg = loadImage("settingsOff"+resSuffix+".png");
+			settingsOnImg = loadImage("settingsOn"+resSuffix+".png");
+			fxCircleToggleImg = loadImage("fxCircleToggle"+resSuffix+".png");
+			fxEmptyToggleImg = loadImage("fxCircleEmpty"+resSuffix+".png");
+			fxClearOffImg = loadImage("fxClearOff"+resSuffix+".png");
+			fxClearOnImg = loadImage("fxClearOn"+resSuffix+".png");
+			moreToggleImg = loadImage("more"+resSuffix+".png");
+			lessToggleImg = loadImage("less"+resSuffix+".png");
+			
+			playToggleB = new PlayToggle(SynthCircle.this);
+			playToggleB.load(playImg, stopImg);
+			reverseToggleB = new ReverseToggle(SynthCircle.this);
+			reverseToggleB.load(revImg, forImg);
+			fxToggleB = new FxToggle(SynthCircle.this);
+			fxToggleB.load(robotoFont);
+			fxToggleB.setSize(revImg.width, revImg.height);
+			bpmButtonB = new BpmButton(SynthCircle.this);
+			bpmButtonB.load(robotoFont);
+			bpmButtonB.setSize(revImg.width, revImg.height);
+			clearButtonB = new ClearButton(SynthCircle.this);
+			clearButtonB.load(clearOffImg, clearOnImg);
+			loadButtonB = new LoadButton(SynthCircle.this);
+			loadButtonB.load(loadOffImg, loadOnImg);
+			saveButtonB = new SaveButton(SynthCircle.this);
+			saveButtonB.load(saveOffImg, saveOnImg);
+			shareButtonB = new ShareButton(SynthCircle.this);
+			shareButtonB.load(shareOffImg, shareOnImg);
+			settingsButtonB = new SettingsButton(SynthCircle.this);
+			settingsButtonB.load(settingsOffImg, settingsOnImg);
+			fx1ToggleB = new Fx1Toggle(SynthCircle.this, false, true);
+			fx1ToggleB.load(fxCircleToggleImg, fxCircleToggleImg);
+			fx2ToggleB = new Fx2Toggle(SynthCircle.this, false, true);
+			fx2ToggleB.load(fxCircleToggleImg, fxCircleToggleImg);
+			fx3ToggleB = new Fx3Toggle(SynthCircle.this, false, true);
+			fx3ToggleB.load(fxCircleToggleImg, fxCircleToggleImg);
+			fx4ToggleB = new Fx4Toggle(SynthCircle.this, false, true);
+			fx4ToggleB.load(fxCircleToggleImg, fxCircleToggleImg);
+			fxEmptyToggleB = new FxEmptyToggle(SynthCircle.this, false, true);
+			fxEmptyToggleB.load(fxEmptyToggleImg, fxEmptyToggleImg);
+			fxClearButtonB = new FxClearButton(SynthCircle.this, false);
+			fxClearButtonB.load(fxClearOffImg, fxClearOnImg);
+			moreToggleB = new MoreToggle(SynthCircle.this);
+			moreToggleB.load(moreToggleImg, lessToggleImg);	
+			recordToggleB = new RecordToggle(SynthCircle.this);
+			recordToggleB.load(robotoSmallFont);
+			recordToggleB.setSize(revImg.width, revImg.height);
+			recordToggleB.offColor = color(120,120,120);
+			recordToggleB.onColor = color(255,0,0);
+			
+			toolbarAnimate = new Animations(30);
+			
 			
 		}
-	}
-	
-	class ClearButton extends UiImageButton {
-
-		ClearButton(PApplet p) {
-			super(p);
-		}
-
-		@Override
-		public void isReleased() {
-			dots.clear();
-			stored.clear();
-			toast("Sketch Cleared");
-		}
-	}
-	
-	class LoadButton extends UiImageButton {
 		
-		LoadButton(PApplet p) {
-			super(p);
+		public void drawIt() {
+			
+			if (moreToggleB.state)
+				toolbarAnimate.accelerateUp();
+			else
+				toolbarAnimate.accelerateDown();
+			
+			pushMatrix();
+			slideX = (playToggleB.getWidth()*3)+(buttonPad1*3);
+			float xAnimate = toolbarAnimate.animateValue * -slideX;
+			playToggleB.drawIt(buttonPad1 + xAnimate, 0);
+			reverseToggleB.drawIt((playToggleB.getWidth() + buttonPad2)
+					+ xAnimate, 0);
+			bpmButtonB.drawIt(String.valueOf(bpm),
+					((playToggleB.getWidth() + buttonPad2) * 2) + xAnimate, 0);
+			clearButtonB.drawIt(((playToggleB.getWidth() + buttonPad2) * 3)
+					+ xAnimate, 0);
+			fxToggleB.drawIt("FX", ((playToggleB.getWidth() + buttonPad2) * 4)
+					+ xAnimate, 0);
+
+			moreToggleB.drawIt((width - (playToggleB.getWidth() + buttonPad1))
+					+ xAnimate, 0);
+			settingsButtonB.drawIt(
+					(width - ((playToggleB.getWidth() + buttonPad1) * 2))
+							+ xAnimate, 0);
+			recordToggleB.drawIt("REC",
+					(width - ((playToggleB.getWidth() + buttonPad1) * 3))
+							+ xAnimate, 0);
+			
+			
+			shareButtonB.drawIt((width)+xAnimate, 0);
+			saveButtonB.drawIt((width+((playToggleB.getWidth())+(buttonPad1)))+xAnimate, 0);
+			loadButtonB.drawIt((width+((playToggleB.getWidth()*2)+(buttonPad1*2)))+xAnimate, 0);
+			
+			fx1ToggleB.drawIt(buttonFxPad+xAnimate, 0);
+			fx2ToggleB.drawIt((fx1ToggleB.getWidth()+buttonFxPad)+xAnimate, 0);
+			fx3ToggleB.drawIt(((fx1ToggleB.getWidth())*2+buttonFxPad)+xAnimate, 0);
+			fx4ToggleB.drawIt(((fx1ToggleB.getWidth())*3+buttonFxPad)+xAnimate, 0);
+			fxEmptyToggleB.drawIt(((fx1ToggleB.getWidth())*4+buttonFxPad)+xAnimate, 0);
+			fxClearButtonB.drawIt(((fx1ToggleB.getWidth())*5+buttonFxPad)+xAnimate, 0);
+			
+			popMatrix();
 		}
 		
-		@Override
-		public void isReleased() {
-			File mPath = new File(Environment.getExternalStorageDirectory()
-					+ "/circlesynth");
-			fileDialog = new FileDialog(SynthCircle.this, mPath);
-			fileDialog.setFileEndsWith(".txt");
-			fileDialog.addFileListener(new FileDialog.FileSelectedListener() {
-				public void fileSelected(File file) {
-					fName = file.getName();
-					try {
+		// Button interfaces here
+		class PlayToggle extends UiImageToggle {
 
-						dots.clear();
-						stored.clear();
+			PlayToggle(PApplet p) {
+				super(p);
+			}
 
-						FileInputStream input = new FileInputStream(file);
-						DataInputStream din = new DataInputStream(input);
+			@Override
+			public void isTrue() {
+				PdBase.sendFloat("pd_playToggle", 1);
+				sendPdValue();
+			}	
+			
+			@Override
+			public void isFalse() {
+				PdBase.sendFloat("pd_playToggle", 0);
+				scanline = 0;
+			}
+		}
+		
+		class ReverseToggle extends UiImageToggle {
+			
+			ReverseToggle(PApplet p) {
+				super(p);
+			}
 
-						for (int i = 0; i <= maxCircle; i++) { // Read lines
-							String line = din.readUTF();
-							stored.add(line);
-							dots.add(new Dot());
-							splitString(stored.get(i));
+			@Override
+			public void isTrue() {
+				PdBase.sendFloat("pd_revToggle", 1);
+			}	
+			
+			@Override
+			public void isFalse() {
+				PdBase.sendFloat("pd_revToggle", 0);
+			}
+			
+		}
+		
+		class FxToggle extends UiTextToggle {
+			
+			public FxToggle(PApplet p) {
+				super(p);
+			}
+			
+			@Override
+			public void isTrue() {
+				playToggleB.isEnabled = reverseToggleB.isEnabled = bpmButtonB.isEnabled = clearButtonB.isEnabled = false;
+				fx1ToggleB.isEnabled = fx2ToggleB.isEnabled = fx3ToggleB.isEnabled = fx4ToggleB.isEnabled = fxEmptyToggleB.isEnabled = fxClearButtonB.isEnabled = true;
+			}
 
-						}
-						din.close();
-					} catch (IOException exc) {
-						exc.printStackTrace();
+			@Override
+			public void isFalse() {
+				playToggleB.isEnabled = reverseToggleB.isEnabled = bpmButtonB.isEnabled = clearButtonB.isEnabled = true;
+				fx1ToggleB.isEnabled = fx2ToggleB.isEnabled = fx3ToggleB.isEnabled = fx4ToggleB.isEnabled = fxEmptyToggleB.isEnabled = fxClearButtonB.isEnabled = false;
+			}
+
+		}
+		
+		class BpmButton extends UiTextButton {
+			
+			public BpmButton(PApplet p) {
+				super(p);
+			}
+
+			@Override
+			public void isReleased() {
+				toast("Set BPM/Speed");
+				SynthCircle.this.runOnUiThread(new Runnable() {
+					public void run() {
+						new BpmPicker(SynthCircle.this, SynthCircle.this, bpm)
+								.show();
 					}
-					dotcleanup();
-
-				}
-
-			});
-
-			SynthCircle.this.runOnUiThread(new Runnable() {
-				public void run() {
-
-					fileDialog.showDialog();
-				}
-			});
-		}
-	}
-	
-	class SaveButton extends UiImageButton {
-		
-		SaveButton(PApplet p) {
-			super(p);
+				});
+				
+			}
 		}
 		
-		@Override
-		public void isReleased() {
-			toast("Sketch Saved in /circlesynth");
-			stored.clear();
-			int t1 = 0;
-			int t2 = 0;
-			int t3 = 0;
-			int count=0;
-			String SAVE = null;
-			for (int i = 0; i < maxCircle; i++) {
-				if (i < dots.size()) {
+		class ClearButton extends UiImageButton {
+
+			ClearButton(PApplet p) {
+				super(p);
+			}
+
+			@Override
+			public void isReleased() {
+				dots.clear();
+				stored.clear();
+				toast("Sketch Cleared");
+			}
+		}
+		
+		class LoadButton extends UiImageButton {
+			
+			LoadButton(PApplet p) {
+				super(p);
+			}
+			
+			@Override
+			public void isReleased() {
+				File mPath = new File(Environment.getExternalStorageDirectory()
+						+ "/circlesynth");
+				fileDialog = new FileDialog(SynthCircle.this, mPath);
+				fileDialog.setFileEndsWith(".txt");
+				fileDialog.addFileListener(new FileDialog.FileSelectedListener() {
+					public void fileSelected(File file) {
+						fName = file.getName();
+						try {
+
+							dots.clear();
+							stored.clear();
+
+							FileInputStream input = new FileInputStream(file);
+							DataInputStream din = new DataInputStream(input);
+
+							for (int i = 0; i <= maxCircle; i++) { // Read lines
+								String line = din.readUTF();
+								stored.add(line);
+								dots.add(new Dot());
+								splitString(stored.get(i));
+
+							}
+							din.close();
+						} catch (IOException exc) {
+							exc.printStackTrace();
+						}
+						dotcleanup();
+
+					}
+
+				});
+
+				SynthCircle.this.runOnUiThread(new Runnable() {
+					public void run() {
+
+						fileDialog.showDialog();
+					}
+				});
+			}
+		}
+		
+		class SaveButton extends UiImageButton {
+			
+			SaveButton(PApplet p) {
+				super(p);
+			}
+			
+			@Override
+			public void isReleased() {
+				toast("Sketch Saved in /circlesynth");
+				stored.clear();
+				int t1 = 0;
+				int t2 = 0;
+				int t3 = 0;
+				int count=0;
+				String SAVE = null;
+				for (int i = 0; i < maxCircle; i++) {
+					if (i < dots.size()) {
+						Dot d = (Dot) dots.get(i);
+						if (d.touched1)
+							t1 = 1;
+						if (d.touched2)
+							t2 = 1;
+						if (d.touched3)
+							t3 = 1;
+						SAVE = String.valueOf(i) + " "
+								+ String.valueOf(d.xDown / width) + " "
+								+ String.valueOf(d.yDown / height) + " "
+								+ String.valueOf(d.xUp / width) + " "
+								+ String.valueOf(d.yUp / height) + " "
+								+ String.valueOf(d.doteffect) + " "
+								+ String.valueOf(d.dotcol) + " "
+								+ String.valueOf(t1) + " " + String.valueOf(t2)
+								+ " " + String.valueOf(t3);
+					} else {
+						SAVE = String.valueOf(i) + " 5 5 5 5 0 0 0 0 0";
+					}
+					stored.add(i, SAVE);
+					count=i;
+				}
+				save_bpm=bpm;
+				
+				String SAVE_EXTRA=String.valueOf(++count)+" "+String.valueOf(save_preset)+" "+String.valueOf(save_scale)
+						+" "+String.valueOf(save_octTrans)+" "+String.valueOf(save_noteTrans)+" "+String.valueOf(save_bpm);
+				stored.add(count,SAVE_EXTRA);
+				
+				String root = Environment.getExternalStorageDirectory().toString();
+				File myDir = new File(root + "/circlesynth");
+				myDir.mkdirs();
+				SimpleDateFormat formatter = new SimpleDateFormat("MMddHHmm");
+				Date now = new Date();
+				String fileName = formatter.format(now);
+				String fname = "sketch_" + fileName + ".txt";
+				fName = fname;
+				File file = new File(myDir, fname);
+				try {
+					FileOutputStream output = new FileOutputStream(file);
+					DataOutputStream dout = new DataOutputStream(output);
+
+					// Save line count
+					for (String line : stored)
+						// Save lines
+						dout.writeUTF(line);
+					dout.flush(); // Flush stream ...
+					dout.close(); // ... and close.
+
+				} catch (IOException exc) {
+					exc.printStackTrace();
+				}
+				
+			}
+		}
+
+		class ShareButton extends UiImageButton {
+
+			ShareButton(PApplet p) {
+				super(p);
+			}
+
+			@Override
+			public void isReleased() {
+				shareIt();
+			}
+		}
+		
+		class SettingsButton extends UiImageButton {
+
+			SettingsButton(PApplet p) {
+				super(p);
+			}
+
+			@Override
+			public void isReleased() {
+				tracker.trackEvent("Buttons Category", "Settings", "", 0L);
+				Intent intent = new Intent(SynthCircle.this, SynthSettingsTwo.class);
+				startActivity(intent);
+				prefs.registerOnSharedPreferenceChangeListener(SynthCircle.this);
+			}
+		}
+		
+		class Fx1Toggle extends UiImageToggle {
+
+			Fx1Toggle(PApplet p, boolean enabled, boolean alternateMode) {
+				super(p, enabled, alternateMode);
+				tintValue = col2;
+			}
+			
+			@Override
+			public void isTrue() {
+				fxCircleDrag.color = col2;
+				fxCircleDrag.isEnabled = true;
+			}	
+			
+			@Override
+			public void isFalse() {
+				fxCircleDrag.isEnabled = false;
+			}
+			
+		}
+		
+		class Fx2Toggle extends UiImageToggle {
+
+			Fx2Toggle(PApplet p, boolean enabled, boolean alternateMode) {
+				super(p, enabled, alternateMode);
+				tintValue = col3;
+			}
+			
+			@Override
+			public void isTrue() {
+				fxCircleDrag.color = col3;
+				fxCircleDrag.isEnabled = true;
+			}	
+			
+			@Override
+			public void isFalse() {
+				fxCircleDrag.isEnabled = false;
+			}
+		}
+		
+		class Fx3Toggle extends UiImageToggle {
+
+			Fx3Toggle(PApplet p, boolean enabled, boolean alternateMode) {
+				super(p, enabled, alternateMode);
+				tintValue = col4;
+			}
+			
+			@Override
+			public void isTrue() {
+				fxCircleDrag.color = col4;
+				fxCircleDrag.isEnabled = true;
+			}	
+			
+			@Override
+			public void isFalse() {
+				fxCircleDrag.isEnabled = false;
+			}
+		}
+		
+		class Fx4Toggle extends UiImageToggle {
+
+			Fx4Toggle(PApplet p, boolean enabled, boolean alternateMode) {
+				super(p, enabled, alternateMode);
+				tintValue = col5;
+			}
+			
+			@Override
+			public void isTrue() {
+				fxCircleDrag.color = col5;
+				fxCircleDrag.isEnabled = true;
+			}	
+			
+			@Override
+			public void isFalse() {
+				fxCircleDrag.isEnabled = false;
+			}
+		}
+		
+		class FxEmptyToggle extends UiImageToggle {
+
+			FxEmptyToggle(PApplet p, boolean enabled, boolean alternateMode) {
+				super(p, enabled, alternateMode);
+			}
+			
+			@Override
+			public void isTrue() {
+				fxCircleDrag.color = -1;
+				fxCircleDrag.isEnabled = true;
+			}	
+			
+			@Override
+			public void isFalse() {
+				fxCircleDrag.isEnabled = false;
+			}
+		}
+		
+		class FxClearButton extends UiImageButton {
+
+			FxClearButton(PApplet p, boolean enabled) {
+				super(p, enabled);
+			}
+			
+			@Override
+			public void isReleased() {
+				for (int i = 0; i < dots.size(); i++) {
 					Dot d = (Dot) dots.get(i);
-					if (d.touched1)
-						t1 = 1;
-					if (d.touched2)
-						t2 = 1;
-					if (d.touched3)
-						t3 = 1;
-					SAVE = String.valueOf(i) + " "
-							+ String.valueOf(d.xDown / width) + " "
-							+ String.valueOf(d.yDown / height) + " "
-							+ String.valueOf(d.xUp / width) + " "
-							+ String.valueOf(d.yUp / height) + " "
-							+ String.valueOf(d.doteffect) + " "
-							+ String.valueOf(d.dotcol) + " "
-							+ String.valueOf(t1) + " " + String.valueOf(t2)
-							+ " " + String.valueOf(t3);
-				} else {
-					SAVE = String.valueOf(i) + " 5 5 5 5 0 0 0 0 0";
+					d.fxClear();
 				}
-				stored.add(i, SAVE);
-				count=i;
+				toast("All FX cleared");
 			}
-			save_bpm=bpm;
-			
-			String SAVE_EXTRA=String.valueOf(++count)+" "+String.valueOf(save_preset)+" "+String.valueOf(save_scale)
-					+" "+String.valueOf(save_octTrans)+" "+String.valueOf(save_noteTrans)+" "+String.valueOf(save_bpm);
-			stored.add(count,SAVE_EXTRA);
-			
-			String root = Environment.getExternalStorageDirectory().toString();
-			File myDir = new File(root + "/circlesynth");
-			myDir.mkdirs();
-			SimpleDateFormat formatter = new SimpleDateFormat("MMddHHmm");
-			Date now = new Date();
-			String fileName = formatter.format(now);
-			String fname = "sketch_" + fileName + ".txt";
-			fName = fname;
-			File file = new File(myDir, fname);
-			try {
-				FileOutputStream output = new FileOutputStream(file);
-				DataOutputStream dout = new DataOutputStream(output);
+		}
+		
+		class MoreToggle extends UiImageToggle {
 
-				// Save line count
-				for (String line : stored)
-					// Save lines
-					dout.writeUTF(line);
-				dout.flush(); // Flush stream ...
-				dout.close(); // ... and close.
-
-			} catch (IOException exc) {
-				exc.printStackTrace();
+			MoreToggle(PApplet p) {
+				super(p);
 			}
 			
-		}
-	}
-
-	class ShareButton extends UiImageButton {
-
-		ShareButton(PApplet p) {
-			super(p);
-		}
-
-		@Override
-		public void isReleased() {
-			shareIt();
-		}
-	}
-	
-	class SettingsButton extends UiImageButton {
-
-		SettingsButton(PApplet p) {
-			super(p);
-		}
-
-		@Override
-		public void isReleased() {
-			tracker.trackEvent("Buttons Category", "Settings", "", 0L);
-			Intent intent = new Intent(SynthCircle.this, SynthSettingsTwo.class);
-			startActivity(intent);
-			prefs.registerOnSharedPreferenceChangeListener(SynthCircle.this);
-		}
-	}
-	
-	class Fx1Toggle extends UiImageToggle {
-
-		Fx1Toggle(PApplet p, boolean enabled, boolean alternateMode) {
-			super(p, enabled, alternateMode);
-			tintValue = col2;
-		}
-		
-		@Override
-		public void isTrue() {
-			fxCircleDrag.color = col2;
-			fxCircleDrag.isEnabled = true;
-		}	
-		
-		@Override
-		public void isFalse() {
-			fxCircleDrag.isEnabled = false;
-		}
-		
-	}
-	
-	class Fx2Toggle extends UiImageToggle {
-
-		Fx2Toggle(PApplet p, boolean enabled, boolean alternateMode) {
-			super(p, enabled, alternateMode);
-			tintValue = col3;
-		}
-		
-		@Override
-		public void isTrue() {
-			fxCircleDrag.color = col3;
-			fxCircleDrag.isEnabled = true;
-		}	
-		
-		@Override
-		public void isFalse() {
-			fxCircleDrag.isEnabled = false;
-		}
-	}
-	
-	class Fx3Toggle extends UiImageToggle {
-
-		Fx3Toggle(PApplet p, boolean enabled, boolean alternateMode) {
-			super(p, enabled, alternateMode);
-			tintValue = col4;
-		}
-		
-		@Override
-		public void isTrue() {
-			fxCircleDrag.color = col4;
-			fxCircleDrag.isEnabled = true;
-		}	
-		
-		@Override
-		public void isFalse() {
-			fxCircleDrag.isEnabled = false;
-		}
-	}
-	
-	class Fx4Toggle extends UiImageToggle {
-
-		Fx4Toggle(PApplet p, boolean enabled, boolean alternateMode) {
-			super(p, enabled, alternateMode);
-			tintValue = col5;
-		}
-		
-		@Override
-		public void isTrue() {
-			fxCircleDrag.color = col5;
-			fxCircleDrag.isEnabled = true;
-		}	
-		
-		@Override
-		public void isFalse() {
-			fxCircleDrag.isEnabled = false;
-		}
-	}
-	
-	class FxEmptyToggle extends UiImageToggle {
-
-		FxEmptyToggle(PApplet p, boolean enabled, boolean alternateMode) {
-			super(p, enabled, alternateMode);
-		}
-		
-		@Override
-		public void isTrue() {
-			fxCircleDrag.color = -1;
-			fxCircleDrag.isEnabled = true;
-		}	
-		
-		@Override
-		public void isFalse() {
-			fxCircleDrag.isEnabled = false;
-		}
-	}
-	
-	class FxClearButton extends UiImageButton {
-
-		FxClearButton(PApplet p, boolean enabled) {
-			super(p, enabled);
-		}
-		
-		@Override
-		public void isReleased() {
-			for (int i = 0; i < dots.size(); i++) {
-				Dot d = (Dot) dots.get(i);
-				d.fxClear();
+			@Override
+			public void isTrue() {
+			}	
+			
+			@Override
+			public void isFalse() {
+				
 			}
-			toast("All FX cleared");
 		}
-	}
 
+		class RecordToggle extends UiTextToggle {
+
+			public RecordToggle(PApplet p) {
+				super(p);
+			}
+
+			@Override
+			public void isTrue() {
+
+			}
+
+			@Override
+			public void isFalse() {
+
+			}
+
+		}
+
+	}
 
 }
