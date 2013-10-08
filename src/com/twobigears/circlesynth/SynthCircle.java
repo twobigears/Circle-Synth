@@ -42,6 +42,7 @@ import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PGraphics;
 import processing.core.PImage;
+import android.app.DialogFragment;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -55,6 +56,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -69,10 +71,11 @@ import android.widget.Toast;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.Tracker;
 import com.twobigears.circlesynth.BpmPicker.OnBpmChangedListener;
+import com.twobigears.circlesynth.RecordDialog.OnRecordingListener;
 
 
 public class SynthCircle extends PApplet implements OnBpmChangedListener,
-		OnSharedPreferenceChangeListener, SensorEventListener {
+		OnSharedPreferenceChangeListener, SensorEventListener, OnRecordingListener {
 
 	public static final String TAG = "CircleSynth";
 
@@ -147,6 +150,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	boolean moveflag = false;
 	boolean headerflag = false;
 	public float scanline;
+	
+	CountDownTimer timer;
 
 	PFont robotoFont, robotoSmallFont;
 	PGraphics header, sketchBG, scanSquare, dragFocus;
@@ -298,6 +303,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		initPdService();
 		initSystemServices();
+		
 
 	}
 
@@ -680,7 +686,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					}
 
 					if (CHECK[i] != FINAL) {
-						Log.d("pdsend",FINAL);
+						//Log.d("pdsend",FINAL);
 						// send list of dot values to pd
 						String[] pieces = FINAL.split(" ");
 						Object[] list = new Object[pieces.length];
@@ -1044,7 +1050,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		//int checkdelete = -1;
 		if (dots != null) {
 			fxcheckdelete = delCheck(x, y);
-			Log.d("checkdelete", String.valueOf(checkdelete));
+			//Log.d("checkdelete", String.valueOf(checkdelete));
 			
 			fxCircleDrag.setXY(x, y);
 			
@@ -1529,7 +1535,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			settingsButtonB.drawIt(
 					(width - ((playToggleB.getWidth() + buttonPad1) * 2))
 							+ xAnimate, 0);
-			recordToggleB.drawIt("REC",
+			recordToggleB.drawIt(REC_TEXT,
 					(width - ((playToggleB.getWidth() + buttonPad1) * 3))
 							+ xAnimate, 0);
 			
@@ -1547,6 +1553,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			
 			popMatrix();
 		}
+		
+		String REC_TEXT="REC";
 		
 		// Button interfaces here
 		class PlayToggle extends UiImageToggle {
@@ -1725,7 +1733,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					} else {
 						SAVE = String.valueOf(i) + " 5 5 5 5 0 0 0 0 0";
 					}
-					Log.d("saved",SAVE);
+					//Log.d("saved",SAVE);
 					stored.add(i, SAVE);
 					t1=0;t2=0;t3=0;
 					count=i;
@@ -1916,6 +1924,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				
 			}
 		}
+		
+		long start;
+		
 
 		class RecordToggle extends UiTextToggle {
 
@@ -1925,16 +1936,91 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 			@Override
 			public void isTrue() {
+				start=60000;
+				PdBase.sendFloat("pd_record",1);
+				PdBase.sendMessage("pd_path", "record", baseDir+"/circlesynth/recordings");
+				isRecording=true;;
+				
+				//run countdowntimer thread
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						timer = new CountDownTimer(start,1000){
+							
+							@Override
+							public void onFinish() {
+						         PdBase.sendFloat("pd_record", 0);
+						         REC_TEXT="0";
+						         record();
+						         isRecording=false;
+								
+							}
 
+							@Override
+							public void onTick(long millisUntilFinished) {
+								REC_TEXT=String.valueOf(millisUntilFinished/1000);						
+							}
+							
+						}.start();
+					}
+				}); 
+				
 			}
-
+			
+			
+			
 			@Override
 			public void isFalse() {
-
+				
+				PdBase.sendFloat("pd_record", 0);
+				REC_TEXT="REC";
+				timer.cancel();
+				if(isRecording)
+					record();
 			}
 
 		}
 
 	}
+	boolean isRecording=false;
+	
+	public void record(){
+		toolbar.playToggleB.isFalse();
+		
+		SynthCircle.this.runOnUiThread(new Runnable() {
+			public void run() {
+			DialogFragment dialog = new RecordDialog();
+			dialog.show(getFragmentManager(), "recordingfragment");
+			}
+		});
+		isRecording=false;
+	}
+
+	@Override
+	public void onPlayClicked() {
+		Log.d("listener","play");
+		
+	}
+
+	@Override
+	public void onPositiveAction() {
+		Log.d("listener","ring");
+		
+	}
+
+	@Override
+	public void onNegativeAction() {
+		Log.d("listener","cancel");
+		
+	}
+	
+	@Override
+	public void onNeutralAction(){
+		Log.d("listener","Save");
+	}
+	
+	
+	
+	
 
 }
