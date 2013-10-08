@@ -55,6 +55,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -298,6 +299,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		initPdService();
 		initSystemServices();
+		
 
 	}
 
@@ -1529,7 +1531,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			settingsButtonB.drawIt(
 					(width - ((playToggleB.getWidth() + buttonPad1) * 2))
 							+ xAnimate, 0);
-			recordToggleB.drawIt("REC",
+			recordToggleB.drawIt(REC_TEXT,
 					(width - ((playToggleB.getWidth() + buttonPad1) * 3))
 							+ xAnimate, 0);
 			
@@ -1547,6 +1549,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			
 			popMatrix();
 		}
+		
+		String REC_TEXT="REC";
 		
 		// Button interfaces here
 		class PlayToggle extends UiImageToggle {
@@ -1916,6 +1920,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				
 			}
 		}
+		
+		long start;
 
 		class RecordToggle extends UiTextToggle {
 
@@ -1925,16 +1931,49 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 			@Override
 			public void isTrue() {
+				start=60000;
+				PdBase.sendFloat("pd_record",1);
+				
+				//run countdowntimer thread
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						timer = new CountDownTimer(start,1000){
+							
+							@Override
+							public void onFinish() {
+						         PdBase.sendFloat("pd_record", 0);
+						         REC_TEXT="0";
+								
+							}
 
+							@Override
+							public void onTick(long millisUntilFinished) {
+								REC_TEXT=String.valueOf(millisUntilFinished/1000);						
+							}
+							
+						}.start();
+					}
+				}); 
+				
 			}
-
+			
+			
+			
 			@Override
 			public void isFalse() {
-
+				
+				PdBase.sendFloat("pd_record", 0);
+				REC_TEXT="REC";
+				timer.cancel();
 			}
 
 		}
 
 	}
+	
+	CountDownTimer timer;
+	
+	
 
 }
