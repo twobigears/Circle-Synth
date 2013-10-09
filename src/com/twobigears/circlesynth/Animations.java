@@ -1,6 +1,5 @@
 package com.twobigears.circlesynth;
 
-import android.util.Log;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;

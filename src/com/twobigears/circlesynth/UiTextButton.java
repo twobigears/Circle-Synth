@@ -45,7 +45,7 @@ public abstract class UiTextButton extends ProcessingTouchEvents {
 			
 			p.pushMatrix();
 			p.translate(tX, tY);
-			p.textAlign(p.CENTER, p.CENTER);
+			p.textAlign(PConstants.CENTER, PConstants.CENTER);
 			if (!state) {
 				p.fill(offColor);
 				p.text(displayText, tWidth*0.5f, tHeight*0.5f);
