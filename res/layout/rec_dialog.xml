@@ -13,6 +13,6 @@
         android:layout_above="@drawable/play"
         android:layout_centerInParent="true"
         android:background="@null"
-        android:src="@drawable/record_pay_bg" />
+        android:src="@drawable/play" />
 
 </RelativeLayout>
