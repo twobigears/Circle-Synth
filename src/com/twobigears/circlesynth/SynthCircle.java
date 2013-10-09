@@ -1986,6 +1986,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	
 	public void record(){
 		toolbar.playToggleB.isFalse();
+		toolbar.playToggleB.state=false;
 		
 		SynthCircle.this.runOnUiThread(new Runnable() {
 			public void run() {
@@ -1998,20 +1999,23 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	@Override
 	public void onPlayTrue() {
-		Log.d("listener","play");
+		//Log.d("listener","play");
+		PdBase.sendFloat("pd_recordPlay", 1);
 		
 	}
 	
 	@Override
 	public void onPlayFalse() {
-		Log.d("listener","stop");
+		//Log.d("listener","stop");
+		PdBase.sendFloat("pd_recordPlay", 0);
 		
 	}
 
 	@Override
 	public void onPositiveAction() {
-		Log.d("listener","ring");
+		//Log.d("listener","ring");
 		prepareRecord();
+		setRingtone();
 		
 	}
 
@@ -2023,7 +2027,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	
 	@Override
 	public void onNeutralAction(){
-		Log.d("listener","Save");
+		//Log.d("listener","Save");
 		prepareRecord();
 	}
 	
@@ -2043,6 +2047,10 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		
 		
 		
+		
+	}
+	
+	public void setRingtone(){
 		
 	}
 	
