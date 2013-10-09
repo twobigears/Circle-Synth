@@ -2031,12 +2031,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		SimpleDateFormat formatter = new SimpleDateFormat("MMddHHmm");
 		Date now = new Date();
 		String fileName = formatter.format(now);
-		String fname = "recording_" + fileName + ".wav";
-		Object fileNamePd[] = new Object[1];
+		String fname = "recording_" + fileName;
 		
-		fileNamePd[0]="myDir"+"/"+fname;
-		
-		PdBase.sendList("pd_path",fileNamePd);
+		PdBase.sendSymbol("pd_path",myDir+"/"+fname);
 		
 		
 		
