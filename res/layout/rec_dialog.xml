@@ -6,14 +6,13 @@
     android:id="@+id/RelativeLayout01"
     tools:ignore="HardcodedText" >
 
-    <ToggleButton
+    <ImageButton
         android:id="@+id/recordPlayToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@drawable/play"
         android:layout_centerInParent="true"
-        android:background="@drawable/record_pay_bg"
-        android:textOff=""
-        android:textOn="" />
-
+        android:background="@null"
+        android:src="@drawable/record_pay_bg" />
 
 </RelativeLayout>

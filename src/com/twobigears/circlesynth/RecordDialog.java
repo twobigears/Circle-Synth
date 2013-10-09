@@ -25,13 +25,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.ToggleButton;
+import android.widget.ImageButton;
 
 public class RecordDialog extends DialogFragment {
 
-	ToggleButton playbutton;
+	ImageButton playbutton;
 
 	public interface OnRecordingListener {
 
@@ -100,20 +98,25 @@ public class RecordDialog extends DialogFragment {
 		// Pass null as the parent view because its going in the dialog layout
 
 		View view = inflater.inflate(R.layout.rec_dialog, null);
-		playbutton = (ToggleButton) view.findViewById(R.id.recordPlayToggle);
-		playbutton.setText(null);
+		playbutton = (ImageButton) view.findViewById(R.id.recordPlayToggle);
 
-		playbutton
-				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-					public void onCheckedChanged(CompoundButton buttonView,
-							boolean isChecked) {
-						if (isChecked) {
-							tListener.onPlayTrue();
-						} else {
-							tListener.onPlayFalse();
-						}
-					}
-				});
+		playbutton.setOnClickListener(new OnClickListener() {
+			boolean state = false;
+			
+			@Override
+			public void onClick(View v) {
+				if(!state) {
+					playbutton.setImageResource(R.drawable.stop);
+					tListener.onPlayTrue();	
+					state  = true;
+				}
+				else {
+					playbutton.setImageResource(R.drawable.play);
+					tListener.onPlayFalse();
+					state  = false;
+				}
+			}
+		});
 
 		builder.setView(view);
 		// Create the AlertDialog object and return it
