@@ -17,12 +17,15 @@
         android:text="Ok" />
 -->
 
-    <Button
-        android:id="@+id/button1"
+    <ToggleButton
+        android:id="@+id/recordPlayToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="31dp"
-        android:text="       Play       " />
+        android:background="@drawable/record_pay_bg"
+        android:textOff=""
+        android:textOn="" 
+        android:onClick="onPlayClicked"/>
 
 </RelativeLayout>

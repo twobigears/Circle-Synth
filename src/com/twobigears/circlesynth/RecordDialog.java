@@ -99,7 +99,7 @@ public class RecordDialog extends DialogFragment{
         
         View view = inflater.inflate(R.layout.rec_dialog, null);
         //builder.setView(inflater.inflate(R.layout.rec_dialog, null));
-        playbutton = (Button)view.findViewById(R.id.button1);
+        playbutton = (Button)view.findViewById(R.id.recordPlayToggle);
         
         playbutton.setOnClickListener(new OnClickListener(){
         	@Override
@@ -108,9 +108,21 @@ public class RecordDialog extends DialogFragment{
         	}
         });
         
+        public void onPlayClicked(View view) {
+            // Is the toggle on?
+            boolean on = ((ToggleButton) view).isChecked();
+            
+            if (on) {
+                // Enable vibrate
+            } else {
+                // Disable vibrate
+            }
+        }
+        
         builder.setView(view);
         // Create the AlertDialog object and return it
         return builder.create();
+
         
         
         
