@@ -1938,7 +1938,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			public void isTrue() {
 				start=60000;
 				PdBase.sendFloat("pd_record",1);
-				PdBase.sendMessage("pd_path", "record", baseDir+"/circlesynth/recordings");
+				//PdBase.sendMessage("pd_path", "record", baseDir+"/circlesynth/recordings");
 				isRecording=true;;
 				
 				//run countdowntimer thread
@@ -1998,13 +1998,15 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	@Override
 	public void onPlayClicked() {
-		Log.d("listener","play");
+		//Log.d("listener","play");
+		
 		
 	}
 
 	@Override
 	public void onPositiveAction() {
 		Log.d("listener","ring");
+		prepareRecord();
 		
 	}
 
@@ -2017,8 +2019,29 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	@Override
 	public void onNeutralAction(){
 		Log.d("listener","Save");
+		prepareRecord();
 	}
 	
+	
+	public void prepareRecord(){
+		
+		String root = Environment.getExternalStorageDirectory().toString();
+		File myDir = new File(root + "/circlesynth/recordings");
+		myDir.mkdirs();
+		SimpleDateFormat formatter = new SimpleDateFormat("MMddHHmm");
+		Date now = new Date();
+		String fileName = formatter.format(now);
+		String fname = "recording_" + fileName + ".wav";
+		Object fileNamePd[] = new Object[1];
+		
+		fileNamePd[0]="myDir"+"/"+fname;
+		
+		PdBase.sendList("pd_path",fileNamePd);
+		
+		
+		
+		
+	}
 	
 	
 	
