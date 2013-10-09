@@ -5,24 +5,15 @@
     android:layout_height="match_parent"
     android:id="@+id/RelativeLayout01"
     tools:ignore="HardcodedText" >
-<!--  
-    <Button
-        android:id="@+id/button1"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/textView1"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="34dp"
-        android:text="Ok" />
--->
 
-    <Button
-        android:id="@+id/button1"
+    <ToggleButton
+        android:id="@+id/recordPlayToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="31dp"
-        android:text="       Play       " />
+        android:layout_centerInParent="true"
+        android:background="@drawable/record_pay_bg"
+        android:textOff=""
+        android:textOn="" />
+
 
 </RelativeLayout>
