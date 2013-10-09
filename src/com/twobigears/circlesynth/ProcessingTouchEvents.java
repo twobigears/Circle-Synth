@@ -1,6 +1,5 @@
 package com.twobigears.circlesynth;
 
-import android.util.Log;
 import processing.core.PApplet;
 import processing.event.MouseEvent;
 
