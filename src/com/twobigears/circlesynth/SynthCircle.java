@@ -1182,11 +1182,14 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 							Dot dnew = (Dot) dots.get(checkdelete);
 							if (dnew.isMoving) {
 								int historySize = event.getHistorySize();
-							    for (int i = 0; i < historySize; i++) {
-							          float historicalX = event.getHistoricalX(i);
-							          float historicalY = event.getHistoricalY(i);
-							          dnew.updateCircles(historicalX,historicalY);
-							    }
+								if (historySize > 0) {
+									for (int i = 0; i < historySize; i++) {
+								          float historicalX = event.getHistoricalX(i);
+								          float historicalY = event.getHistoricalY(i);
+								          dnew.updateCircles(historicalX,historicalY);
+								    }
+								}
+								else dnew.updateCircles(x, y);			    
 							}
 						}
 
