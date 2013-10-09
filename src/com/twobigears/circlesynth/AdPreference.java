@@ -62,10 +62,9 @@ public class AdPreference extends Preference {
 		AdRequest request = new AdRequest();
 		adView.loadAd(request);
 		request.setTesting(true);
-
-		//request.addTestDevice("B6DE158C61D1A52D63734AE5A4DC3D22");
+		
 		request.addTestDevice("B4F5B9DA474E70A297C4302325DE1D6E");
-
+		request.addTestDevice("133BA1E36B62B14E019C4965E8E5F83B");
 
 		return view;
 	}
