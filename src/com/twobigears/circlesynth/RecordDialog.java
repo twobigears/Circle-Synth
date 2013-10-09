@@ -26,110 +26,99 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.ToggleButton;
 
-public class RecordDialog extends DialogFragment{
+public class RecordDialog extends DialogFragment {
 
-
-
-
-//	SeekBar timeBar;
-//	int bpm;
-//	TextView tv;
-	
-	Button playbutton;
+	ToggleButton playbutton;
 
 	public interface OnRecordingListener {
-	
-		
-		void onPlayClicked();
+
+		void onPlayTrue();
+
+		void onPlayFalse();
+
 		void onPositiveAction();
+
 		void onNegativeAction();
+
 		void onNeutralAction();
 	}
 
 	private OnRecordingListener tListener;
 
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		// Verify that the host activity implements the callback interface
+		try {
+			// Instantiate the NoticeDialogListener so we can send events to the
+			// host
+			tListener = (OnRecordingListener) activity;
+		} catch (ClassCastException e) {
+			// The activity doesn't implement the interface, throw exception
+			throw new ClassCastException(activity.toString()
+					+ " must implement OnRecordingListener");
+		}
+	}
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        // Verify that the host activity implements the callback interface
-        try {
-            // Instantiate the NoticeDialogListener so we can send events to the host
-            tListener = (OnRecordingListener) activity;
-        } catch (ClassCastException e) {
-            // The activity doesn't implement the interface, throw exception
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnRecordingListener");
-        }
-    }
-    
-    
 	@Override
 	public AlertDialog onCreateDialog(Bundle savedInstanceState) {
 
 		setCancelable(true);
 		// Use the Builder class for convenient dialog construction
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage("Save File ?")
-        .setPositiveButton("Set as Ringtone", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-               tListener.onPositiveAction();
-            }
-        })
-        .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-         	   tListener.onNegativeAction();
-            }
-        })
-        .setNeutralButton("Keep", new DialogInterface.OnClickListener() {
-			
-			public void onClick(DialogInterface dialog, int which) {
-				tListener.onNeutralAction();
-				
-			}
-			
-		});
-       
-        // Get the layout inflater
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setMessage("Save File ?")
+				.setPositiveButton("Set as Ringtone",
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								tListener.onPositiveAction();
+							}
+						})
+				.setNegativeButton("Delete",
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								tListener.onNegativeAction();
+							}
+						})
+				.setNeutralButton("Keep",
+						new DialogInterface.OnClickListener() {
 
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        
-        View view = inflater.inflate(R.layout.rec_dialog, null);
-        //builder.setView(inflater.inflate(R.layout.rec_dialog, null));
-        playbutton = (Button)view.findViewById(R.id.recordPlayToggle);
-        
-        playbutton.setOnClickListener(new OnClickListener(){
-        	@Override
-        	public void onClick(View v){
-        		tListener.onPlayClicked();
-        	}
-        });
-        
-        public void onPlayClicked(View view) {
-            // Is the toggle on?
-            boolean on = ((ToggleButton) view).isChecked();
-            
-            if (on) {
-                // Enable vibrate
-            } else {
-                // Disable vibrate
-            }
-        }
-        
-        builder.setView(view);
-        // Create the AlertDialog object and return it
-        return builder.create();
+							public void onClick(DialogInterface dialog,
+									int which) {
+								tListener.onNeutralAction();
 
-        
-        
-        
-    }
-	
+							}
 
+						});
 
+		// Get the layout inflater
+		LayoutInflater inflater = getActivity().getLayoutInflater();
 
+		// Inflate and set the layout for the dialog
+		// Pass null as the parent view because its going in the dialog layout
+
+		View view = inflater.inflate(R.layout.rec_dialog, null);
+		playbutton = (ToggleButton) view.findViewById(R.id.recordPlayToggle);
+		playbutton.setText(null);
+
+		playbutton
+				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+					public void onCheckedChanged(CompoundButton buttonView,
+							boolean isChecked) {
+						if (isChecked) {
+							tListener.onPlayTrue();
+						} else {
+							tListener.onPlayFalse();
+						}
+					}
+				});
+
+		builder.setView(view);
+		// Create the AlertDialog object and return it
+		return builder.create();
+
+	}
 
 }

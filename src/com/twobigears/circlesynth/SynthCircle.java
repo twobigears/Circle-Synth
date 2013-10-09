@@ -1997,8 +1997,14 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	}
 
 	@Override
-	public void onPlayClicked() {
+	public void onPlayTrue() {
 		Log.d("listener","play");
+		
+	}
+	
+	@Override
+	public void onPlayFalse() {
+		Log.d("listener","stop");
 		
 	}
 
