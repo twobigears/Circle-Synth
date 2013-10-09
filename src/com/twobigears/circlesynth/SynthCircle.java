@@ -2041,6 +2041,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		
 		
 		
+		
 	}
 	
 	
