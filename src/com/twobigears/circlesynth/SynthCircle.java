@@ -2040,7 +2040,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	public void onPositiveAction() {
 		String root = Environment.getExternalStorageDirectory().toString();
 		prepareRecord();
-		copyFile(saveFilePath+"/"+saveFileName,root+"/Ringtones/CircleSynthRing");
+		copyFile(saveFilePath+"/"+saveFileName,root+"/Ringtones/CircleSynthRing.wav");
 		setRingtone();
 		//new LoadViewTask().execute();
 		toast("Set as current ringtone!");
@@ -2094,7 +2094,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	public void setRingtone(){
 		
 		String path = Environment.getExternalStorageDirectory().toString()+"/Ringtones";
-		File k = new File(path, "CircleSynthRing"); // path is a file to /sdcard/media/ringtone
+		File k = new File(path, "CircleSynthRing.wav"); // path is a file to /sdcard/media/ringtone
 		ContentValues values = new ContentValues();
 		values.put(MediaStore.MediaColumns.DATA, k.getAbsolutePath());
 		values.put(MediaStore.MediaColumns.TITLE, "CircleSynthRingtone");
@@ -2160,74 +2160,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	    }
 	}
 	
-	final class LoadViewTask extends AsyncTask<Void, Integer, Void>  
-    {  
-        //Before running code in separate thread 
-		ProgressDialog progressDialog;
-        
-		@Override  
-        protected void onPreExecute()  
-        {  progressDialog = ProgressDialog.show(SynthCircle.this,null,  
-                   "please wait...", false, false);   
-        }  
-  
-        //The code to be executed in a background thread.  
-        @Override  
-        protected Void doInBackground(Void... params)  
-        {  
-        	//System.out.println("async doInBackground");
-        	copyFile(saveFilePath+"/"+saveFileName,Environment.getExternalStorageDirectory().toString()+"/Ringtones/CircleSynthRing.wav");
-            try  
-            {  
-                //Get the current thread's token  
-                synchronized (this)  
-                {  
-                    //Initialize an integer (that will act as a counter) to zero  
-                    int counter = 0;  
-                    //While the counter is smaller than four  
-                    while(counter < 4)  
-                    {  
-                        //Wait 850 milliseconds  
-                        this.wait(300);  
-                        //Increment the counter  
-                        counter++;  
-                        //Set the current progress.  
-                        //This value is going to be passed to the onProgressUpdate() method.  
-                        publishProgress(counter*25);  
-                    }  
-                }  
-            }  
-            catch (InterruptedException e)  
-            {  
-                e.printStackTrace();  
-            }  
-            return null;  
-            
-           
-        }  
-  
-        //Update the progress  
-        @Override  
-        protected void onProgressUpdate(Integer... values)  
-        {  
-            //set the current progress of the progress dialog  
-            progressDialog.setProgress(values[0]);  
-        }  
-  
-        //after executing the code in the thread  
-        @Override  
-        protected void onPostExecute(Void result)  
-        {  
-        	//System.out.println("async onPostExecute");
-        	progressDialog.dismiss();
-        	setRingtone();
-
-            
-    		
-        }  
-    }  
 	
-	/******************************************/
-
 
 }
