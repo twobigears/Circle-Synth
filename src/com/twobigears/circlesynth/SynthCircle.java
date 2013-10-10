@@ -153,7 +153,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	
 	CountDownTimer timer;
 
-	PFont robotoFont, robotoSmallFont;
+	
 	PGraphics header, sketchBG, scanSquare, dragFocus;
 
 	PImage fxDragFilledImg, fxDragEmptyImg, fxFilledImg, innerCircleImg,
@@ -421,9 +421,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		outerCircleImg = loadImage("outer_circle"+resSuffix+".png");
 		lineCircleImg = loadImage("line_circle"+resSuffix+".png");
 		fxFilledImg = loadImage("fxFilled"+resSuffix+".png");
-		
-		robotoFont = createFont("Roboto-Thin-12", 24 * density, true);
-		robotoSmallFont = createFont("Roboto-Thin-12", 18 * density, true);
 		
 		toolbar = new Toolbar();
 		
@@ -1424,6 +1421,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		shareOnImg, settingsOnImg, settingsOffImg, fxCircleToggleImg, fxEmptyToggleImg,
 		fxClearOffImg, fxClearOnImg, moreToggleImg, lessToggleImg;
 		
+		PFont robotoFont, robotoSmallFont;
+		
 		PlayToggle playToggleB;
 		ReverseToggle reverseToggleB;
 		FxToggle fxToggleB; 
@@ -1447,6 +1446,10 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		private float slideX;
 		
 		Toolbar () {
+			
+			robotoFont = createFont("Roboto-Thin-12", 24 * density, true);
+			robotoSmallFont = createFont("Roboto-Thin-12", 20 * density, true);
+			
 			playImg = loadImage("play"+resSuffix+".png");
 			stopImg = loadImage("stop"+resSuffix+".png");
 			revImg = loadImage("reverse"+resSuffix+".png");
@@ -1792,6 +1795,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				super(p);
 			}
 
+			@SuppressWarnings("deprecation")
 			@Override
 			public void isReleased() {
 				tracker.trackEvent("Buttons Category", "Settings", "", 0L);
