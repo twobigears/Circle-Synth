@@ -24,6 +24,7 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
@@ -43,29 +44,41 @@ import processing.core.PFont;
 import processing.core.PGraphics;
 import processing.core.PImage;
 import android.app.DialogFragment;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.WindowManager;
+import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.analytics.tracking.android.EasyTracker;
@@ -1396,9 +1409,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
 		sharingIntent.putExtra(Intent.EXTRA_SUBJECT, "Circle Synth sketch");
 		String root = Environment.getExternalStorageDirectory().toString();
-		File myDir = new File(root + "/circlesynth");
+		File myDir = new File(root + "/circlesynth/sketches");
 		myDir.mkdirs();
-		int count = new File(root + "/circlesynth").listFiles().length;
+		int count = new File(root + "/circlesynth/sketches").listFiles().length;
 		if (count == 0)
 			fName = null;
 
@@ -1656,7 +1669,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			@Override
 			public void isReleased() {
 				File mPath = new File(Environment.getExternalStorageDirectory()
-						+ "/circlesynth");
+						+ "/circlesynth/sketches");
 				fileDialog = new FileDialog(SynthCircle.this, mPath);
 				fileDialog.setFileEndsWith(".txt");
 				fileDialog.addFileListener(new FileDialog.FileSelectedListener() {
@@ -1705,7 +1718,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			
 			@Override
 			public void isReleased() {
-				toast("Sketch Saved in /circlesynth");
+				toast("Sketch Saved in /circlesynth/sketches");
 				stored.clear();
 				int t1 = 0;
 				int t2 = 0;
@@ -1745,7 +1758,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				stored.add(count,SAVE_EXTRA);
 				
 				String root = Environment.getExternalStorageDirectory().toString();
-				File myDir = new File(root + "/circlesynth");
+				File myDir = new File(root + "/circlesynth/sketches");
 				myDir.mkdirs();
 				SimpleDateFormat formatter = new SimpleDateFormat("MMddHHmm");
 				Date now = new Date();
@@ -1936,10 +1949,15 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 			@Override
 			public void isTrue() {
-				start=60000;
+				start=30000;
 				PdBase.sendFloat("pd_record",1);
 				//PdBase.sendMessage("pd_path", "record", baseDir+"/circlesynth/recordings");
 				isRecording=true;;
+				
+				if(!toolbar.playToggleB.state){
+					toolbar.playToggleB.isTrue();
+					toolbar.playToggleB.state=true;
+				}
 				
 				//run countdowntimer thread
 				runOnUiThread(new Runnable() {
@@ -2013,15 +2031,25 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	@Override
 	public void onPositiveAction() {
-		//Log.d("listener","ring");
+		String root = Environment.getExternalStorageDirectory().toString();
 		prepareRecord();
+		copyFile(saveFilePath+"/"+saveFileName,root+"/Ringtones/CircleSynthRing");
 		setRingtone();
+		//new LoadViewTask().execute();
+		toast("Set as current ringtone!");
+		
+		//async task
+		//To use the AsyncTask, it must be subclassed  
+	    
+		
+		
 		
 	}
 
 	@Override
 	public void onNegativeAction() {
-		Log.d("listener","cancel");
+		//Log.d("listener","cancel");
+		PdBase.sendFloat("pd_recordPlay", 0);
 		
 	}
 	
@@ -2029,7 +2057,11 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	public void onNeutralAction(){
 		//Log.d("listener","Save");
 		prepareRecord();
+		toast("recording saved in /circlesynth/recordings");
 	}
+	
+	String saveFilePath;
+	String saveFileName;
 	
 	
 	public void prepareRecord(){
@@ -2041,8 +2073,10 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		Date now = new Date();
 		String fileName = formatter.format(now);
 		String fname = "recording_" + fileName;
-		
+		saveFilePath = myDir.getAbsolutePath();
+		saveFileName=fname+".wav";
 		PdBase.sendSymbol("pd_path",myDir+"/"+fname);
+		
 		
 		
 		
@@ -2052,9 +2086,137 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	
 	public void setRingtone(){
 		
+		String path = Environment.getExternalStorageDirectory().toString()+"/Ringtones";
+		File k = new File(path, "CircleSynthRing"); // path is a file to /sdcard/media/ringtone
+		ContentValues values = new ContentValues();
+		values.put(MediaStore.MediaColumns.DATA, k.getAbsolutePath());
+		values.put(MediaStore.MediaColumns.TITLE, "CircleSynthRingtone");
+		values.put(MediaStore.MediaColumns.SIZE, k.length());
+		values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/vnd.wave");
+		values.put(MediaStore.Audio.Media.ARTIST, "CircleSynth");
+		//values.put(MediaStore.Audio.Media.DURATION, 230);
+		values.put(MediaStore.Audio.Media.IS_RINGTONE, true);
+		values.put(MediaStore.Audio.Media.IS_NOTIFICATION, false);
+		values.put(MediaStore.Audio.Media.IS_ALARM, false);
+		values.put(MediaStore.Audio.Media.IS_MUSIC, false);
+		
+		System.out.println("getting the right file "+String.valueOf(k.length()));
+
+		//Insert it into the database
+		Uri uri = MediaStore.Audio.Media.getContentUriForPath(k.toString());
+		//delete previous entries
+		getContentResolver().delete(uri, MediaStore.MediaColumns.DATA + "=\"" + k.getAbsolutePath() + "\"", null);
+		System.out.println("file in question "+k.getAbsolutePath());	
+		
+		//insert new values into the DB
+		Uri newUri = this.getContentResolver().insert(uri, values);
+		
+		//set as default ringtone
+		 try {
+		       RingtoneManager.setActualDefaultRingtoneUri(getBaseContext(), RingtoneManager.TYPE_RINGTONE, newUri);
+		   } catch (Throwable t) {
+		       Log.d(TAG, "catch exception");
+		   }
+		
+
+		
 	}
 	
+	public static boolean copyFile(String from, String to) {
+	    try {
+	        int bytesum = 0;
+	        int byteread = 0;
+	        File oldfile = new File(from);
+	       
+	       
+	        if (oldfile.exists()) {
+	            InputStream inStream = new FileInputStream(from);
+	            FileOutputStream fs = new FileOutputStream(to);
+	            byte[] buffer = new byte[1024];
+	            while ((byteread = inStream.read(buffer)) != -1) {
+	                bytesum += byteread;
+	                fs.write(buffer, 0, byteread);
+	            }
+	            inStream.close();
+	            fs.close();
+	            //System.out.println("success copy");
+	        }
+	        
+	        return true;
+	    } catch (Exception e) {
+	    	System.out.println(e.getMessage());
+	        return false;
+	    }
+	}
 	
+	final class LoadViewTask extends AsyncTask<Void, Integer, Void>  
+    {  
+        //Before running code in separate thread 
+		ProgressDialog progressDialog;
+        
+		@Override  
+        protected void onPreExecute()  
+        {  progressDialog = ProgressDialog.show(SynthCircle.this,null,  
+                   "please wait...", false, false);   
+        }  
+  
+        //The code to be executed in a background thread.  
+        @Override  
+        protected Void doInBackground(Void... params)  
+        {  
+        	//System.out.println("async doInBackground");
+        	copyFile(saveFilePath+"/"+saveFileName,Environment.getExternalStorageDirectory().toString()+"/Ringtones/CircleSynthRing.wav");
+            try  
+            {  
+                //Get the current thread's token  
+                synchronized (this)  
+                {  
+                    //Initialize an integer (that will act as a counter) to zero  
+                    int counter = 0;  
+                    //While the counter is smaller than four  
+                    while(counter < 4)  
+                    {  
+                        //Wait 850 milliseconds  
+                        this.wait(300);  
+                        //Increment the counter  
+                        counter++;  
+                        //Set the current progress.  
+                        //This value is going to be passed to the onProgressUpdate() method.  
+                        publishProgress(counter*25);  
+                    }  
+                }  
+            }  
+            catch (InterruptedException e)  
+            {  
+                e.printStackTrace();  
+            }  
+            return null;  
+            
+           
+        }  
+  
+        //Update the progress  
+        @Override  
+        protected void onProgressUpdate(Integer... values)  
+        {  
+            //set the current progress of the progress dialog  
+            progressDialog.setProgress(values[0]);  
+        }  
+  
+        //after executing the code in the thread  
+        @Override  
+        protected void onPostExecute(Void result)  
+        {  
+        	//System.out.println("async onPostExecute");
+        	progressDialog.dismiss();
+        	setRingtone();
+
+            
+    		
+        }  
+    }  
 	
+	/******************************************/
+
 
 }
