@@ -36,7 +36,7 @@ public class SynthSettingsTwo extends PreferenceActivity {
 	public static final String PREF_FEEDBACK = "feedback";
 	public static final String PREF_ABOUT = "about";
 	public static final String PREF_HELP = "help";
-
+	public static final String PREF_DELREC = "deleterecordings";
 	// ZubhiumSDK sdk;
 
 	@SuppressWarnings("deprecation")
@@ -55,8 +55,8 @@ public class SynthSettingsTwo extends PreferenceActivity {
 					@Override
 					public boolean onPreferenceClick(Preference preference) {
 						String path = Environment.getExternalStorageDirectory()
-								+ "/circlesynth";
-						deleteFiles(path);
+								+ "/circlesynth/sketches";
+						deleteFiles(path,"All saved sketches deleted");
 						return false;
 
 					}
@@ -104,14 +104,27 @@ public class SynthSettingsTwo extends PreferenceActivity {
 				return false;
 			}
 		});
+		
+		Preference deleterecs = (Preference) findPreference(PREF_DELREC);
+		deleterecs.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+
+					@Override
+					public boolean onPreferenceClick(Preference preference) {
+						String path = Environment.getExternalStorageDirectory()
+								+ "/circlesynth/recordings";
+						deleteFiles(path,"All saved recordings deleted");
+						return false;
+
+					}
+				});
 	}
 
-	public void deleteFiles(String path) {
+	public void deleteFiles(String path,String msg) {
 
 		File file = new File(path);
 
 		if (file.exists()) {
-			Toast.makeText(SynthSettingsTwo.this, "All saved sketches deleted",
+			Toast.makeText(SynthSettingsTwo.this, msg,
 					Toast.LENGTH_SHORT).show();
 			String deleteCmd = "rm -r " + path;
 			Runtime runtime = Runtime.getRuntime();
