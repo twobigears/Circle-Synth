@@ -2123,6 +2123,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		       RingtoneManager.setActualDefaultRingtoneUri(getBaseContext(), RingtoneManager.TYPE_RINGTONE, newUri);
 		   } catch (Throwable t) {
 		       Log.d(TAG, "catch exception");
+		       System.out.println("ringtone set exception "+t.getMessage());
 		   }
 		
 
@@ -2134,6 +2135,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	        int bytesum = 0;
 	        int byteread = 0;
 	        File oldfile = new File(from);
+	        File newfile = new File(Environment.getExternalStorageDirectory().toString()+"/Ringtones");
+	        if(!newfile.exists())
+	        	newfile.mkdir();
 	       
 	       
 	        if (oldfile.exists()) {
