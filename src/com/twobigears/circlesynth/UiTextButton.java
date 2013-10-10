@@ -6,7 +6,7 @@ public abstract class UiTextButton extends ProcessingTouchEvents {
 	
 	final PApplet p;
 
-	public PFont font;
+	private PFont font;
 	public float pad;
 	public int offColor, onColor;
 	private float tX, tY, tWidth, tHeight;
@@ -45,6 +45,7 @@ public abstract class UiTextButton extends ProcessingTouchEvents {
 			
 			p.pushMatrix();
 			p.translate(tX, tY);
+			p.textFont(font);
 			p.textAlign(PConstants.CENTER, PConstants.CENTER);
 			if (!state) {
 				p.fill(offColor);
