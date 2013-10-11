@@ -1946,7 +1946,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 		
 		long start;
-		
+		int countertest;
+		Editor edit1;
 
 		class RecordToggle extends UiTextToggle {
 
@@ -1960,6 +1961,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				PdBase.sendFloat("pd_record",1);
 				//PdBase.sendMessage("pd_path", "record", baseDir+"/circlesynth/recordings");
 				isRecording=true;;
+				countertest=0;
+				edit1 = prefs.edit();
+				
 				
 				if(!toolbar.playToggleB.state){
 					toolbar.playToggleB.isTrue();
@@ -1975,15 +1979,26 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 							@Override
 							public void onFinish() {
 						         PdBase.sendFloat("pd_record", 0);
-						         REC_TEXT="0";
+						         REC_TEXT="REC";
+						         toolbar.recordToggleB.state=false;
+						         System.out.println("Recording length = "+String.valueOf(countertest));
+						         //save length to prefs
+						         edit1.putFloat("timer", 30);
+						         edit1.commit();
+						         countertest=0;
+						         
+						         
+						         
 						         record();
 						         isRecording=false;
+						         
 								
 							}
 
 							@Override
 							public void onTick(long millisUntilFinished) {
-								REC_TEXT=String.valueOf(millisUntilFinished/1000);						
+								REC_TEXT=String.valueOf(millisUntilFinished/1000);	
+								countertest++;
 							}
 							
 						}.start();
@@ -2000,8 +2015,16 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				PdBase.sendFloat("pd_record", 0);
 				REC_TEXT="REC";
 				timer.cancel();
-				if(isRecording)
+				if(isRecording){
+					edit1.putFloat("timer", countertest);
+					edit1.commit();
+					
 					record();
+					System.out.println("Recording length = "+String.valueOf(countertest));
+					
+					
+					countertest=0;
+				}
 			}
 
 		}
@@ -2012,6 +2035,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	public void record(){
 		toolbar.playToggleB.isFalse();
 		toolbar.playToggleB.state=false;
+		
+		PdBase.sendFloat("pd_playToggle", 0);
 		
 		SynthCircle.this.runOnUiThread(new Runnable() {
 			public void run() {
@@ -2024,14 +2049,15 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	@Override
 	public void onPlayTrue() {
-		//Log.d("listener","play");
+		System.out.println("play called from dialog");
 		PdBase.sendFloat("pd_recordPlay", 1);
+
 		
 	}
 	
 	@Override
 	public void onPlayFalse() {
-		//Log.d("listener","stop");
+		System.out.println("stop called from dialog");
 		PdBase.sendFloat("pd_recordPlay", 0);
 		
 	}
