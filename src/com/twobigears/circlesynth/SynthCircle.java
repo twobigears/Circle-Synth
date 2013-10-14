@@ -25,6 +25,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
@@ -44,7 +45,6 @@ import processing.core.PFont;
 import processing.core.PGraphics;
 import processing.core.PImage;
 import android.app.DialogFragment;
-import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
@@ -53,14 +53,13 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.graphics.Typeface;
+import android.content.res.AssetManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
@@ -72,13 +71,7 @@ import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.WindowManager;
-import android.view.animation.AnimationUtils;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.analytics.tracking.android.EasyTracker;
@@ -553,6 +546,18 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			Editor editor = prefs.edit();
 			editor.putBoolean("first_tutorial", true);
 			editor.commit();
+			
+			//copy asset files
+			String basepath = Environment.getExternalStorageDirectory().toString()+"/circlesynth";
+			File clipartdir = new File(basepath + "/demos/");
+	        if (!clipartdir.exists()) {
+	            clipartdir.mkdirs();
+	            copyDemos();      
+	        }
+	        
+	        File circledir = new File(basepath + "/sketches");
+	        if (!circledir.exists())
+	        	circledir.mkdirs();
 		}
 
 	}
@@ -2196,6 +2201,42 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	        return false;
 	    }
 	}
+	
+	private void copyDemos() {
+		String basepath = Environment.getExternalStorageDirectory().toString()+"/circlesynth";
+        AssetManager assetManager = getResources().getAssets();
+        String[] files = null;
+        try {
+            files = assetManager.list("demos");
+        } catch (Exception e) {
+            Log.e("read demo ERROR", e.toString());
+            e.printStackTrace();
+        }
+        for(int i=0; i<files.length; i++) {
+            InputStream in = null;
+            OutputStream out = null;
+            try {
+              in = assetManager.open("demos/" + files[i]);
+              out = new FileOutputStream(basepath + "/demos/" + files[i]);
+              copyFile(in, out);
+              in.close();
+              in = null;
+              out.flush();
+              out.close();
+              out = null;
+            } catch(Exception e) {
+                Log.e("copy demos ERROR", e.toString());
+                e.printStackTrace();
+            }       
+        }
+    }
+    private void copyFile(InputStream in, OutputStream out) throws IOException {
+        byte[] buffer = new byte[1024];
+        int read;
+        while((read = in.read(buffer)) != -1){
+          out.write(buffer, 0, read);
+        }
+    }
 	
 	
 
