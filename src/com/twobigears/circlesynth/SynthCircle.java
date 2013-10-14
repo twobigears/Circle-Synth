@@ -490,10 +490,10 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	private void initialisepatch() {
 
 		String value = prefs.getString("preset", null);
-		SharedPreferences prefs1 = getPreferences(SynthCircle.MODE_PRIVATE);
+		//SharedPreferences prefs1 = getPreferences(SynthCircle.MODE_PRIVATE);
 		if (value == null) {
 
-			Editor editor = prefs1.edit();
+			Editor editor = prefs.edit();
 			editor.putString("preset", "1");
 			editor.putString("scale", "1");
 			editor.putString("transposeOct", "3");
@@ -527,19 +527,19 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		save_noteTrans = tranf1;
 		
 		
-		boolean accely = prefs1.getBoolean("accel", false);
+		boolean accely = prefs.getBoolean("accel", false);
 		if (accely)
 			PdBase.sendFloat("pd_accelToggle", 1);
 		else
 			PdBase.sendFloat("pd_accelToggle", 0);
 
-		boolean delayy = prefs1.getBoolean("delay", false);
+		boolean delayy = prefs.getBoolean("delay", false);
 		if (delayy)
 			PdBase.sendFloat("pd_delayToggle", 1);
 		else
 			PdBase.sendFloat("pd_delayToggle", 0);
 
-		boolean reverby = prefs1.getBoolean("reverb", false);
+		boolean reverby = prefs.getBoolean("reverb", false);
 		if (reverby)
 			PdBase.sendFloat("pd_reverbToggle", 1);
 		else
@@ -564,6 +564,14 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		PdBase.sendFloat("pd_noteTrans", save_noteTrans);
 		PdBase.sendFloat("pd_bpm", save_bpm);
 		bpm=save_bpm;
+		
+		Editor editor = prefs.edit();
+		
+		editor.putString("preset", String.valueOf(save_preset));
+		editor.putString("scale", String.valueOf(save_scale));
+		editor.putString("transposeOct", String.valueOf(save_octTrans+3));
+		editor.putString("transposeNote", String.valueOf(save_noteTrans));
+		editor.apply();
 		
 		
 		
@@ -1274,49 +1282,52 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences pref, String key) {
 
-		SharedPreferences activityPreferences = getPreferences(SynthCircle.MODE_PRIVATE);
-		SharedPreferences.Editor editor = activityPreferences.edit();
+//		SharedPreferences activityPreferences = getPreferences(SynthCircle.MODE_PRIVATE);
+//		SharedPreferences.Editor editor = activityPreferences.edit();
+		Editor editor = prefs.edit();
 
 		if (key.equals("preset")) {
-			String pres = pref.getString("preset", "1");
+			String pres = prefs.getString("preset", "1");
 			int presf = Integer.valueOf(pres);
 			PdBase.sendFloat("pd_presets", presf);
-
-			editor.putFloat("preset", presf);
+			save_preset=presf;
+			editor.putString("preset", String.valueOf(presf));
 			editor.commit();
 		}
 
 		if (key.equals("scale")) {
-			String val = pref.getString("scale", "1");
+			String val = prefs.getString("scale", "1");
 			int valf = Integer.valueOf(val);
 			PdBase.sendFloat("pd_scales", valf);
-			editor.putFloat("scale", valf);
+			editor.putString("scale", String.valueOf(valf));
 			editor.commit();
-
+			save_scale=valf;
 		}
 		// Octave transpose preference
 
 		if (key.equals("transposeOct")) {
-			String tran = pref.getString("transposeOct", "3");
+			String tran = prefs.getString("transposeOct", "3");
 			int tranf = Integer.valueOf(tran);
 			tranf = tranf - 3;
 			PdBase.sendFloat("pd_octTrans", tranf);
-			editor.putFloat("transposeOct", tranf);
+			editor.putString("transposeOct", String.valueOf(tranf+3));
 			editor.commit();
+			save_octTrans=tranf;
 		}
 
 		// Note transpose preference
 
 		if (key.equals("transposeNote")) {
-			String tran1 = pref.getString("transposeNote", "0");
+			String tran1 = prefs.getString("transposeNote", "0");
 			int tranf1 = Integer.valueOf(tran1);
 			PdBase.sendFloat("pd_noteTrans", tranf1);
-			editor.putFloat("transposeNote", tranf1);
+			editor.putString("transposeNote", String.valueOf(tranf1));
 			editor.commit();
+			save_noteTrans=tranf1;
 		}
 
 		if (key.equals("accel")) {
-			boolean accely = pref.getBoolean("accel", false);
+			boolean accely = prefs.getBoolean("accel", false);
 			if (accely)
 				PdBase.sendFloat("pd_accelToggle", 1);
 
@@ -1327,7 +1338,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		}
 		if (key.equals("delay")) {
-			boolean delayy = pref.getBoolean("delay", true);
+			boolean delayy = prefs.getBoolean("delay", true);
 			if (delayy)
 				PdBase.sendFloat("pd_delayToggle", 1);
 
@@ -1338,7 +1349,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		}
 		if (key.equals("reverb")) {
-			boolean reverby = pref.getBoolean("reverb", true);
+			boolean reverby = prefs.getBoolean("reverb", true);
 			if (reverby)
 				PdBase.sendFloat("pd_reverbToggle", 1);
 
