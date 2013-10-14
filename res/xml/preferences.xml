@@ -1,6 +1,5 @@
 <PreferenceScreen
 	xmlns:android="http://schemas.android.com/apk/res/android">
-	<com.twobigears.circlesynth.AdPreference android:layout="@layout/ad_layout"/>
 	<PreferenceCategory android:title="Preferences">
 	
 		
@@ -83,9 +82,9 @@
             android:title="Tutorial" />
 		    
 		    <Preference 
-            android:key="help"
-            android:summary="Want help or support? Get in touch"
-            android:title="Support" />
+            android:key="donate"
+            android:summary="If you like this app please donate any amount that you wish!Thank you :)"
+            android:title="Sponsor our food for a day" />
 		    
 		    <Preference 
             android:key="feedback"
