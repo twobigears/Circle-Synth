@@ -2094,7 +2094,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	public void onNegativeAction() {
 		//Log.d("listener","cancel");
 		PdBase.sendFloat("pd_recordPlay", 0);
-		
+		PdBase.sendBang("pd_recordCancel");
 	}
 	
 	@Override
