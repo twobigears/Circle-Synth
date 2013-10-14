@@ -75,7 +75,7 @@ public class RecordDialog extends DialogFragment {
 	@Override
 	public AlertDialog onCreateDialog(Bundle savedInstanceState) {
 		
-		setCancelable(true);
+		setCancelable(false);
 		
 		
 		
