@@ -490,10 +490,10 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	private void initialisepatch() {
 
 		String value = prefs.getString("preset", null);
-		SharedPreferences prefs1 = getPreferences(SynthCircle.MODE_PRIVATE);
+		//SharedPreferences prefs1 = getPreferences(SynthCircle.MODE_PRIVATE);
 		if (value == null) {
 
-			Editor editor = prefs1.edit();
+			Editor editor = prefs.edit();
 			editor.putString("preset", "1");
 			editor.putString("scale", "1");
 			editor.putString("transposeOct", "3");
@@ -527,19 +527,19 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		save_noteTrans = tranf1;
 		
 		
-		boolean accely = prefs1.getBoolean("accel", false);
+		boolean accely = prefs.getBoolean("accel", false);
 		if (accely)
 			PdBase.sendFloat("pd_accelToggle", 1);
 		else
 			PdBase.sendFloat("pd_accelToggle", 0);
 
-		boolean delayy = prefs1.getBoolean("delay", false);
+		boolean delayy = prefs.getBoolean("delay", false);
 		if (delayy)
 			PdBase.sendFloat("pd_delayToggle", 1);
 		else
 			PdBase.sendFloat("pd_delayToggle", 0);
 
-		boolean reverby = prefs1.getBoolean("reverb", false);
+		boolean reverby = prefs.getBoolean("reverb", false);
 		if (reverby)
 			PdBase.sendFloat("pd_reverbToggle", 1);
 		else
@@ -564,6 +564,14 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		PdBase.sendFloat("pd_noteTrans", save_noteTrans);
 		PdBase.sendFloat("pd_bpm", save_bpm);
 		bpm=save_bpm;
+		
+		Editor editor = prefs.edit();
+		
+		editor.putString("preset", String.valueOf(save_preset));
+		editor.putString("scale", String.valueOf(save_scale));
+		editor.putString("transposeOct", String.valueOf(save_octTrans+3));
+		editor.putString("transposeNote", String.valueOf(save_noteTrans));
+		editor.apply();
 		
 		
 		
@@ -1274,49 +1282,52 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences pref, String key) {
 
-		SharedPreferences activityPreferences = getPreferences(SynthCircle.MODE_PRIVATE);
-		SharedPreferences.Editor editor = activityPreferences.edit();
+//		SharedPreferences activityPreferences = getPreferences(SynthCircle.MODE_PRIVATE);
+//		SharedPreferences.Editor editor = activityPreferences.edit();
+		Editor editor = prefs.edit();
 
 		if (key.equals("preset")) {
-			String pres = pref.getString("preset", "1");
+			String pres = prefs.getString("preset", "1");
 			int presf = Integer.valueOf(pres);
 			PdBase.sendFloat("pd_presets", presf);
-
-			editor.putFloat("preset", presf);
+			save_preset=presf;
+			editor.putString("preset", String.valueOf(presf));
 			editor.commit();
 		}
 
 		if (key.equals("scale")) {
-			String val = pref.getString("scale", "1");
+			String val = prefs.getString("scale", "1");
 			int valf = Integer.valueOf(val);
 			PdBase.sendFloat("pd_scales", valf);
-			editor.putFloat("scale", valf);
+			editor.putString("scale", String.valueOf(valf));
 			editor.commit();
-
+			save_scale=valf;
 		}
 		// Octave transpose preference
 
 		if (key.equals("transposeOct")) {
-			String tran = pref.getString("transposeOct", "3");
+			String tran = prefs.getString("transposeOct", "3");
 			int tranf = Integer.valueOf(tran);
 			tranf = tranf - 3;
 			PdBase.sendFloat("pd_octTrans", tranf);
-			editor.putFloat("transposeOct", tranf);
+			editor.putString("transposeOct", String.valueOf(tranf+3));
 			editor.commit();
+			save_octTrans=tranf;
 		}
 
 		// Note transpose preference
 
 		if (key.equals("transposeNote")) {
-			String tran1 = pref.getString("transposeNote", "0");
+			String tran1 = prefs.getString("transposeNote", "0");
 			int tranf1 = Integer.valueOf(tran1);
 			PdBase.sendFloat("pd_noteTrans", tranf1);
-			editor.putFloat("transposeNote", tranf1);
+			editor.putString("transposeNote", String.valueOf(tranf1));
 			editor.commit();
+			save_noteTrans=tranf1;
 		}
 
 		if (key.equals("accel")) {
-			boolean accely = pref.getBoolean("accel", false);
+			boolean accely = prefs.getBoolean("accel", false);
 			if (accely)
 				PdBase.sendFloat("pd_accelToggle", 1);
 
@@ -1327,7 +1338,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		}
 		if (key.equals("delay")) {
-			boolean delayy = pref.getBoolean("delay", true);
+			boolean delayy = prefs.getBoolean("delay", true);
 			if (delayy)
 				PdBase.sendFloat("pd_delayToggle", 1);
 
@@ -1338,7 +1349,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		}
 		if (key.equals("reverb")) {
-			boolean reverby = pref.getBoolean("reverb", true);
+			boolean reverby = prefs.getBoolean("reverb", true);
 			if (reverby)
 				PdBase.sendFloat("pd_reverbToggle", 1);
 
@@ -1946,7 +1957,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 		
 		long start;
-		
+		int countertest;
+		Editor edit1;
 
 		class RecordToggle extends UiTextToggle {
 
@@ -1960,6 +1972,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				PdBase.sendFloat("pd_record",1);
 				//PdBase.sendMessage("pd_path", "record", baseDir+"/circlesynth/recordings");
 				isRecording=true;;
+				countertest=0;
+				edit1 = prefs.edit();
+				
 				
 				if(!toolbar.playToggleB.state){
 					toolbar.playToggleB.isTrue();
@@ -1975,15 +1990,26 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 							@Override
 							public void onFinish() {
 						         PdBase.sendFloat("pd_record", 0);
-						         REC_TEXT="0";
+						         REC_TEXT="REC";
+						         toolbar.recordToggleB.state=false;
+						         System.out.println("Recording length = "+String.valueOf(countertest));
+						         //save length to prefs
+						         edit1.putFloat("timer", 30);
+						         edit1.commit();
+						         countertest=0;
+						         
+						         
+						         
 						         record();
 						         isRecording=false;
+						         
 								
 							}
 
 							@Override
 							public void onTick(long millisUntilFinished) {
-								REC_TEXT=String.valueOf(millisUntilFinished/1000);						
+								REC_TEXT=String.valueOf(millisUntilFinished/1000);	
+								countertest++;
 							}
 							
 						}.start();
@@ -2000,8 +2026,16 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				PdBase.sendFloat("pd_record", 0);
 				REC_TEXT="REC";
 				timer.cancel();
-				if(isRecording)
+				if(isRecording){
+					edit1.putFloat("timer", countertest);
+					edit1.commit();
+					
 					record();
+					System.out.println("Recording length = "+String.valueOf(countertest));
+					
+					
+					countertest=0;
+				}
 			}
 
 		}
@@ -2012,6 +2046,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	public void record(){
 		toolbar.playToggleB.isFalse();
 		toolbar.playToggleB.state=false;
+		
+		PdBase.sendFloat("pd_playToggle", 0);
 		
 		SynthCircle.this.runOnUiThread(new Runnable() {
 			public void run() {
@@ -2024,14 +2060,15 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	@Override
 	public void onPlayTrue() {
-		//Log.d("listener","play");
+		System.out.println("play called from dialog");
 		PdBase.sendFloat("pd_recordPlay", 1);
+
 		
 	}
 	
 	@Override
 	public void onPlayFalse() {
-		//Log.d("listener","stop");
+		System.out.println("stop called from dialog");
 		PdBase.sendFloat("pd_recordPlay", 0);
 		
 	}
@@ -2040,7 +2077,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	public void onPositiveAction() {
 		String root = Environment.getExternalStorageDirectory().toString();
 		prepareRecord();
-		copyFile(saveFilePath+"/"+saveFileName,root+"/Ringtones/CircleSynthRing");
+		copyFile(saveFilePath+"/"+saveFileName,root+"/Ringtones/CircleSynthRing.wav");
 		setRingtone();
 		//new LoadViewTask().execute();
 		toast("Set as current ringtone!");
@@ -2094,7 +2131,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	public void setRingtone(){
 		
 		String path = Environment.getExternalStorageDirectory().toString()+"/Ringtones";
-		File k = new File(path, "CircleSynthRing"); // path is a file to /sdcard/media/ringtone
+		File k = new File(path, "CircleSynthRing.wav"); // path is a file to /sdcard/media/ringtone
 		ContentValues values = new ContentValues();
 		values.put(MediaStore.MediaColumns.DATA, k.getAbsolutePath());
 		values.put(MediaStore.MediaColumns.TITLE, "CircleSynthRingtone");
@@ -2123,6 +2160,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		       RingtoneManager.setActualDefaultRingtoneUri(getBaseContext(), RingtoneManager.TYPE_RINGTONE, newUri);
 		   } catch (Throwable t) {
 		       Log.d(TAG, "catch exception");
+		       System.out.println("ringtone set exception "+t.getMessage());
 		   }
 		
 
@@ -2134,6 +2172,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	        int bytesum = 0;
 	        int byteread = 0;
 	        File oldfile = new File(from);
+	        File newfile = new File(Environment.getExternalStorageDirectory().toString()+"/Ringtones");
+	        if(!newfile.exists())
+	        	newfile.mkdir();
 	       
 	       
 	        if (oldfile.exists()) {
@@ -2156,74 +2197,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	    }
 	}
 	
-	final class LoadViewTask extends AsyncTask<Void, Integer, Void>  
-    {  
-        //Before running code in separate thread 
-		ProgressDialog progressDialog;
-        
-		@Override  
-        protected void onPreExecute()  
-        {  progressDialog = ProgressDialog.show(SynthCircle.this,null,  
-                   "please wait...", false, false);   
-        }  
-  
-        //The code to be executed in a background thread.  
-        @Override  
-        protected Void doInBackground(Void... params)  
-        {  
-        	//System.out.println("async doInBackground");
-        	copyFile(saveFilePath+"/"+saveFileName,Environment.getExternalStorageDirectory().toString()+"/Ringtones/CircleSynthRing.wav");
-            try  
-            {  
-                //Get the current thread's token  
-                synchronized (this)  
-                {  
-                    //Initialize an integer (that will act as a counter) to zero  
-                    int counter = 0;  
-                    //While the counter is smaller than four  
-                    while(counter < 4)  
-                    {  
-                        //Wait 850 milliseconds  
-                        this.wait(300);  
-                        //Increment the counter  
-                        counter++;  
-                        //Set the current progress.  
-                        //This value is going to be passed to the onProgressUpdate() method.  
-                        publishProgress(counter*25);  
-                    }  
-                }  
-            }  
-            catch (InterruptedException e)  
-            {  
-                e.printStackTrace();  
-            }  
-            return null;  
-            
-           
-        }  
-  
-        //Update the progress  
-        @Override  
-        protected void onProgressUpdate(Integer... values)  
-        {  
-            //set the current progress of the progress dialog  
-            progressDialog.setProgress(values[0]);  
-        }  
-  
-        //after executing the code in the thread  
-        @Override  
-        protected void onPostExecute(Void result)  
-        {  
-        	//System.out.println("async onPostExecute");
-        	progressDialog.dismiss();
-        	setRingtone();
-
-            
-    		
-        }  
-    }  
 	
-	/******************************************/
-
 
 }
