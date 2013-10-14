@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical" >
+    android:background="#292929"
+    android:orientation="vertical" 
+    android:animateLayoutChanges="true">
 
     <FrameLayout
         android:id="@+id/dynocontent"
         android:layout_width="485dp"
-        android:layout_height="255dp"
-        android:padding="1dp" >
+        android:layout_height="255dp">
     </FrameLayout>
 
-    <RelativeLayout
+     <RelativeLayout
         android:id="@+id/buttons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,8 +24,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toLeftOf="@+id/next"
-            android:paddingRight="5dp"
             android:background="@drawable/prevoff"
+            android:paddingRight="5dp"
             tools:ignore="ContentDescription" />
 
         <ImageButton
@@ -34,6 +35,6 @@
             android:layout_alignParentRight="true"
             android:background="@drawable/nexton"
             tools:ignore="ContentDescription" />
-    </RelativeLayout>
+    </RelativeLayout> 
 
 </LinearLayout>
