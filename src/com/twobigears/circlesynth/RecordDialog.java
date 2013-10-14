@@ -20,8 +20,12 @@ package com.twobigears.circlesynth;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,6 +34,11 @@ import android.widget.ImageButton;
 public class RecordDialog extends DialogFragment {
 
 	ImageButton playbutton;
+	SharedPreferences prefs;
+	Context context;
+	
+	long start;
+	boolean state=false;
 
 	public interface OnRecordingListener {
 
@@ -59,12 +68,20 @@ public class RecordDialog extends DialogFragment {
 			throw new ClassCastException(activity.toString()
 					+ " must implement OnRecordingListener");
 		}
+		
+		
 	}
 
 	@Override
 	public AlertDialog onCreateDialog(Bundle savedInstanceState) {
-
+		
 		setCancelable(true);
+		
+		
+		
+		prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		start = ((long) prefs.getFloat("timer", 0))*1000;
+		System.out.println("timer from preference "+String.valueOf(start));
 		// Use the Builder class for convenient dialog construction
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setMessage("Save File ?")
@@ -101,27 +118,66 @@ public class RecordDialog extends DialogFragment {
 		playbutton = (ImageButton) view.findViewById(R.id.recordPlayToggle);
 
 		playbutton.setOnClickListener(new OnClickListener() {
-			boolean state = false;
+			//boolean state = false;
 			
 			@Override
 			public void onClick(View v) {
 				if(!state) {
+					startTimer();
 					playbutton.setImageResource(R.drawable.stop);
 					tListener.onPlayTrue();	
 					state  = true;
+				
+					
 				}
 				else {
+					stopTimer();
 					playbutton.setImageResource(R.drawable.play);
 					tListener.onPlayFalse();
 					state  = false;
 				}
 			}
 		});
-
+		
 		builder.setView(view);
 		// Create the AlertDialog object and return it
 		return builder.create();
 
+	}
+	
+	
+	
+	CountDownTimer timer;
+	float test;
+	
+	public void startTimer(){
+		
+		
+		timer = new CountDownTimer(start,1000){
+					
+					@Override
+					public void onFinish() {
+					playbutton.setImageResource(R.drawable.play);  
+					System.out.println("countdownfinished");
+					
+					state=false;
+					tListener.onPlayFalse();
+						
+					}
+
+					@Override
+					public void onTick(long millisUntilFinished) {
+					System.out.println(String.valueOf(millisUntilFinished))	;					
+					}
+					
+				}.start();
+
+		
+		
+	}
+	
+	public void stopTimer(){
+		timer.cancel();
 	}
 
 }
