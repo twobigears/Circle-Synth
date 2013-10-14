@@ -121,22 +121,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	String baseDir = Environment.getExternalStorageDirectory()
 			.getAbsolutePath();
 
-//	boolean playValue = false; // global boolean of the play button state
-//	boolean revValue = false; // global reverse value for play
-//	boolean bpmPopup = false; // bpm popup button value
-//	boolean clearButton = false;
-//	boolean fxToggle = false;
-//	boolean fxCirc1Toggle = false;
-//	boolean fxCirc2Toggle = false;
-//	boolean fxCirc3Toggle = false;
-//	boolean fxCirc4Toggle = false;
-//	boolean fxCirc0Toggle = false;
 	boolean fxCheck = false;
-//	boolean settingsButton = false;
-//	boolean fxClearButton = false;
-//	boolean saveButton = false;
-//	boolean loadButton = false;
-//	boolean shareButton = false;
 
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
