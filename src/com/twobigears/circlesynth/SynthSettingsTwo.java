@@ -35,7 +35,7 @@ public class SynthSettingsTwo extends PreferenceActivity {
 	public static final String PREF_TUTORIAL = "tutorial";
 	public static final String PREF_FEEDBACK = "feedback";
 	public static final String PREF_ABOUT = "about";
-	public static final String PREF_HELP = "help";
+	public static final String PREF_DONATE = "donate";
 	public static final String PREF_DELREC = "deleterecordings";
 	// ZubhiumSDK sdk;
 
@@ -85,12 +85,12 @@ public class SynthSettingsTwo extends PreferenceActivity {
 					}
 				});
 
-		Preference helppref = (Preference) findPreference(PREF_HELP);
-		helppref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+		Preference donatepref = (Preference) findPreference(PREF_DONATE);
+		donatepref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-				setupHelp();
+				setupDonate();
 				return false;
 			}
 		});
@@ -157,20 +157,12 @@ public class SynthSettingsTwo extends PreferenceActivity {
 
 	}
 
-	public void setupHelp() {
+	public void setupDonate() {
+		
+		Toast.makeText(SynthSettingsTwo.this,
+				"Thank you Good Citizen", Toast.LENGTH_SHORT)
+				.show();
 
-		Intent i = new Intent(Intent.ACTION_SEND);
-		i.setType("message/rfc822");
-		i.putExtra(Intent.EXTRA_EMAIL, new String[] { "apps@twobigears.com" });
-		i.putExtra(Intent.EXTRA_SUBJECT, "Circle Synth help issue");
-
-		try {
-			startActivity(Intent.createChooser(i, "Send mail"));
-		} catch (android.content.ActivityNotFoundException ex) {
-			Toast.makeText(SynthSettingsTwo.this,
-					"There are no email clients installed.", Toast.LENGTH_SHORT)
-					.show();
-		}
 	}
 
 	public void setupAbout() {
