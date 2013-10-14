@@ -554,6 +554,10 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	            clipartdir.mkdirs();
 	            copyDemos();      
 	        }
+	        
+	        File circledir = new File(basepath + "/sketches");
+	        if (!circledir.exists())
+	        	circledir.mkdirs();
 		}
 
 	}
