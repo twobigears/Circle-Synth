@@ -70,6 +70,7 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -126,7 +127,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
 	boolean accel;
-	float currentAccel = 0;
+	float currentAccelx = 0;
+	float currentAccely = 0;
 	static final float ALPHA = 0.15f;
 	float oldAccel = 0;
 	
@@ -314,6 +316,11 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}, PhoneStateListener.LISTEN_CALL_STATE);
 	}
 
+	@Override
+	public void onBackPressed() {
+		System.out.println("back pressed");
+		//super.onBackPressed();
+	}
 
 	@Override
 	public void onDestroy() {
@@ -1362,8 +1369,15 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		SharedPreferences getPrefs1 = PreferenceManager
 				.getDefaultSharedPreferences(getBaseContext());
 		accel = getPrefs1.getBoolean("accel", true);
-		currentAccel = lowPass(event.values[0]);
-		float y = Math.abs(currentAccel / 10);
+		currentAccelx = lowPass(event.values[0]);
+		currentAccely = lowPass(event.values[1]);
+		float y = Math.abs(currentAccelx / 10);
+		float z = Math.abs(currentAccely / 10);
+		
+		if(y>z)
+			z=y;
+		else
+			y=z;
 
 		if (accel == true)
 			PdBase.sendFloat("pd_accely", (1 - y));
