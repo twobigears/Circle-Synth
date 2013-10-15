@@ -15,6 +15,10 @@
 	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * Class documentation goes here
+ */
+
 package com.twobigears.circlesynth;
 
 import processing.core.*;
