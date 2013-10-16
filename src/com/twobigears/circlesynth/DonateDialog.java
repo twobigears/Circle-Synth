@@ -4,16 +4,18 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.PorterDuff.Mode;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.RadioGroup;
 
 public class DonateDialog extends DialogFragment {
 	
-	Button small,medium,large,xxl;
+	Button small,medium,large,xl,xxl;
 	
 	float donate_amount;
 	
@@ -65,10 +67,11 @@ public class DonateDialog extends DialogFragment {
 				View view = inflater.inflate(R.layout.donate, null);
 				
 				//which donation amount is selected?
-				small = (Button)view.findViewById(R.id.button_small);
-				medium=(Button)view.findViewById(R.id.button_medium);
-				large=(Button)view.findViewById(R.id.button_large);
-				xxl=(Button)view.findViewById(R.id.button_xxl);
+				small = (Button)view.findViewById(R.id.donate_button_small);
+				medium=(Button)view.findViewById(R.id.donate_button_medium);
+				large=(Button)view.findViewById(R.id.donate_button_large);
+				xl=(Button)view.findViewById(R.id.donate_button_xl);
+				xxl=(Button)view.findViewById(R.id.donate_button_xxl);
 				
 				small.setOnClickListener(new OnClickListener() {
 					//boolean state = false;
@@ -95,12 +98,20 @@ public class DonateDialog extends DialogFragment {
 						donate_amount=1.39f;
 					}
 				});
-				xxl.setOnClickListener(new OnClickListener() {
+				xl.setOnClickListener(new OnClickListener() {
 					//boolean state = false;
 					
 					@Override
 					public void onClick(View v) {
 						donate_amount=4.99f;
+					}
+				});
+				xxl.setOnClickListener(new OnClickListener() {
+					//boolean state = false;
+					
+					@Override
+					public void onClick(View v) {
+						donate_amount=20f;
 					}
 				});
 				

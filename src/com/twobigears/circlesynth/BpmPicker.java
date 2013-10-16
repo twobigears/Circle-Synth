@@ -50,7 +50,7 @@ public class BpmPicker extends Dialog implements
 		setContentView(R.layout.my_dialog);
 		setTitle("BPM");
 		timeBar = (SeekBar) findViewById(R.id.seekBar1);
-		tv = (TextView) findViewById(R.id.textView1);
+		tv = (TextView) findViewById(R.id.donate_textView);
 
 		tv.setText(String.valueOf(bpm));
 		timeBar.setProgress((int) ((bpm / 240.0) * 100));
