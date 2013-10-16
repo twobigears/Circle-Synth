@@ -19,15 +19,34 @@ package com.twobigears.circlesynth;
 
 import processing.core.*;
 
+/**
+ * Button with image. Extends ProcessingTouchEvents.java
+ */
 public abstract class UiImageButton extends ProcessingTouchEvents {
 
 	final PApplet p;
-
-	PImage falseImage, trueImage;
 	private float tX, tY, tWidth, tHeight;
-	boolean state, isEnabled;
+	
+	/** Image for false/off state of button */
+	public PImage falseImage;
+	/** Image for true/on state of button */
+	public PImage trueImage;
+	/** Toggle button state */
+	public boolean state;
+	/** Enable/disable button, also affects visiblity */
+	public boolean isEnabled;
+	
+	/**
+	 * Specify tint value to tint image
+	 */
 	public int tintValue;
 
+	/**
+	 * Constructor. Specify PApplet
+	 * 
+	 * @param p
+	 *            PApplet
+	 */
 	UiImageButton(final PApplet p) {
 		super(p);
 		this.p = p;
@@ -35,6 +54,17 @@ public abstract class UiImageButton extends ProcessingTouchEvents {
 		isEnabled = true;
 	}
 
+	/**
+	 * Specify PApplet, default state and default mode
+	 * 
+	 * @param p
+	 *            PApplet
+	 * @param enabled
+	 *            Set state to enabled (visible and active) or disabled
+	 *            (invisible and inactive)
+	 * @param alternateMode
+	 *            Alternate touch mode, useful for click and drag
+	 */
 	UiImageButton(PApplet p, boolean enabled) {
 		super(p);
 		this.p = p;
@@ -43,6 +73,14 @@ public abstract class UiImageButton extends ProcessingTouchEvents {
 		tintValue = 0;
 	}
 
+	/**
+	 * Load toggle state images
+	 * 
+	 * @param falseImg
+	 *            Image when toggle is false
+	 * @param trueImg
+	 *            Image when toggle is true
+	 */
 	void load(PImage falseImg, PImage trueImg) {
 		falseImage = falseImg;
 		trueImage = trueImg;
@@ -51,6 +89,14 @@ public abstract class UiImageButton extends ProcessingTouchEvents {
 
 	}
 
+	/**
+	 * Draw the button
+	 * 
+	 * @param tempx
+	 *            X position of button
+	 * @param tempy
+	 *            Y position of button
+	 */
 	void drawIt(float tempx, float tempy) {
 		tX = tempx;
 		tY = tempy;
@@ -70,11 +116,14 @@ public abstract class UiImageButton extends ProcessingTouchEvents {
 				p.image(trueImage, tempx, tempy);
 
 		}
-		
+
 		p.popStyle();
 
 	}
-	
+
+	/*
+	 * Overriding method in ProcessingTouchEvents.java
+	 */
 	@Override
 	public void touchDown(float x, float y) {
 		if (isEnabled) {
@@ -85,7 +134,10 @@ public abstract class UiImageButton extends ProcessingTouchEvents {
 		}
 
 	}
-	
+
+	/*
+	 * Overriding method in ProcessingTouchEvents.java
+	 */
 	@Override
 	public void touchUp(float x, float y) {
 		if (isEnabled) {
@@ -97,18 +149,34 @@ public abstract class UiImageButton extends ProcessingTouchEvents {
 		}
 	}
 
+	/**
+	 * Override this method to trigger actions when button is pressed
+	 */
 	public void isPressed() {
 
 	}
 
+	/**
+	 * Override this method to trigger actions when button is released
+	 */
 	public void isReleased() {
 
 	}
 
+	/**
+	 * Returns the width of the button
+	 * 
+	 * @return Button Width
+	 */
 	public float getWidth() {
 		return tWidth;
 	}
 
+	/**
+	 * Returns the height of the button
+	 * 
+	 * @return Button Height
+	 */
 	public float getHeight() {
 		return tHeight;
 	}

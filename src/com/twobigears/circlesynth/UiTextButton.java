@@ -19,16 +19,30 @@ package com.twobigears.circlesynth;
 
 import processing.core.*;
 
+/**
+ * Button with text label. Extends ProcessingTouchEvents.java
+ */
 public abstract class UiTextButton extends ProcessingTouchEvents {
 	
 	final PApplet p;
-
 	private PFont font;
-	public float pad;
-	public int offColor, onColor;
 	private float tX, tY, tWidth, tHeight;
-	public boolean boundBox, state, isEnabled;
-
+	
+	/** Text colour on toggle off/false */
+	public int offColor;
+	/** Text colour on toggle on/true */
+	public int onColor;
+	/** Toggle visibility of bounding box */
+	public boolean boundBox;
+	/** Toggle button state */
+	public boolean state;
+	/** Enable/disable button, also affects visiblity */
+	public boolean isEnabled;
+	
+	/**
+	 * Constructor. Specify PApplet
+	 * @param p PApplet
+	 */
 	UiTextButton(final PApplet p) {
 		super(p);
 		this.p = p;
@@ -38,18 +52,34 @@ public abstract class UiTextButton extends ProcessingTouchEvents {
 		onColor = p.color(255, 255, 255);
 		offColor = p.color(175, 175, 175);
 	}
-
+	
+	/**
+	 * Load PFont to be used for the label
+	 * @param pfont
+	 */
 	void load(PFont pfont) {
 
 		font = pfont;
 		p.textFont(font);
 	}
 	
+	/**
+	 * Set size of button, necessary for centering text within an invisible box.
+	 * The box can be made visible by setting boundBox to true
+	 * @param buttonWidth Width of button
+	 * @param buttonHeight Height of button
+	 */
 	void setSize(float buttonWidth, float buttonHeight) {
 		tWidth = buttonWidth;
 		tHeight = buttonHeight;
 	}
-
+	
+	/**
+	 * Draw the button
+	 * @param displayText Label to be displayed
+	 * @param tempx X position of button
+	 * @param tempy Y position of button
+	 */
 	void drawIt(String displayText, float tempx, float tempy) {
 		tX = tempx;
 		tY = tempy;
@@ -78,6 +108,9 @@ public abstract class UiTextButton extends ProcessingTouchEvents {
 		
 	}
 	
+	/*
+	 * Overriding method in ProcessingTouchEvents.java
+	 */
 	@Override
 	public void touchDown(float x, float y) {
 		if (isEnabled) {		
@@ -90,6 +123,9 @@ public abstract class UiTextButton extends ProcessingTouchEvents {
 
 	}
 	
+	/*
+	 * Overriding method in ProcessingTouchEvents.java
+	 */
 	@Override
 	public void touchUp(float x, float y) {
 		if (isEnabled) {
@@ -100,19 +136,33 @@ public abstract class UiTextButton extends ProcessingTouchEvents {
 			state = false;
 		}
 	}
-
+	
+	/**
+	 * Override this method to trigger actions when button is pressed
+	 */
 	public void isPressed() {
 
 	}
-
+	
+	/**
+	 * Override this method to trigger actions when button is released
+	 */
 	public void isReleased() {
 
 	}
-
+	
+	/**
+	 * Returns the width of the button
+	 * @return Button Width
+	 */
 	float getWidth() {
 		return tWidth;
 	}
-
+	
+	/**
+	 * Returns the height of the button
+	 * @return Button height
+	 */
 	float getHeight() {
 		return tHeight;
 	}
