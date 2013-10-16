@@ -7,16 +7,19 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.RadioGroup;
 
 public class DonateDialog extends DialogFragment {
 	
-	RadioGroup rgroup;
+	Button small,medium,large,xxl;
+	
 	float donate_amount;
 	
 	public interface OnDonateListener{
 		
-		void onPositiveAction();
+		void onPositiveAction(float donation);
 	}
 	
 	
@@ -50,7 +53,7 @@ public class DonateDialog extends DialogFragment {
 		setPositiveButton("Donate",
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
-						dListener.onPositiveAction();
+						dListener.onPositiveAction(donate_amount);
 					}
 				});
 		// Get the layout inflater
@@ -61,11 +64,47 @@ public class DonateDialog extends DialogFragment {
 
 				View view = inflater.inflate(R.layout.donate, null);
 				
-				//query which radio buton is pressed
-				rgroup = (RadioGroup) view.findViewById(R.id.radioGroup1);
-				int selected = rgroup.getCheckedRadioButtonId();
+				//which donation amount is selected?
+				small = (Button)view.findViewById(R.id.button_small);
+				medium=(Button)view.findViewById(R.id.button_medium);
+				large=(Button)view.findViewById(R.id.button_large);
+				xxl=(Button)view.findViewById(R.id.button_xxl);
 				
-				System.out.println("button selection "+String.valueOf(selected));
+				small.setOnClickListener(new OnClickListener() {
+					//boolean state = false;
+					
+					@Override
+					public void onClick(View v) {
+						donate_amount=0.69f;
+					}
+				});
+				
+				medium.setOnClickListener(new OnClickListener() {
+					//boolean state = false;
+					
+					@Override
+					public void onClick(View v) {
+						donate_amount=0.99f;
+					}
+				});
+				large.setOnClickListener(new OnClickListener() {
+					//boolean state = false;
+					
+					@Override
+					public void onClick(View v) {
+						donate_amount=1.39f;
+					}
+				});
+				xxl.setOnClickListener(new OnClickListener() {
+					//boolean state = false;
+					
+					@Override
+					public void onClick(View v) {
+						donate_amount=4.99f;
+					}
+				});
+				
+
 				
 				builder.setView(view);
 				// Create the AlertDialog object and return it
