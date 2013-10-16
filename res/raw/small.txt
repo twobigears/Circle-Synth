@@ -1,1 +1,0 @@
- This app has been made possible by the use of freely available Processing, libPd and controlP5 libraries. Thanks to the amazing creators and the millions of resources on StackOverflow, without the knowledge and help of which this app would never have been possible.
