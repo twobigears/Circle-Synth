@@ -88,7 +88,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	Context context;
 	SharedPreferences prefs;
-	int fRate;
 
 	protected PdUiDispatcher dispatcher;
 	private Tracker tracker;
@@ -107,7 +106,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	private PdService pdService = null;
 	float pd = 0;
-	int storeSize = 0;
 
 	ArrayList<Dot> dots;
 	ArrayList<String> stored;
@@ -136,7 +134,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	public float density;
 	DecimalFormat df, df1;
 
-	float a;
 	int effect;
 	int col;
 
@@ -145,27 +142,22 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	public float scanline;
 	
 	CountDownTimer timer;
-
 	
 	PGraphics header, sketchBG, scanSquare, dragFocus;
 
-	PImage fxDragFilledImg, fxDragEmptyImg, fxFilledImg, innerCircleImg,
-			outerCircleImg, lineCircleImg;
+	PImage fxFilledImg, innerCircleImg, outerCircleImg, lineCircleImg;
 	
 	Toolbar toolbar;
 	
 	FxCircleDrag fxCircleDrag;
 	
-	float outerCircSize, innerCircSize;
+	int mainHeadHeight, headerHeight, buttonPad1, buttonPad2, buttonFxPad;
 	
-	int mainHeadHeight, shadowHeight, scanSquareY, headerHeight, buttonPad1, buttonPad2, buttonFxPad;
-	
-	float textAscent, dragDeleteBoundary;
+	float outerCircSize, dragDeleteBoundary;
 	
 	String resSuffix = "30";
 
 	int bpm = 120;
-	float bpmScale = constrain(bpm / 24, 4, 20);
 
 	final int bgCol = color(28, 28, 28);
 	final int headCol = color(41, 41, 41);
@@ -399,19 +391,15 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		if (densityR < 0.9) {
 			density = (float) 0.75;
-			textAscent = 0.62f;
 			resSuffix = "_x75";
 		} else if (densityR > 0.9 && densityR <= 1.2) {
 			density = (float) 1;
-			textAscent = 0.52f;
 			resSuffix = "_x100";
 		} else if (densityR > 1.2 && densityR <= 1.6) {
 			density = (float) 1.5;
-			textAscent = 0.32f;
 			resSuffix = "_x150";
 		} else if (densityR > 1.6) {
 			density = (float) 2;
-			textAscent = 0.22f;
 			resSuffix = "_x200";
 		}
 		
@@ -428,8 +416,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		
 		// header
 		mainHeadHeight = (int) (40 * density); 
-		shadowHeight = (int) (density);
-		scanSquareY = (int) (3 * density);
+		final int shadowHeight = (int) (density);
+		final int scanSquareY = (int) (3 * density);
 		headerHeight = mainHeadHeight + scanSquareY + shadowHeight;	 
 		buttonPad1 = (int) (10 * density);
 		buttonPad2 = (int) (20 * density);
@@ -438,7 +426,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		dragDeleteBoundary = 10*density;
 
 		outerCircSize = outerCircleImg.width;
-		innerCircSize = innerCircleImg.width;
 		
 		header = createGraphics(width, headerHeight);
 		header.beginDraw();
@@ -1441,9 +1428,10 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			toast("Please save the sketch before sharing");
 	}
 	
-	
+	// The toolbar including all buttons and animations
 	public class Toolbar {
 		
+		// Images for buttons
 		PImage shareImg, playImg, stopImg, revImg, forImg, clearOnImg, clearOffImg,
 		loadOffImg, loadOnImg, saveOffImg, saveOnImg, shareOffImg,
 		shareOnImg, settingsOnImg, settingsOffImg, fxCircleToggleImg, fxEmptyToggleImg,
@@ -1451,6 +1439,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		
 		PFont robotoFont, robotoSmallFont;
 		
+		// All button classes 
 		PlayToggle playToggleB;
 		ReverseToggle reverseToggleB;
 		FxToggle fxToggleB; 
@@ -1469,12 +1458,15 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		MoreToggle moreToggleB;
 		RecordToggle recordToggleB;
 		
+		// For toolbar slide animation
 		Animations toolbarAnimate;
 		
+		// Animation slide value
 		private float slideX;
 		
 		Toolbar () {
 			
+			// Doing the needful. Initialisation time.
 			robotoFont = createFont("Roboto-Thin-12", 24 * density, true);
 			robotoSmallFont = createFont("Roboto-Thin-12", 20 * density, true);
 			
@@ -1539,21 +1531,28 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			recordToggleB.offColor = color(120,120,120);
 			recordToggleB.onColor = color(255,0,0);
 			
+			// Init animation with animation time in frames
 			toolbarAnimate = new Animations(30);
 			
 			
 		}
 		
+		// Draw it all
 		public void drawIt() {
 			
+			// Toggle slide animation
 			if (moreToggleB.state)
 				toolbarAnimate.accelerateUp();
 			else
 				toolbarAnimate.accelerateDown();
 			
 			pushMatrix();
+			
+			// Animation value * distance needed to animate in px
 			slideX = (playToggleB.getWidth()*3)+(buttonPad1*3);
 			float xAnimate = toolbarAnimate.animateValue * -slideX;
+			
+			// All buttons
 			playToggleB.drawIt(buttonPad1 + xAnimate, 0);
 			reverseToggleB.drawIt((playToggleB.getWidth() + buttonPad2)
 					+ xAnimate, 0);
@@ -1588,9 +1587,10 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			popMatrix();
 		}
 		
+		// String for record button
 		String REC_TEXT="REC";
 		
-		// Button interfaces here
+		// Button specs below, extending/overriding UI classes
 		class PlayToggle extends UiImageToggle {
 
 			PlayToggle(PApplet p) {
@@ -1634,6 +1634,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				super(p);
 			}
 			
+			// Enable/disable buttons
 			@Override
 			public void isTrue() {
 				playToggleB.isEnabled = reverseToggleB.isEnabled = bpmButtonB.isEnabled = clearButtonB.isEnabled = false;
@@ -1656,6 +1657,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 			@Override
 			public void isReleased() {
+				
+				// Open BPM popup dialog
 				toast("Set BPM/Speed");
 				SynthCircle.this.runOnUiThread(new Runnable() {
 					public void run() {
@@ -1689,6 +1692,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			
 			@Override
 			public void isReleased() {
+				
+				// Load saved text file
+				
 				File mPath = new File(Environment.getExternalStorageDirectory()
 						+ "/circlesynth/sketches");
 				fileDialog = new FileDialog(SynthCircle.this, mPath);
@@ -1739,6 +1745,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			
 			@Override
 			public void isReleased() {
+				
+				// Save sketch and settings as text file
+				
 				toast("Sketch Saved in /circlesynth/sketches");
 				stored.clear();
 				int t1 = 0;
@@ -1826,6 +1835,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			@SuppressWarnings("deprecation")
 			@Override
 			public void isReleased() {
+				
+				// Open share preferences
+				
 				tracker.trackEvent("Buttons Category", "Settings", "", 0L);
 				Intent intent = new Intent(SynthCircle.this, SynthSettingsTwo.class);
 				startActivity(intent);
@@ -1833,6 +1845,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			}
 		}
 		
+		// FX circle toggles are in "alternate mode" for drag n' drop
 		class Fx1Toggle extends UiImageToggle {
 
 			Fx1Toggle(PApplet p, boolean enabled, boolean alternateMode) {
@@ -1972,6 +1985,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 			@Override
 			public void isTrue() {
+				
+				// Note: maximum record time is 30s, this is set independently in Pd
 				start=30000;
 				PdBase.sendFloat("pd_record",1);
 				//PdBase.sendMessage("pd_path", "record", baseDir+"/circlesynth/recordings");

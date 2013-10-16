@@ -19,27 +19,54 @@ package com.twobigears.circlesynth;
 
 import processing.core.*;
 
+/**
+ * Draws the FX circles on drag/drop
+ */
 public class FxCircleDrag {
 
 	private final PApplet p;
-	public int color;
-	public PImage filledCircle, emptyCircle;
-	public boolean isEnabled;
 	private float posX, posY;
+	
+	/** Circle color, assigned to tint value */ 
+	public int color;
+	/** Image for filled circle */
+	public PImage filledCircle;
+	/** Image for "empty" uncoloured circle */
+	public PImage emptyCircle;
+	/** Is enabled or disabled. Also affects visibility */
+	public boolean isEnabled;
 
+	/**
+	 * Constructor. Specify PApplet
+	 * 
+	 * @param p
+	 *            PApplet
+	 */
 	FxCircleDrag(final PApplet p) {
 		this.p = p;
 		isEnabled = false;
 		posX = posY = 0;
 	}
-	
-	public void setXY (float x, float y) {
+
+	/**
+	 * Set X and Y position of circles
+	 * 
+	 * @param x
+	 *            X Position
+	 * @param y
+	 *            Y Position
+	 */
+	public void setXY(float x, float y) {
 		posX = x;
 		posY = y;
 	}
 
+	/**
+	 * Draw circles based on x/y positions and color values
+	 */
 	public void drawIt() {
 		if (isEnabled) {
+			// For "no fx" circle (empty circle with no colour)
 			if (color == -1) {
 				p.pushMatrix();
 				p.pushStyle();
@@ -50,7 +77,9 @@ public class FxCircleDrag {
 				p.popStyle();
 				p.popMatrix();
 
-			} else {
+			}
+			// Coloured circles
+			else {
 				p.pushMatrix();
 				p.pushStyle();
 				p.translate(posX, posY);

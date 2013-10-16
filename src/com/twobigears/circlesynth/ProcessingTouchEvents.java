@@ -20,21 +20,29 @@ package com.twobigears.circlesynth;
 import processing.core.PApplet;
 import processing.event.MouseEvent;
 
+/**
+ * A wrapper class for Processing's mouse event listener which also works for
+ * touch
+ */
 public abstract class ProcessingTouchEvents {
 
-	PApplet p;
-	public int releaseX;
-	public int releaseY;
-	public int pressX;
-	public int pressY;
-	public int mX;
-	public int mY;
-
+	final PApplet p;
+	private int mX;
+	private int mY;
+	
+	/**
+	 * Constructor. Specify PApplet.
+	 * @param p PApplet
+	 */
 	ProcessingTouchEvents(PApplet p) {
 		this.p = p;
 		p.registerMethod("mouseEvent", this);
 	}
-
+	
+	/**
+	 * Mouse event listener
+	 * @param event MouseEvent
+	 */
 	public void mouseEvent(MouseEvent event) {
 
 		switch (event.getAction()) {
@@ -52,14 +60,23 @@ public abstract class ProcessingTouchEvents {
 			touchUp(mX, mY);
 		}
 	}
-
+	
+	/**
+	 * Override this for touch down event
+	 * @param x
+	 * @param y
+	 */
 	public void touchDown(float x, float y) {
 
 	}
-
+	
+	/**
+	 * Override this for touch up event
+	 * @param x
+	 * @param y
+	 */
 	public void touchUp(float x, float y) {
 
 	}
-
 
 }
