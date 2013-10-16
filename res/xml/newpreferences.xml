@@ -1,0 +1,70 @@
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android">
+	<PreferenceCategory android:title="Preferences">
+	
+		
+		<ListPreference
+			android:key="preset"
+			android:title="Presets"
+			android:summary="Select a Preset"
+			android:entries="@array/Presets"
+			android:entryValues="@array/Presets_values"
+			android:dialogTitle="Preset Selection"
+			android:defaultValue="1" />
+		
+		<ListPreference
+			android:key="scale"
+			android:title="Scales"
+			android:summary="Select a Scale"
+			android:entries="@array/Scales"
+			android:entryValues="@array/Scales_values"
+			android:dialogTitle="Scale selection"
+			android:defaultValue="1"
+			/>
+		<ListPreference
+			android:key="transposeOct"
+			android:title="Octave"
+			android:summary="Transpose by octaves"
+			android:entries="@array/OctaveTranspose"
+			android:entryValues="@array/Transpose_values"
+			android:dialogTitle="Select"
+			android:defaultValue="3"
+			 />
+		<ListPreference
+			android:key="transposeNote"
+			android:title="Root Note"
+			android:summary="Select root note"
+			android:entries="@array/NoteTranspose"
+			android:entryValues="@array/Transpose_notes"
+			android:dialogTitle="Select" 
+			android:defaultValue="0"
+			/>
+	</PreferenceCategory>
+	<PreferenceCategory android:title="Other Options">
+	    
+		   	<CheckBoxPreference
+		    android:key="accel"
+		    android:defaultValue="true"
+		    android:title="Accelerometer Modulation"
+		    android:summary="Toggle accelerometer controlled filter"
+		    />
+		   	
+		   	<CheckBoxPreference
+		    android:key="delay"
+		    android:defaultValue="true"
+		    android:title="Delay"
+		    android:summary="Toggle master delay"
+		    />
+		   	
+		   	<CheckBoxPreference
+		    android:key="reverb"
+		    android:defaultValue="true"
+		    android:title="Reverb"
+		    android:summary="Toggle master reverb"
+		    />
+		  
+		   	
+		    </PreferenceCategory>
+	
+	
+</PreferenceScreen>

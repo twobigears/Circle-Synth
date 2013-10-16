@@ -20,6 +20,7 @@ package com.twobigears.circlesynth;
 import java.io.File;
 import java.io.IOException;
 
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -29,7 +30,9 @@ import android.preference.PreferenceActivity;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-public class SynthSettingsTwo extends PreferenceActivity {
+import com.twobigears.circlesynth.DonateDialog.OnDonateListener;
+
+public class SynthSettingsTwo extends PreferenceActivity implements OnDonateListener{
 
 	public static final String PREF_DELETE = "deletefiles";
 	public static final String PREF_TUTORIAL = "tutorial";
@@ -37,6 +40,9 @@ public class SynthSettingsTwo extends PreferenceActivity {
 	public static final String PREF_ABOUT = "about";
 	public static final String PREF_DONATE = "donate";
 	public static final String PREF_DELREC = "deleterecordings";
+	public static final String PREF_SETTINGS = "settings";
+	
+	
 	// ZubhiumSDK sdk;
 
 	@SuppressWarnings("deprecation")
@@ -117,6 +123,17 @@ public class SynthSettingsTwo extends PreferenceActivity {
 
 					}
 				});
+		
+		Preference settingpref = (Preference)findPreference(PREF_SETTINGS);
+		settingpref.setOnPreferenceClickListener(new OnPreferenceClickListener(){
+			
+				@Override
+				public boolean onPreferenceClick(Preference preference){
+					Intent intent = new Intent(SynthSettingsTwo.this, SynthSettingsThree.class);
+					startActivity(intent);
+					return false;
+				}
+		});
 	}
 
 	public void deleteFiles(String path,String msg) {
@@ -159,9 +176,12 @@ public class SynthSettingsTwo extends PreferenceActivity {
 
 	public void setupDonate() {
 		
-		Toast.makeText(SynthSettingsTwo.this,
-				"Thank you Good Citizen", Toast.LENGTH_SHORT)
-				.show();
+		SynthSettingsTwo.this.runOnUiThread(new Runnable() {
+			public void run() {
+			DialogFragment dialog = new DonateDialog();
+			dialog.show(getFragmentManager(), "donationfragment");
+			}
+		});
 
 	}
 
@@ -175,8 +195,17 @@ public class SynthSettingsTwo extends PreferenceActivity {
 
 	@Override
 	protected void onUserLeaveHint() {
-		// TODO Auto-generated method stub
+		
 		super.onUserLeaveHint();
 		finish();
+	}
+
+	@Override
+	public void onPositiveAction() {
+		
+		Toast.makeText(SynthSettingsTwo.this,
+				"Donation done", Toast.LENGTH_SHORT)
+				.show();
+		
 	}
 }
