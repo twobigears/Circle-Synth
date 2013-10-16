@@ -26,7 +26,7 @@
         android:layout_marginTop="34dp" />
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/donate_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
