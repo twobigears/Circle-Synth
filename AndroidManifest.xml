@@ -34,13 +34,7 @@
       </intent-filter> 
       </activity>
       
-     <activity android:name="com.twobigears.circlesynth.SynthSettingsThree"
-        android:screenOrientation="landscape">
-            
-      <intent-filter>  
-      <action android:name="com.twobigears.circlesynth.SynthSettingsThree" />
-      </intent-filter> 
-      </activity>
+     
     <service android:name="org.puredata.android.service.PdService" />
     <meta-data android:value="82c43bc4379944d0" android:name="ADMOB_PUBLISHER_ID" />
     <activity

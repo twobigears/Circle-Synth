@@ -40,7 +40,7 @@ public class SynthSettingsTwo extends PreferenceActivity implements OnDonateList
 	public static final String PREF_ABOUT = "about";
 	public static final String PREF_DONATE = "donate";
 	public static final String PREF_DELREC = "deleterecordings";
-	public static final String PREF_SETTINGS = "settings";
+	
 	
 	
 	// ZubhiumSDK sdk;
@@ -124,16 +124,7 @@ public class SynthSettingsTwo extends PreferenceActivity implements OnDonateList
 					}
 				});
 		
-		Preference settingpref = (Preference)findPreference(PREF_SETTINGS);
-		settingpref.setOnPreferenceClickListener(new OnPreferenceClickListener(){
-			
-				@Override
-				public boolean onPreferenceClick(Preference preference){
-					Intent intent = new Intent(SynthSettingsTwo.this, SynthSettingsThree.class);
-					startActivity(intent);
-					return false;
-				}
-		});
+	
 	}
 
 	public void deleteFiles(String path,String msg) {
