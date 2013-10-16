@@ -27,6 +27,7 @@
 	    android:layout_marginLeft="20dp"
 	    android:layout_marginRight="20dp"
 	    android:layout_span="2"
+	    android:text="@string/about_thanks"
 	    android:textColor="#cccccc"
 	    android:textSize="10dip"
 	    android:textStyle="italic" />

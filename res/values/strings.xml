@@ -2,12 +2,10 @@
 <resources>
 
     <string name="app_name">Circle Synth</string>
-    
     <string name="menu_settings">Settings</string>
-    
-    
-	<string-array name="Presets">
- 		<item>From Zoid</item>
+
+    <string-array name="Presets">
+        <item>From Zoid</item>
         <item>Phone Me</item>
         <item>Zoid Returns</item>
         <item>Old Analogue</item>
@@ -17,10 +15,9 @@
         <item>Rolled Off</item>
         <item>Mellow</item>
         <item>Going Somewhere</item>
-        
     </string-array>
     <string-array name="Presets_values">
- 		<item>1</item>
+        <item>1</item>
         <item>2</item>
         <item>3</item>
         <item>4</item>
@@ -30,10 +27,9 @@
         <item>8</item>
         <item>9</item>
         <item>10</item>
-        </string-array>
-    
+    </string-array>
     <string-array name="Scales">
- 		<item>Major Pentatonic</item>
+        <item>Major Pentatonic</item>
         <item>Minor Pentatonic</item>
         <item>Japanese</item>
         <item>Balinese</item>
@@ -43,10 +39,9 @@
         <item>Major</item>
         <item>Natural Minor</item>
         <item>Chromatic</item>
-        
     </string-array>
     <string-array name="Scales_values">
- 		<item>1</item>
+        <item>1</item>
         <item>2</item>
         <item>3</item>
         <item>4</item>
@@ -56,30 +51,21 @@
         <item>8</item>
         <item>9</item>
         <item>10</item>
-
     </string-array>
-    
     <string-array name="OctaveTranspose">
         <item>-2</item>
         <item>-1</item>
         <item>0</item>
         <item>1</item>
         <item>2</item>
-
-        
-       </string-array>
-       
+    </string-array>
     <string-array name="Transpose_values">
-       
         <item>1</item>
         <item>2</item>
         <item>3</item>
         <item>4</item>
         <item>5</item>
-       
-        
     </string-array>
-    
     <string-array name="NoteTranspose">
         <item>C</item>
         <item>Db</item>
@@ -93,9 +79,7 @@
         <item>A</item>
         <item>Bb</item>
         <item>B</item>
-        
-       </string-array>
-       
+    </string-array>
     <string-array name="Transpose_notes">
         <item>0</item>
         <item>1</item>
@@ -110,9 +94,8 @@
         <item>10</item>
         <item>11</item>
         <item>12</item>
-        
     </string-array>
-    
+
     <string name="Presets">Choose Preset</string>
     <string name="Scales">Choose Scale</string>
     <string name="OctaveTranspose">Transpose Octave</string>
@@ -123,6 +106,6 @@
     <string name="tutorial_dialog_slide0">First Slide</string>
     <string name="tutorial_dialog_slide1">Slide2</string>
     <string name="tutorial_dialog_slide2">Slide 2</string>
-    
+    <string name="about_thanks">Circle Synth is an open source project made with Processing and libpd. Thanks to the amazing community of developers who maintain such libraries and share their knowledge for free.</string>
 
 </resources>
