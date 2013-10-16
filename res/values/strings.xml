@@ -106,6 +106,8 @@
     <string name="tutorial_dialog_slide0">First Slide</string>
     <string name="tutorial_dialog_slide1">Slide2</string>
     <string name="tutorial_dialog_slide2">Slide 2</string>
-    <string name="about_thanks">Circle Synth is an open source project made with Processing and libpd. Thanks to the amazing community of developers who maintain such libraries and share their knowledge for free.</string>
+    <string name="about_thanks">Circle Synth is an open source project created with Processing and libpd, made possible with the amazing community of developers who maintain such libraries and share their knowledge for free.</string>
+    <string name="tbe_web">twobigears.com</string>
+    <string name="version_name">2.0</string>
 
 </resources>

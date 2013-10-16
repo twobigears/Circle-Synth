@@ -20,21 +20,34 @@ package com.twobigears.circlesynth;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
+import android.view.View;
+import android.widget.TextView;
 
 public class AboutDialog extends Dialog {
+	
 	private static Context mContext = null;
-
+	
 	public AboutDialog(Context context) {
 		super(context);
 		mContext = context;
-
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		setContentView(R.layout.about);
-
 		
+		String website = "<a href='http://www.twobigears.com'> "+mContext.getResources().getString(R.string.tbe_web)+"</a>";
+		TextView webLink = (TextView) findViewById(R.id.info_web);
+		webLink.setMovementMethod(LinkMovementMethod.getInstance());
+		webLink.setText(Html.fromHtml(website));
+		
+		webLink.setOnClickListener(new View.OnClickListener() {
+		    public void onClick(View v) {
+		    	dismiss();
+		    }
+		});
 	}
 
 }
