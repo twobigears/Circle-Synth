@@ -79,9 +79,9 @@ import com.google.analytics.tracking.android.Tracker;
 import com.twobigears.circlesynth.BpmPicker.OnBpmChangedListener;
 import com.twobigears.circlesynth.RecordDialog.OnRecordingListener;
 
-
 public class SynthCircle extends PApplet implements OnBpmChangedListener,
-		OnSharedPreferenceChangeListener, SensorEventListener, OnRecordingListener {
+		OnSharedPreferenceChangeListener, SensorEventListener,
+		OnRecordingListener {
 
 	public static final String TAG = "CircleSynth";
 
@@ -128,7 +128,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	float currentAccely = 0;
 	static final float ALPHA = 0.15f;
 	float oldAccel = 0;
-	
+
 	float pX, pY;
 	public float density;
 	DecimalFormat df, df1;
@@ -139,21 +139,21 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	boolean moveflag = false;
 	boolean headerflag = false;
 	float scanline;
-	
+
 	CountDownTimer timer;
-	
+
 	PGraphics header, sketchBG, scanSquare, dragFocus;
 
 	PImage fxFilledImg, innerCircleImg, outerCircleImg, lineCircleImg;
-	
+
 	Toolbar toolbar;
-	
+
 	FxCircleDrag fxCircleDrag;
-	
+
 	int mainHeadHeight, headerHeight, buttonPad1, buttonPad2, buttonFxPad;
-	
+
 	float outerCircSize, dragDeleteBoundary;
-	
+
 	String resSuffix = "_x100";
 
 	int bpm = 120;
@@ -190,7 +190,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		}
 	};
-	
+
 	/* Bind pd service */
 
 	private void initPdService() {
@@ -250,8 +250,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		}
 	}
-	
+
 	private Toast toast = null;
+
 	private void toast(final String msg) {
 		runOnUiThread(new Runnable() {
 			@Override
@@ -287,7 +288,6 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		initPdService();
 		initSystemServices();
-		
 
 	}
 
@@ -310,7 +310,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	@Override
 	public void onBackPressed() {
 		System.out.println("back pressed");
-		//super.onBackPressed();
+		// super.onBackPressed();
 	}
 
 	@Override
@@ -318,7 +318,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		super.onDestroy();
 		// dispatcher.release();
 		unbindService(pdConnection);
-		//EasyTracker.getInstance().activityStop(this); // Add this method.
+		// EasyTracker.getInstance().activityStop(this); // Add this method.
 
 		prefs.unregisterOnSharedPreferenceChangeListener(this);
 		mSensorManager.unregisterListener(this);
@@ -370,9 +370,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	// processing code begins//
 
 	public void setup() {
-		
+
 		frameRate(60);
-		
+
 		dots = new ArrayList<Dot>();
 		stored = new ArrayList<String>();
 
@@ -398,31 +398,31 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			density = (float) 2;
 			resSuffix = "_x200";
 		}
-		
-		innerCircleImg = loadImage("inner_circle"+resSuffix+".png");
-		outerCircleImg = loadImage("outer_circle"+resSuffix+".png");
-		lineCircleImg = loadImage("line_circle"+resSuffix+".png");
-		fxFilledImg = loadImage("fxFilled"+resSuffix+".png");
-		
+
+		innerCircleImg = loadImage("inner_circle" + resSuffix + ".png");
+		outerCircleImg = loadImage("outer_circle" + resSuffix + ".png");
+		lineCircleImg = loadImage("line_circle" + resSuffix + ".png");
+		fxFilledImg = loadImage("fxFilled" + resSuffix + ".png");
+
 		toolbar = new Toolbar();
-		
+
 		fxCircleDrag = new FxCircleDrag(this);
 		fxCircleDrag.emptyCircle = outerCircleImg;
 		fxCircleDrag.filledCircle = fxFilledImg;
-		
+
 		// header
-		mainHeadHeight = (int) (40 * density); 
+		mainHeadHeight = (int) (40 * density);
 		final int shadowHeight = (int) (density);
 		final int scanSquareY = (int) (3 * density);
-		headerHeight = mainHeadHeight + scanSquareY + shadowHeight;	 
+		headerHeight = mainHeadHeight + scanSquareY + shadowHeight;
 		buttonPad1 = (int) (10 * density);
 		buttonPad2 = (int) (20 * density);
 		buttonFxPad = (int) (1 * density);
-		
-		dragDeleteBoundary = 10*density;
+
+		dragDeleteBoundary = 10 * density;
 
 		outerCircSize = outerCircleImg.width;
-		
+
 		header = createGraphics(width, headerHeight);
 		header.beginDraw();
 		header.noStroke();
@@ -430,21 +430,21 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		header.fill(buttonInActCol, 40);
 		header.rect(0, mainHeadHeight, width, scanSquareY);
 		header.fill(10);
-		header.rect(0, mainHeadHeight+scanSquareY, width, shadowHeight);
+		header.rect(0, mainHeadHeight + scanSquareY, width, shadowHeight);
 		header.endDraw();
-		
+
 		sketchBG = createGraphics(width, height - headerHeight);
 		sketchBG.beginDraw();
 		sketchBG.background(bgCol);
 		sketchBG.endDraw();
-		
+
 		scanSquare = createGraphics((int) (10 * density), scanSquareY);
 		scanSquare.beginDraw();
 		scanSquare.noStroke();
 		scanSquare.fill(120);
 		scanSquare.rect(0, 0, 7 * density, 3 * density, 7 * density);
 		scanSquare.endDraw();
-		
+
 		dragFocus = createGraphics(width, height - headerHeight);
 		dragFocus.beginDraw();
 		dragFocus.noFill();
@@ -454,11 +454,13 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		dragFocus.endDraw();
 
 	}
-	int save_preset,save_bpm,save_scale,save_octTrans,save_noteTrans;
+
+	int save_preset, save_bpm, save_scale, save_octTrans, save_noteTrans;
+
 	private void initialisepatch() {
 
 		String value = prefs.getString("preset", null);
-		//SharedPreferences prefs1 = getPreferences(SynthCircle.MODE_PRIVATE);
+		// SharedPreferences prefs1 = getPreferences(SynthCircle.MODE_PRIVATE);
 		if (value == null) {
 
 			Editor editor = prefs.edit();
@@ -476,25 +478,24 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		String pres = prefs.getString("preset", "1");
 		int presf = Integer.valueOf(pres);
 		PdBase.sendFloat("pd_presets", presf);
-		save_preset=presf;
+		save_preset = presf;
 
 		String val = prefs.getString("scale", "1");
 		int valf = Integer.valueOf(val);
 		PdBase.sendFloat("pd_scales", valf);
-		save_scale=valf;
-		
+		save_scale = valf;
+
 		String tran = prefs.getString("transposeOct", "3");
 		int tranf = Integer.valueOf(tran);
 		tranf = tranf - 3;
 		PdBase.sendFloat("pd_octTrans", tranf);
-		save_octTrans=tranf;
-		
+		save_octTrans = tranf;
+
 		String tran1 = prefs.getString("transposeNote", "0");
 		int tranf1 = Integer.valueOf(tran1);
 		PdBase.sendFloat("pd_noteTrans", tranf1);
 		save_noteTrans = tranf1;
-		
-		
+
 		boolean accely = prefs.getBoolean("accel", false);
 		if (accely)
 			PdBase.sendFloat("pd_accelToggle", 1);
@@ -521,40 +522,39 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			Editor editor = prefs.edit();
 			editor.putBoolean("first_tutorial", true);
 			editor.commit();
-			
-			//copy asset files
-			String basepath = Environment.getExternalStorageDirectory().toString()+"/circlesynth";
+
+			// copy asset files
+			String basepath = Environment.getExternalStorageDirectory()
+					.toString() + "/circlesynth";
 			File clipartdir = new File(basepath + "/demos/");
-	        if (!clipartdir.exists()) {
-	            clipartdir.mkdirs();
-	            copyDemos();      
-	        }
-	        
-	        File circledir = new File(basepath + "/sketches");
-	        if (!circledir.exists())
-	        	circledir.mkdirs();
+			if (!clipartdir.exists()) {
+				clipartdir.mkdirs();
+				copyDemos();
+			}
+
+			File circledir = new File(basepath + "/sketches");
+			if (!circledir.exists())
+				circledir.mkdirs();
 		}
 
 	}
-	
-	public void loadSettings(){
+
+	public void loadSettings() {
 		PdBase.sendFloat("pd_presets", save_preset);
 		PdBase.sendFloat("pd_scales", save_scale);
 		PdBase.sendFloat("pd_octTrans", save_octTrans);
 		PdBase.sendFloat("pd_noteTrans", save_noteTrans);
 		PdBase.sendFloat("pd_bpm", save_bpm);
-		bpm=save_bpm;
-		
+		bpm = save_bpm;
+
 		Editor editor = prefs.edit();
-		
+
 		editor.putString("preset", String.valueOf(save_preset));
 		editor.putString("scale", String.valueOf(save_scale));
-		editor.putString("transposeOct", String.valueOf(save_octTrans+3));
+		editor.putString("transposeOct", String.valueOf(save_octTrans + 3));
 		editor.putString("transposeNote", String.valueOf(save_noteTrans));
 		editor.apply();
-		
-		
-		
+
 	}
 
 	public void draw() {
@@ -563,18 +563,18 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		// draw dots on the screen based on touch data stored in Dot class
 		drawThis();
-		
+
 		image(header, 0, 0);
 		image(scanSquare, scanline * width, mainHeadHeight);
-		
+
 		if (moveflag)
 			image(dragFocus, 0, headerHeight);
-		
+
 		toolbar.drawIt();
 
 		fxCircleDrag.drawIt();
 	}
-	
+
 	public void detect() {
 
 		if (dots.size() > 0) {
@@ -636,19 +636,19 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		for (int i = 0; i < dots.size(); i++) {
 
 			Dot d = (Dot) dots.get(i);
-			
+
 			// turning lights off
 			if (!toolbar.playToggleB.state)
 				d.selected1 = d.selected2 = false;
-			
+
 			// for line
 			if (d.touched3)
 				d.drawLine();
-			
+
 			// single dot
 			if (d.touched1)
 				d.drawCircleOne();
-			
+
 			// second circle
 			if (d.touched2)
 				d.drawCircleTwo();
@@ -684,7 +684,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					}
 
 					if (CHECK[i] != FINAL) {
-						//Log.d("pdsend",FINAL);
+						// Log.d("pdsend",FINAL);
 						// send list of dot values to pd
 						String[] pieces = FINAL.split(" ");
 						Object[] list = new Object[pieces.length];
@@ -711,61 +711,57 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		String[] pieces = string.split(" ");
 
 		int index = Integer.parseInt(pieces[0]);
-		if(index<10){
-		Dot d = dots.get(index);
-		
-		if (Float.parseFloat(pieces[1]) <= 1) {
-			d.xDown = (Float.parseFloat(pieces[1]) * width);
-			d.yDown = (Float.parseFloat(pieces[2]) * height);
-			d.xLine = d.xUp = (Float.parseFloat(pieces[3]) * width);
-			d.yLine = d.yUp = (Float.parseFloat(pieces[4]) * height);
-			d.doteffect = Integer.parseInt(pieces[5]);
-			d.dotcol = Integer.parseInt(pieces[6]);
-			int t1 = Integer.parseInt(pieces[7]);
-			int t2 = Integer.parseInt(pieces[8]);
-			int t3 = Integer.parseInt(pieces[9]);
-			if (t1 == 1)
-				d.touched1 = true;
-			else
-				d.touched1 = false;
-			if (t2 == 1){
-				d.touched2 = true;
-				//d.hasLine=true;
-			}
-			else{
-				d.touched2 = false;
-				//d.hasLine=false;
-			}
+		if (index < 10) {
+			Dot d = dots.get(index);
 
-			if (t3 == 1){
-				d.touched3 = true;
-				if(d.xDown!=d.xUp)
-					d.hasLine=true;
+			if (Float.parseFloat(pieces[1]) <= 1) {
+				d.xDown = (Float.parseFloat(pieces[1]) * width);
+				d.yDown = (Float.parseFloat(pieces[2]) * height);
+				d.xLine = d.xUp = (Float.parseFloat(pieces[3]) * width);
+				d.yLine = d.yUp = (Float.parseFloat(pieces[4]) * height);
+				d.doteffect = Integer.parseInt(pieces[5]);
+				d.dotcol = Integer.parseInt(pieces[6]);
+				int t1 = Integer.parseInt(pieces[7]);
+				int t2 = Integer.parseInt(pieces[8]);
+				int t3 = Integer.parseInt(pieces[9]);
+				if (t1 == 1)
+					d.touched1 = true;
 				else
-					d.hasLine=false;
-			}
-			else{
-				d.touched3 = false;
-				d.hasLine=false;
-			}
+					d.touched1 = false;
+				if (t2 == 1) {
+					d.touched2 = true;
+					// d.hasLine=true;
+				} else {
+					d.touched2 = false;
+					// d.hasLine=false;
+				}
 
+				if (t3 == 1) {
+					d.touched3 = true;
+					if (d.xDown != d.xUp)
+						d.hasLine = true;
+					else
+						d.hasLine = false;
+				} else {
+					d.touched3 = false;
+					d.hasLine = false;
+				}
+
+			} else {
+				d.xDown = (Float.parseFloat(pieces[1]));
+				d.yDown = (Float.parseFloat(pieces[2]));
+				d.xLine = d.xUp = (Float.parseFloat(pieces[3]));
+				d.yLine = d.yUp = (Float.parseFloat(pieces[4]));
+			}
 		} else {
-			d.xDown = (Float.parseFloat(pieces[1]));
-			d.yDown = (Float.parseFloat(pieces[2]));
-			d.xLine = d.xUp = (Float.parseFloat(pieces[3]));
-			d.yLine = d.yUp = (Float.parseFloat(pieces[4]));
-		}
-		}
-		else{
-			save_preset=(int)Float.parseFloat(pieces[1]);
-			save_scale=(int)Float.parseFloat(pieces[2]);
-			save_octTrans=(int)Float.parseFloat(pieces[3]);
-			save_noteTrans=(int)Float.parseFloat(pieces[4]);
-			save_bpm=(int)Float.parseFloat(pieces[5]);
+			save_preset = (int) Float.parseFloat(pieces[1]);
+			save_scale = (int) Float.parseFloat(pieces[2]);
+			save_octTrans = (int) Float.parseFloat(pieces[3]);
+			save_noteTrans = (int) Float.parseFloat(pieces[4]);
+			save_bpm = (int) Float.parseFloat(pieces[5]);
 			loadSettings();
-			
+
 		}
-			
 
 	}
 
@@ -805,7 +801,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	public class Dot {
 
 		float xDown, xUp, yDown, yUp, xLine, yLine, posX, posY;
-		boolean touched1, touched2, touched3, selected1, selected2,isMoving,isDeleted,hasLine;
+		boolean touched1, touched2, touched3, selected1, selected2, isMoving,
+				isDeleted, hasLine;
 		int doteffect;
 		int dotcol = color(255, 68, 68);
 		private Animations circle1InnerAnim, circle1OuterAnim,
@@ -813,7 +810,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		private PGraphics lineBuffer;
 		private float angle, dist;
 		private int lineImgWidth, outerCircleWidth;
-		boolean node1,node2;
+		boolean node1, node2;
 		boolean isLocked;
 
 		Dot() {
@@ -830,7 +827,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 
 		public void fxClear() {
-			//effects : 0 - none, 1 - 4 are corresponding fx
+			// effects : 0 - none, 1 - 4 are corresponding fx
 			this.doteffect = 0;
 			this.dotcol = color(255, 68, 68);
 		}
@@ -843,8 +840,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			touched1 = true;
 			touched2 = false;
 			touched3 = false;
-			node1=true;
-			
+			node1 = true;
 
 		}
 
@@ -863,36 +859,39 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			xLine = xUp;
 			yLine = yUp;
 			touched2 = true;
-			node2=true;
-			
+			node2 = true;
 
 		}
 
 		public void createLine(float mX3, float mY3) {
 			xLine = mX3;
 			yLine = mY3;
-			hasLine=true;
+			hasLine = true;
 			touched3 = true;
 
 		}
-		
+
 		public void drawCircleOne() {
 			pushMatrix();
 			pushStyle();
 			translate(xDown, yDown);
 			imageMode(CENTER);
-			
+
 			pushMatrix();
-			if(selected1) tint(dotcol);
-			else noTint();
+			if (selected1)
+				tint(dotcol);
+			else
+				noTint();
 			circle1OuterAnim.animate();
 			scale(circle1OuterAnim.animateValue);
 			image(outerCircleImg, 0, 0);
 			popMatrix();
-		    
+
 			pushMatrix();
-			if(selected1) scale(1.5f);
-			else scale(1);
+			if (selected1)
+				scale(1.5f);
+			else
+				scale(1);
 			tint(dotcol);
 			if (circle1OuterAnim.animateValue > 0.5)
 				circle1InnerAnim.animate();
@@ -903,24 +902,28 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			popStyle();
 			popMatrix();
 		}
-		
+
 		public void drawCircleTwo() {
 			pushMatrix();
 			pushStyle();
 			translate(xUp, yUp);
 			imageMode(CENTER);
-			
+
 			pushMatrix();
-			if(selected2) tint(dotcol);
-			else noTint();
+			if (selected2)
+				tint(dotcol);
+			else
+				noTint();
 			circle2OuterAnim.animate();
 			scale(circle2OuterAnim.animateValue);
 			image(outerCircleImg, 0, 0);
 			popMatrix();
-		    
+
 			pushMatrix();
-			if(selected2) scale(1.5f);
-			else scale(1);
+			if (selected2)
+				scale(1.5f);
+			else
+				scale(1);
 			tint(dotcol);
 			if (circle2OuterAnim.animateValue > 0.5)
 				circle2InnerAnim.animate();
@@ -931,7 +934,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			popStyle();
 			popMatrix();
 		}
-		
+
 		private void computeLine(float distanceVal) {
 			int countMax = (int) (distanceVal / lineImgWidth);
 			if (countMax > 0)
@@ -949,28 +952,33 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			lineBuffer.endDraw();
 			popStyle();
 		}
-		
+
 		public void drawLine() {
-			
+
 			float deltaX = xLine - xDown;
 			float deltaY = yLine - yDown;
-			
-			angle = atan(deltaY/deltaX);
-			if (deltaX < 0) angle += PI;
-			
+
+			angle = atan(deltaY / deltaX);
+			if (deltaX < 0)
+				angle += PI;
+
 			float tempDist = (float) (sqrt((deltaX * deltaX)
-					+ (deltaY * deltaY)) - (outerCircleWidth-density*3));
-			
-			if(tempDist != dist) computeLine(tempDist);
+					+ (deltaY * deltaY)) - (outerCircleWidth - density * 3));
+
+			if (tempDist != dist)
+				computeLine(tempDist);
 
 			pushMatrix();
 			pushStyle();
 			translate(xDown, yDown);
-			rotate(angle);	
-			if(selected1 && selected2) tint(dotcol);
-			else noTint();
+			rotate(angle);
+			if (selected1 && selected2)
+				tint(dotcol);
+			else
+				noTint();
 			imageMode(CORNER);
-			image(lineBuffer, (float) ((outerCircleWidth*0.5)-density), (float) (-lineCircleImg.height*0.5));
+			image(lineBuffer, (float) ((outerCircleWidth * 0.5) - density),
+					(float) (-lineCircleImg.height * 0.5));
 			popStyle();
 			popMatrix();
 
@@ -980,274 +988,259 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			this.doteffect = f;
 			this.dotcol = col;
 		}
-		
-		public int getNodes(){
+
+		public int getNodes() {
 			int x = 0;
-			if(touched1 && touched2)
-				x=2;
-			else if(touched1 && !touched2)
-				x=1;
+			if (touched1 && touched2)
+				x = 2;
+			else if (touched1 && !touched2)
+				x = 1;
 			else
-				x=0;
+				x = 0;
 			return x;
 		}
-		
-		public void updateCircles(float mX, float mY){
-			float deltaX = Math.abs(mX-xDown);
-			float deltaY = Math.abs(mY-yDown);
-			
-			double dist = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
-			
-			if(dist < outerCircSize/2){
-				xDown=mX;
-				yDown=mY;
-				if(hasLine){
-					xLine=xUp;
-					yLine=yUp;
+
+		public void updateCircles(float mX, float mY) {
+			float deltaX = Math.abs(mX - xDown);
+			float deltaY = Math.abs(mY - yDown);
+
+			double dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+			if (dist < outerCircSize / 2) {
+				xDown = mX;
+				yDown = mY;
+				if (hasLine) {
+					xLine = xUp;
+					yLine = yUp;
+				} else {
+					xUp = xDown;
+					yUp = yDown;
 				}
-				else{
-					xUp=xDown;
-					yUp=yDown;
-				}
-				
+
+			} else {
+				xLine = xUp = mX;
+				yLine = yUp = mY;
+
 			}
-			else{
-				xLine=xUp=mX;
-				yLine=yUp=mY;
-				
+
+			if (xDown > xUp) {
+				float tempX = xDown;
+				float tempY = yDown;
+				xDown = xUp;
+				yDown = yUp;
+				xUp = tempX;
+				yUp = tempY;
 			}
-			
-			if(xDown>xUp){
-				float tempX=xDown;
-				float tempY=yDown;
-				xDown=xUp;
-				yDown=yUp;
-				xUp=tempX;
-				yUp=tempY;
-			}
-			
-				
+
 		}
 
 	}
 
 	int checkdelete;
 	int fxcheckdelete;
+
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent event) {
-		
-		
-		//System.out.println(String.valueOf(moveflag));
-		
-		
+
+		// System.out.println(String.valueOf(moveflag));
+
 		width = displayWidth;
 		height = displayHeight;
 		float x = (event.getX());
 		float y = (event.getY());
 		int action = event.getActionMasked();
-		//int checkdelete = -1;
+		// int checkdelete = -1;
 		if (dots != null) {
 			fxcheckdelete = delCheck(x, y);
-			//Log.d("checkdelete", String.valueOf(checkdelete));
-			
+			// Log.d("checkdelete", String.valueOf(checkdelete));
+
 			fxCircleDrag.setXY(x, y);
-			
-				switch (action) {
-				case MotionEvent.ACTION_DOWN:
-					
-					checkdelete = delCheck(x, y);
-					
-					
-					
-					if (y > mainHeadHeight) {
-						dots.add(new Dot());
+
+			switch (action) {
+			case MotionEvent.ACTION_DOWN:
+
+				checkdelete = delCheck(x, y);
+
+				if (y > mainHeadHeight) {
+					dots.add(new Dot());
+					if (checkdelete < 0) {
+						Dot d = (Dot) dots.get(dots.size() - 1);
+						if (dots.size() <= maxCircle) {
+							d.createCircle1(x, y);
+							d.isLocked = false;
+							pX = x;
+							pY = y;
+							d.isMoving = false;
+							moveflag = false;
+						}
+
+					}
+					if (checkdelete >= 0) {
+						moveflag = true;
+
+						Dot d = (Dot) dots.get(checkdelete);
+						d.isMoving = true;
+						d.isLocked = true;
+						dots.remove(dots.size() - 1);
+
+						// Log.d("dotsMove",String.valueOf(checkdelete)+" "+String.valueOf(d.isMoving));
+					}
+					headerflag = false;
+				} else
+					headerflag = true;
+
+				break;
+			case MotionEvent.ACTION_UP:
+
+				// reset checkdelete
+				// checkdelete = -1;
+
+				if (!headerflag) {
+					if (dots.size() > 0) {
+						Dot d1 = (Dot) dots.get(dots.size() - 1);
 						if (checkdelete < 0) {
+							// if (moveflag)
+							// dots.remove(dots.size() - 1);
+							if (y < mainHeadHeight && !moveflag) {
+								dots.remove(dots.size() - 1);
+								toast(getString(R.string.cant_draw));
+							}
+
+							if (dots.size() > maxCircle) {
+								toast(getString(R.string.limit_Reached));
+								dots.remove(dots.size() - 1);
+							}
+							if (d1.hasLine == true && !d1.isLocked) {
+
+								d1.createCircle2(x, y);
+								d1.isMoving = false;
+
+							}
+
+						}
+						if (checkdelete >= 0 && dots.size() > 0) {
 							Dot d = (Dot) dots.get(dots.size() - 1);
-							if (dots.size() <= maxCircle) {
-								d.createCircle1(x, y);
-								d.isLocked=false;
-								pX = x;
-								pY = y;
-								d.isMoving = false;
-								moveflag = false;
-							}
-
-						}
-						if (checkdelete >= 0) {
-							moveflag = true;
-
-							Dot d = (Dot) dots.get(checkdelete);
-							d.isMoving = true;
-							d.isLocked=true;
-							dots.remove(dots.size() - 1);
-							
-							// Log.d("dotsMove",String.valueOf(checkdelete)+" "+String.valueOf(d.isMoving));
-						}
-						headerflag = false;
-					} else
-						headerflag = true;
-
-					break;
-				case MotionEvent.ACTION_UP:
-					
-					//reset checkdelete
-					//checkdelete = -1;
-					
-					
-					if (!headerflag) {
-						if (dots.size() > 0) {
-							Dot d1 = (Dot) dots.get(dots.size() - 1);
-							if (checkdelete < 0) {
-								// if (moveflag)
-								// dots.remove(dots.size() - 1);
-								if (y < mainHeadHeight && !moveflag) {
-									dots.remove(dots.size() - 1);
-									toast(getString(R.string.cant_draw));
-								}
-
-								if (dots.size() > maxCircle) {
-									toast(getString(R.string.limit_Reached));
-									dots.remove(dots.size() - 1);
-								}
-								if (d1.hasLine == true && !d1.isLocked) {
-									
-									d1.createCircle2(x, y);
-									d1.isMoving = false;
-
-								}
-
-							}
-							if (checkdelete >= 0 && dots.size()>0) {
-								Dot d = (Dot) dots.get(dots.size()-1);
 							if (x < dragDeleteBoundary
 									|| x > width - dragDeleteBoundary
 									|| y > height - dragDeleteBoundary
 									|| y < mainHeadHeight + dragDeleteBoundary) {
 								dots.remove(checkdelete);
 								toast(getString(R.string.gone));
-								}
-								
-								if (d.hasLine && !d.touched2)
-									dots.remove(dots.size()-1);
-								
-							
 							}
-							// if (checkdelete >= 0) {
-							// if (Math.abs(pX - x) <= 15
-							// && Math.abs(pY - y) <= 15 && !moveflag) {
-							//
-							// checkdelete = -1;
-							// } else {
-							// Dot d2 = (Dot) dots.get(dots.size() - 1);
-							// if (d2.touched3 == true
-							// && d2.touched2 == false) {
-							// dots.remove(dots.size() - 1);
-							// } else if (!d2.touched1) {
-							// dots.remove(dots.size() - 1);
-							// dots.remove(checkdelete);
-							// }
-							// }
-							//
-							// }
+
+							if (d.hasLine && !d.touched2)
+								dots.remove(dots.size() - 1);
 
 						}
+						// if (checkdelete >= 0) {
+						// if (Math.abs(pX - x) <= 15
+						// && Math.abs(pY - y) <= 15 && !moveflag) {
+						//
+						// checkdelete = -1;
+						// } else {
+						// Dot d2 = (Dot) dots.get(dots.size() - 1);
+						// if (d2.touched3 == true
+						// && d2.touched2 == false) {
+						// dots.remove(dots.size() - 1);
+						// } else if (!d2.touched1) {
+						// dots.remove(dots.size() - 1);
+						// dots.remove(checkdelete);
+						// }
+						// }
+						//
+						// }
 
 					}
-					
-					//assign fx dragged in and dropped
-					if (fxcheckdelete >= 0 && fxCheck) {
-						Dot d = dots.get(fxcheckdelete);
-						d.fx(effect, col);
-					}
-					
-					
-					//reset moveflag to false
-					moveflag = false;
-					
-					break;
-				case MotionEvent.ACTION_POINTER_DOWN:
 
-					break;
-				case MotionEvent.ACTION_POINTER_UP:
-
-					break;
-				case MotionEvent.ACTION_MOVE:
-					
-					
-					
-					if (!headerflag && dots.size()>0) {
-						if (checkdelete >= 0) {
-							Dot dnew = (Dot) dots.get(checkdelete);
-							if (dnew.isMoving) {
-								int historySize = event.getHistorySize();
-								if (historySize > 0) {
-									for (int i = 0; i < historySize; i++) {
-								          float historicalX = event.getHistoricalX(i);
-								          float historicalY = event.getHistoricalY(i);
-								          dnew.updateCircles(historicalX,historicalY);
-								    }
-								}
-								else dnew.updateCircles(x, y);			    
-							}
-						}
-
-						else if (!moveflag){
-							Dot d11 = (Dot) dots.get(dots.size() - 1);
-							if (d11.node1 && distanceChecker(d11.xDown,d11.yDown,x,y))
-								d11.createLine(x, y);
-								
-							
-						}
-					}
-					
-					// set fx assign color/value based on move
-					if (toolbar.fx1ToggleB.state) {
-						effect = 1;
-						col = col2;
-						fxCheck = true;
-					} else if (toolbar.fx2ToggleB.state) {
-						effect = 2;
-						col = col3;
-						fxCheck = true;
-					} else if (toolbar.fx3ToggleB.state) {
-						effect = 3;
-						col = col4;
-						fxCheck = true;
-					} else if (toolbar.fx4ToggleB.state) {
-						effect = 4;
-						col = col5;
-						fxCheck = true;
-					} else if (toolbar.fxEmptyToggleB.state) {
-						effect = 0;
-						col = col1;
-						fxCheck = true;
-					}
-					else fxCheck = false;
-					
-					break;
 				}
 
+				// assign fx dragged in and dropped
+				if (fxcheckdelete >= 0 && fxCheck) {
+					Dot d = dots.get(fxcheckdelete);
+					d.fx(effect, col);
+				}
+
+				// reset moveflag to false
+				moveflag = false;
+
+				break;
+			case MotionEvent.ACTION_POINTER_DOWN:
+
+				break;
+			case MotionEvent.ACTION_POINTER_UP:
+
+				break;
+			case MotionEvent.ACTION_MOVE:
+
+				if (!headerflag && dots.size() > 0) {
+					if (checkdelete >= 0) {
+						Dot dnew = (Dot) dots.get(checkdelete);
+						if (dnew.isMoving) {
+							int historySize = event.getHistorySize();
+							if (historySize > 0) {
+								for (int i = 0; i < historySize; i++) {
+									float historicalX = event.getHistoricalX(i);
+									float historicalY = event.getHistoricalY(i);
+									dnew.updateCircles(historicalX, historicalY);
+								}
+							} else
+								dnew.updateCircles(x, y);
+						}
+					}
+
+					else if (!moveflag) {
+						Dot d11 = (Dot) dots.get(dots.size() - 1);
+						if (d11.node1
+								&& distanceChecker(d11.xDown, d11.yDown, x, y))
+							d11.createLine(x, y);
+
+					}
+				}
+
+				// set fx assign color/value based on move
+				if (toolbar.fx1ToggleB.state) {
+					effect = 1;
+					col = col2;
+					fxCheck = true;
+				} else if (toolbar.fx2ToggleB.state) {
+					effect = 2;
+					col = col3;
+					fxCheck = true;
+				} else if (toolbar.fx3ToggleB.state) {
+					effect = 3;
+					col = col4;
+					fxCheck = true;
+				} else if (toolbar.fx4ToggleB.state) {
+					effect = 4;
+					col = col5;
+					fxCheck = true;
+				} else if (toolbar.fxEmptyToggleB.state) {
+					effect = 0;
+					col = col1;
+					fxCheck = true;
+				} else
+					fxCheck = false;
+
+				break;
+			}
+
 		}
-		
+
 		return super.dispatchTouchEvent(event);
 	}
-		
-	
-	public boolean distanceChecker(float x1,float y1,float x2,float y2){
+
+	public boolean distanceChecker(float x1, float y1, float x2, float y2) {
 		boolean check = false;
-		
-		double dist = Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
-		if(dist< outerCircSize)
-			check=false;
+
+		double dist = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+		if (dist < outerCircSize)
+			check = false;
 		else
 			check = true;
-		
+
 		return check;
 	}
-	
-	
-	
-	
+
 	@Override
 	public void bpmChanged(int t) {
 		bpm = t;
@@ -1262,15 +1255,16 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences pref, String key) {
 
-//		SharedPreferences activityPreferences = getPreferences(SynthCircle.MODE_PRIVATE);
-//		SharedPreferences.Editor editor = activityPreferences.edit();
+		// SharedPreferences activityPreferences =
+		// getPreferences(SynthCircle.MODE_PRIVATE);
+		// SharedPreferences.Editor editor = activityPreferences.edit();
 		Editor editor = prefs.edit();
 
 		if (key.equals("preset")) {
 			String pres = prefs.getString("preset", "1");
 			int presf = Integer.valueOf(pres);
 			PdBase.sendFloat("pd_presets", presf);
-			save_preset=presf;
+			save_preset = presf;
 			editor.putString("preset", String.valueOf(presf));
 			editor.commit();
 		}
@@ -1281,7 +1275,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			PdBase.sendFloat("pd_scales", valf);
 			editor.putString("scale", String.valueOf(valf));
 			editor.commit();
-			save_scale=valf;
+			save_scale = valf;
 		}
 		// Octave transpose preference
 
@@ -1290,9 +1284,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			int tranf = Integer.valueOf(tran);
 			tranf = tranf - 3;
 			PdBase.sendFloat("pd_octTrans", tranf);
-			editor.putString("transposeOct", String.valueOf(tranf+3));
+			editor.putString("transposeOct", String.valueOf(tranf + 3));
 			editor.commit();
-			save_octTrans=tranf;
+			save_octTrans = tranf;
 		}
 
 		// Note transpose preference
@@ -1303,7 +1297,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			PdBase.sendFloat("pd_noteTrans", tranf1);
 			editor.putString("transposeNote", String.valueOf(tranf1));
 			editor.commit();
-			save_noteTrans=tranf1;
+			save_noteTrans = tranf1;
 		}
 
 		if (key.equals("accel")) {
@@ -1356,11 +1350,11 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		currentAccely = lowPass(event.values[1]);
 		float y = Math.abs(currentAccelx / 10);
 		float z = Math.abs(currentAccely / 10);
-		
-		if(y>z)
-			z=y;
+
+		if (y > z)
+			z = y;
 		else
-			y=z;
+			y = z;
 
 		if (accel == true)
 			PdBase.sendFloat("pd_accely", (1 - y));
@@ -1399,7 +1393,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	// sharing intent
 	private void shareIt() {
-		String content = "Hey!Check out my awesome sketch!! Click on Load and navigate to the folder where you downloaded the sketch to open it";
+		String content = "Hey! Check out my awesome sketch!! In Circle Synth, click on Load and navigate to the folder where you downloaded the sketch to open it.";
 		Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
 		sharingIntent.setType("audio/mpeg3");
 
@@ -1423,22 +1417,23 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		} else
 			toast(getString(R.string.save_sketch));
 	}
-	
+
 	// The toolbar including all buttons and animations
 	public class Toolbar {
-		
+
 		// Images for buttons
-		PImage shareImg, playImg, stopImg, revImg, forImg, clearOnImg, clearOffImg,
-		loadOffImg, loadOnImg, saveOffImg, saveOnImg, shareOffImg,
-		shareOnImg, settingsOnImg, settingsOffImg, fxCircleToggleImg, fxEmptyToggleImg,
-		fxClearOffImg, fxClearOnImg, moreToggleImg, lessToggleImg;
-		
+		PImage shareImg, playImg, stopImg, revImg, forImg, clearOnImg,
+				clearOffImg, loadOffImg, loadOnImg, saveOffImg, saveOnImg,
+				shareOffImg, shareOnImg, settingsOnImg, settingsOffImg,
+				fxCircleToggleImg, fxEmptyToggleImg, fxClearOffImg,
+				fxClearOnImg, moreToggleImg, lessToggleImg;
+
 		PFont robotoFont, robotoSmallFont;
-		
-		// All button classes 
+
+		// All button classes
 		PlayToggle playToggleB;
 		ReverseToggle reverseToggleB;
-		FxToggle fxToggleB; 
+		FxToggle fxToggleB;
 		BpmButton bpmButtonB;
 		ClearButton clearButtonB;
 		LoadButton loadButtonB;
@@ -1453,40 +1448,40 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		FxClearButton fxClearButtonB;
 		MoreToggle moreToggleB;
 		RecordToggle recordToggleB;
-		
+
 		// For toolbar slide animation
 		Animations toolbarAnimate;
-		
+
 		// Animation slide value
 		private float slideX;
-		
-		Toolbar () {
-			
+
+		Toolbar() {
+
 			// Doing the needful. Initialisation time.
 			robotoFont = createFont("Roboto-Thin-12", 24 * density, true);
 			robotoSmallFont = createFont("Roboto-Thin-12", 20 * density, true);
-			
-			playImg = loadImage("play"+resSuffix+".png");
-			stopImg = loadImage("stop"+resSuffix+".png");
-			revImg = loadImage("reverse"+resSuffix+".png");
-			forImg = loadImage("forward"+resSuffix+".png");
-			clearOnImg = loadImage("clearOn"+resSuffix+".png");
-			clearOffImg = loadImage("clearOff"+resSuffix+".png");
-			loadOffImg = loadImage("loadOff"+resSuffix+".png");
-			loadOnImg = loadImage("loadOn"+resSuffix+".png");
-			saveOffImg = loadImage("saveOff"+resSuffix+".png");
-			saveOnImg = loadImage("saveOn"+resSuffix+".png");
-			shareOffImg = loadImage("shareOff"+resSuffix+".png");
-			shareOnImg = loadImage("shareOn"+resSuffix+".png");
-			settingsOffImg = loadImage("settingsOff"+resSuffix+".png");
-			settingsOnImg = loadImage("settingsOn"+resSuffix+".png");
-			fxCircleToggleImg = loadImage("fxCircleToggle"+resSuffix+".png");
-			fxEmptyToggleImg = loadImage("fxCircleEmpty"+resSuffix+".png");
-			fxClearOffImg = loadImage("fxClearOff"+resSuffix+".png");
-			fxClearOnImg = loadImage("fxClearOn"+resSuffix+".png");
-			moreToggleImg = loadImage("more"+resSuffix+".png");
-			lessToggleImg = loadImage("less"+resSuffix+".png");
-			
+
+			playImg = loadImage("play" + resSuffix + ".png");
+			stopImg = loadImage("stop" + resSuffix + ".png");
+			revImg = loadImage("reverse" + resSuffix + ".png");
+			forImg = loadImage("forward" + resSuffix + ".png");
+			clearOnImg = loadImage("clearOn" + resSuffix + ".png");
+			clearOffImg = loadImage("clearOff" + resSuffix + ".png");
+			loadOffImg = loadImage("loadOff" + resSuffix + ".png");
+			loadOnImg = loadImage("loadOn" + resSuffix + ".png");
+			saveOffImg = loadImage("saveOff" + resSuffix + ".png");
+			saveOnImg = loadImage("saveOn" + resSuffix + ".png");
+			shareOffImg = loadImage("shareOff" + resSuffix + ".png");
+			shareOnImg = loadImage("shareOn" + resSuffix + ".png");
+			settingsOffImg = loadImage("settingsOff" + resSuffix + ".png");
+			settingsOnImg = loadImage("settingsOn" + resSuffix + ".png");
+			fxCircleToggleImg = loadImage("fxCircleToggle" + resSuffix + ".png");
+			fxEmptyToggleImg = loadImage("fxCircleEmpty" + resSuffix + ".png");
+			fxClearOffImg = loadImage("fxClearOff" + resSuffix + ".png");
+			fxClearOnImg = loadImage("fxClearOn" + resSuffix + ".png");
+			moreToggleImg = loadImage("more" + resSuffix + ".png");
+			lessToggleImg = loadImage("less" + resSuffix + ".png");
+
 			playToggleB = new PlayToggle(SynthCircle.this);
 			playToggleB.load(playImg, stopImg);
 			reverseToggleB = new ReverseToggle(SynthCircle.this);
@@ -1520,34 +1515,33 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			fxClearButtonB = new FxClearButton(SynthCircle.this, false);
 			fxClearButtonB.load(fxClearOffImg, fxClearOnImg);
 			moreToggleB = new MoreToggle(SynthCircle.this);
-			moreToggleB.load(moreToggleImg, lessToggleImg);	
+			moreToggleB.load(moreToggleImg, lessToggleImg);
 			recordToggleB = new RecordToggle(SynthCircle.this);
 			recordToggleB.load(robotoSmallFont);
 			recordToggleB.setSize(revImg.width, revImg.height);
-			recordToggleB.offColor = color(120,120,120);
-			recordToggleB.onColor = color(255,0,0);
-			
+			recordToggleB.offColor = color(120, 120, 120);
+			recordToggleB.onColor = color(255, 0, 0);
+
 			// Init animation with animation time in frames
 			toolbarAnimate = new Animations(30);
-			
-			
+
 		}
-		
+
 		// Draw it all
 		public void drawIt() {
-			
+
 			// Toggle slide animation
 			if (moreToggleB.state)
 				toolbarAnimate.accelerateUp();
 			else
 				toolbarAnimate.accelerateDown();
-			
+
 			pushMatrix();
-			
+
 			// Animation value * distance needed to animate in px
-			slideX = (playToggleB.getWidth()*3)+(buttonPad1*3);
+			slideX = (playToggleB.getWidth() * 3) + (buttonPad1 * 3);
 			float xAnimate = toolbarAnimate.animateValue * -slideX;
-			
+
 			// All buttons
 			playToggleB.drawIt(buttonPad1 + xAnimate, 0);
 			reverseToggleB.drawIt((playToggleB.getWidth() + buttonPad2)
@@ -1567,25 +1561,33 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			recordToggleB.drawIt(REC_TEXT,
 					(width - ((playToggleB.getWidth() + buttonPad1) * 3))
 							+ xAnimate, 0);
-			
-			
-			shareButtonB.drawIt((width)+xAnimate, 0);
-			saveButtonB.drawIt((width+((playToggleB.getWidth())+(buttonPad1)))+xAnimate, 0);
-			loadButtonB.drawIt((width+((playToggleB.getWidth()*2)+(buttonPad1*2)))+xAnimate, 0);
-			
-			fx1ToggleB.drawIt(buttonFxPad+xAnimate, 0);
-			fx2ToggleB.drawIt((fx1ToggleB.getWidth()+buttonFxPad)+xAnimate, 0);
-			fx3ToggleB.drawIt(((fx1ToggleB.getWidth())*2+buttonFxPad)+xAnimate, 0);
-			fx4ToggleB.drawIt(((fx1ToggleB.getWidth())*3+buttonFxPad)+xAnimate, 0);
-			fxEmptyToggleB.drawIt(((fx1ToggleB.getWidth())*4+buttonFxPad)+xAnimate, 0);
-			fxClearButtonB.drawIt(((fx1ToggleB.getWidth())*5+buttonFxPad)+xAnimate, 0);
-			
+
+			shareButtonB.drawIt((width) + xAnimate, 0);
+			saveButtonB.drawIt(
+					(width + ((playToggleB.getWidth()) + (buttonPad1)))
+							+ xAnimate, 0);
+			loadButtonB.drawIt(
+					(width + ((playToggleB.getWidth() * 2) + (buttonPad1 * 2)))
+							+ xAnimate, 0);
+
+			fx1ToggleB.drawIt(buttonFxPad + xAnimate, 0);
+			fx2ToggleB.drawIt((fx1ToggleB.getWidth() + buttonFxPad) + xAnimate,
+					0);
+			fx3ToggleB.drawIt(((fx1ToggleB.getWidth()) * 2 + buttonFxPad)
+					+ xAnimate, 0);
+			fx4ToggleB.drawIt(((fx1ToggleB.getWidth()) * 3 + buttonFxPad)
+					+ xAnimate, 0);
+			fxEmptyToggleB.drawIt(((fx1ToggleB.getWidth()) * 4 + buttonFxPad)
+					+ xAnimate, 0);
+			fxClearButtonB.drawIt(((fx1ToggleB.getWidth()) * 5 + buttonFxPad)
+					+ xAnimate, 0);
+
 			popMatrix();
 		}
-		
+
 		// String for record button
-		String REC_TEXT="REC";
-		
+		String REC_TEXT = "REC";
+
 		// Button specs below, extending/overriding UI classes
 		class PlayToggle extends UiImageToggle {
 
@@ -1597,17 +1599,17 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			public void isTrue() {
 				PdBase.sendFloat("pd_playToggle", 1);
 				sendPdValue();
-			}	
-			
+			}
+
 			@Override
 			public void isFalse() {
 				PdBase.sendFloat("pd_playToggle", 0);
 				scanline = 0;
 			}
 		}
-		
+
 		class ReverseToggle extends UiImageToggle {
-			
+
 			ReverseToggle(PApplet p) {
 				super(p);
 			}
@@ -1615,21 +1617,21 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			@Override
 			public void isTrue() {
 				PdBase.sendFloat("pd_revToggle", 1);
-			}	
-			
+			}
+
 			@Override
 			public void isFalse() {
 				PdBase.sendFloat("pd_revToggle", 0);
 			}
-			
+
 		}
-		
+
 		class FxToggle extends UiTextToggle {
-			
+
 			public FxToggle(PApplet p) {
 				super(p);
 			}
-			
+
 			// Enable/disable buttons
 			@Override
 			public void isTrue() {
@@ -1644,16 +1646,16 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			}
 
 		}
-		
+
 		class BpmButton extends UiTextButton {
-			
+
 			public BpmButton(PApplet p) {
 				super(p);
 			}
 
 			@Override
 			public void isReleased() {
-				
+
 				// Open BPM popup dialog
 				toast(getString(R.string.set_bpm));
 				SynthCircle.this.runOnUiThread(new Runnable() {
@@ -1662,10 +1664,10 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 								.show();
 					}
 				});
-				
+
 			}
 		}
-		
+
 		class ClearButton extends UiImageButton {
 
 			ClearButton(PApplet p) {
@@ -1679,50 +1681,54 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				toast(getString(R.string.clear));
 			}
 		}
-		
+
 		class LoadButton extends UiImageButton {
-			
+
 			LoadButton(PApplet p) {
 				super(p);
 			}
-			
+
 			@Override
 			public void isReleased() {
-				
+
 				// Load saved text file
-				
+
 				File mPath = new File(Environment.getExternalStorageDirectory()
 						+ "/circlesynth/sketches");
 				fileDialog = new FileDialog(SynthCircle.this, mPath);
 				fileDialog.setFileEndsWith(".txt");
-				fileDialog.addFileListener(new FileDialog.FileSelectedListener() {
-					public void fileSelected(File file) {
-						fName = file.getName();
-						try {
+				fileDialog
+						.addFileListener(new FileDialog.FileSelectedListener() {
+							public void fileSelected(File file) {
+								fName = file.getName();
+								try {
 
-							dots.clear();
-							stored.clear();
+									dots.clear();
+									stored.clear();
 
-							FileInputStream input = new FileInputStream(file);
-							DataInputStream din = new DataInputStream(input);
+									FileInputStream input = new FileInputStream(
+											file);
+									DataInputStream din = new DataInputStream(
+											input);
 
-							for (int i = 0; i <= maxCircle; i++) { // Read lines
-								String line = din.readUTF();
-								stored.add(line);
-								if(i<maxCircle)
-									dots.add(new Dot());
-								splitString(stored.get(i));
+									for (int i = 0; i <= maxCircle; i++) { // Read
+																			// lines
+										String line = din.readUTF();
+										stored.add(line);
+										if (i < maxCircle)
+											dots.add(new Dot());
+										splitString(stored.get(i));
+
+									}
+									din.close();
+								} catch (IOException exc) {
+									exc.printStackTrace();
+								}
+								dotcleanup();
 
 							}
-							din.close();
-						} catch (IOException exc) {
-							exc.printStackTrace();
-						}
-						dotcleanup();
 
-					}
-
-				});
+						});
 
 				SynthCircle.this.runOnUiThread(new Runnable() {
 					public void run() {
@@ -1732,27 +1738,28 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				});
 			}
 		}
-		
+
 		class SaveButton extends UiImageButton {
-			
+
 			SaveButton(PApplet p) {
 				super(p);
 			}
-			
+
 			@Override
 			public void isReleased() {
-				//Analytics Tracker
-				
-				tracker.sendEvent("ui_Action", "button_press", "save_button", 0L);
-				
+				// Analytics Tracker
+
+				tracker.sendEvent("ui_Action", "button_press", "save_button",
+						0L);
+
 				// Save sketch and settings as text file
-				
+
 				toast(getString(R.string.saved));
 				stored.clear();
 				int t1 = 0;
 				int t2 = 0;
 				int t3 = 0;
-				int count=0;
+				int count = 0;
 				String SAVE = null;
 				for (int i = 0; i < maxCircle; i++) {
 					if (i < dots.size()) {
@@ -1775,18 +1782,25 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					} else {
 						SAVE = String.valueOf(i) + " 5 5 5 5 0 0 0 0 0";
 					}
-					//Log.d("saved",SAVE);
+					// Log.d("saved",SAVE);
 					stored.add(i, SAVE);
-					t1=0;t2=0;t3=0;
-					count=i;
+					t1 = 0;
+					t2 = 0;
+					t3 = 0;
+					count = i;
 				}
-				save_bpm=bpm;
-				
-				String SAVE_EXTRA=String.valueOf(++count)+" "+String.valueOf(save_preset)+" "+String.valueOf(save_scale)
-						+" "+String.valueOf(save_octTrans)+" "+String.valueOf(save_noteTrans)+" "+String.valueOf(save_bpm);
-				stored.add(count,SAVE_EXTRA);
-				
-				String root = Environment.getExternalStorageDirectory().toString();
+				save_bpm = bpm;
+
+				String SAVE_EXTRA = String.valueOf(++count) + " "
+						+ String.valueOf(save_preset) + " "
+						+ String.valueOf(save_scale) + " "
+						+ String.valueOf(save_octTrans) + " "
+						+ String.valueOf(save_noteTrans) + " "
+						+ String.valueOf(save_bpm);
+				stored.add(count, SAVE_EXTRA);
+
+				String root = Environment.getExternalStorageDirectory()
+						.toString();
 				File myDir = new File(root + "/circlesynth/sketches");
 				myDir.mkdirs();
 				SimpleDateFormat formatter = new SimpleDateFormat("MMddHHmm");
@@ -1809,7 +1823,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				} catch (IOException exc) {
 					exc.printStackTrace();
 				}
-				
+
 			}
 		}
 
@@ -1821,15 +1835,15 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 			@Override
 			public void isReleased() {
-				//Analytics Tracker
-				
-				tracker.sendEvent("ui_Action", "button_press", "share_button", 0L);
-				
-				
+				// Analytics Tracker
+
+				tracker.sendEvent("ui_Action", "button_press", "share_button",
+						0L);
+
 				shareIt();
 			}
 		}
-		
+
 		class SettingsButton extends UiImageButton {
 
 			SettingsButton(PApplet p) {
@@ -1839,16 +1853,18 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			@SuppressWarnings("deprecation")
 			@Override
 			public void isReleased() {
-				
+
 				// Open share preferences
-				
-				tracker.sendEvent("ui_Action", "button_press", "settings_button", 0L);
-				Intent intent = new Intent(SynthCircle.this, SynthSettingsTwo.class);
+
+				tracker.sendEvent("ui_Action", "button_press",
+						"settings_button", 0L);
+				Intent intent = new Intent(SynthCircle.this,
+						SynthSettingsTwo.class);
 				startActivity(intent);
 				prefs.registerOnSharedPreferenceChangeListener(SynthCircle.this);
 			}
 		}
-		
+
 		// FX circle toggles are in "alternate mode" for drag n' drop
 		class Fx1Toggle extends UiImageToggle {
 
@@ -1856,101 +1872,101 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				super(p, enabled, alternateMode);
 				tintValue = col2;
 			}
-			
+
 			@Override
 			public void isTrue() {
 				fxCircleDrag.color = col2;
 				fxCircleDrag.isEnabled = true;
-			}	
-			
+			}
+
 			@Override
 			public void isFalse() {
 				fxCircleDrag.isEnabled = false;
 			}
-			
+
 		}
-		
+
 		class Fx2Toggle extends UiImageToggle {
 
 			Fx2Toggle(PApplet p, boolean enabled, boolean alternateMode) {
 				super(p, enabled, alternateMode);
 				tintValue = col3;
 			}
-			
+
 			@Override
 			public void isTrue() {
 				fxCircleDrag.color = col3;
 				fxCircleDrag.isEnabled = true;
-			}	
-			
+			}
+
 			@Override
 			public void isFalse() {
 				fxCircleDrag.isEnabled = false;
 			}
 		}
-		
+
 		class Fx3Toggle extends UiImageToggle {
 
 			Fx3Toggle(PApplet p, boolean enabled, boolean alternateMode) {
 				super(p, enabled, alternateMode);
 				tintValue = col4;
 			}
-			
+
 			@Override
 			public void isTrue() {
 				fxCircleDrag.color = col4;
 				fxCircleDrag.isEnabled = true;
-			}	
-			
+			}
+
 			@Override
 			public void isFalse() {
 				fxCircleDrag.isEnabled = false;
 			}
 		}
-		
+
 		class Fx4Toggle extends UiImageToggle {
 
 			Fx4Toggle(PApplet p, boolean enabled, boolean alternateMode) {
 				super(p, enabled, alternateMode);
 				tintValue = col5;
 			}
-			
+
 			@Override
 			public void isTrue() {
 				fxCircleDrag.color = col5;
 				fxCircleDrag.isEnabled = true;
-			}	
-			
+			}
+
 			@Override
 			public void isFalse() {
 				fxCircleDrag.isEnabled = false;
 			}
 		}
-		
+
 		class FxEmptyToggle extends UiImageToggle {
 
 			FxEmptyToggle(PApplet p, boolean enabled, boolean alternateMode) {
 				super(p, enabled, alternateMode);
 			}
-			
+
 			@Override
 			public void isTrue() {
 				fxCircleDrag.color = -1;
 				fxCircleDrag.isEnabled = true;
-			}	
-			
+			}
+
 			@Override
 			public void isFalse() {
 				fxCircleDrag.isEnabled = false;
 			}
 		}
-		
+
 		class FxClearButton extends UiImageButton {
 
 			FxClearButton(PApplet p, boolean enabled) {
 				super(p, enabled);
 			}
-			
+
 			@Override
 			public void isReleased() {
 				for (int i = 0; i < dots.size(); i++) {
@@ -1960,23 +1976,23 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				toast(getString(R.string.fx_clear));
 			}
 		}
-		
+
 		class MoreToggle extends UiImageToggle {
 
 			MoreToggle(PApplet p) {
 				super(p);
 			}
-			
+
 			@Override
 			public void isTrue() {
-			}	
-			
+			}
+
 			@Override
 			public void isFalse() {
-				
+
 			}
 		}
-		
+
 		long start;
 		int countertest;
 		Editor edit1;
@@ -1989,97 +2005,98 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 			@Override
 			public void isTrue() {
-				
-				// Note: maximum record time is 30s, this is set independently in Pd
-				start=30000;
-				PdBase.sendFloat("pd_record",1);
-				//PdBase.sendMessage("pd_path", "record", baseDir+"/circlesynth/recordings");
-				isRecording=true;;
-				countertest=0;
+
+				// Note: maximum record time is 30s, this is set independently
+				// in Pd
+				start = 30000;
+				PdBase.sendFloat("pd_record", 1);
+				// PdBase.sendMessage("pd_path", "record",
+				// baseDir+"/circlesynth/recordings");
+				isRecording = true;
+				;
+				countertest = 0;
 				edit1 = prefs.edit();
-				
-				
-				if(!toolbar.playToggleB.state){
+
+				if (!toolbar.playToggleB.state) {
 					toolbar.playToggleB.isTrue();
-					toolbar.playToggleB.state=true;
+					toolbar.playToggleB.state = true;
 				}
-				
-				//run countdowntimer thread
+
+				// run countdowntimer thread
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						timer = new CountDownTimer(start,1000){
-							
+						timer = new CountDownTimer(start, 1000) {
+
 							@Override
 							public void onFinish() {
-						         PdBase.sendFloat("pd_record", 0);
-						         REC_TEXT="REC";
-						         toolbar.recordToggleB.state=false;
-						         System.out.println("Recording length = "+String.valueOf(countertest));
-						         //save length to prefs
-						         edit1.putFloat("timer", 30);
-						         edit1.commit();
-						         countertest=0;
-						         
-						         
-						         
-						         record();
-						         isRecording=false;
-						         
-								
+								PdBase.sendFloat("pd_record", 0);
+								REC_TEXT = "REC";
+								toolbar.recordToggleB.state = false;
+								System.out.println("Recording length = "
+										+ String.valueOf(countertest));
+								// save length to prefs
+								edit1.putFloat("timer", 30);
+								edit1.commit();
+								countertest = 0;
+
+								record();
+								isRecording = false;
+
 							}
 
 							@Override
 							public void onTick(long millisUntilFinished) {
-								REC_TEXT=String.valueOf(millisUntilFinished/1000);	
+								REC_TEXT = String
+										.valueOf(millisUntilFinished / 1000);
 								countertest++;
 							}
-							
+
 						}.start();
 					}
-				}); 
-				
+				});
+
 			}
-			
-			
-			
+
 			@Override
 			public void isFalse() {
-				
+
 				PdBase.sendFloat("pd_record", 0);
-				REC_TEXT="REC";
+				REC_TEXT = "REC";
 				timer.cancel();
-				if(isRecording){
+				if (isRecording) {
 					edit1.putFloat("timer", countertest);
 					edit1.commit();
-					
+
 					record();
-					System.out.println("Recording length = "+String.valueOf(countertest));
-					
-					
-					countertest=0;
-					tracker.sendEvent("ui_Action", "button_press", "record_button", 0L);
+					System.out.println("Recording length = "
+							+ String.valueOf(countertest));
+
+					countertest = 0;
+					tracker.sendEvent("ui_Action", "button_press",
+							"record_button", 0L);
 				}
 			}
 
 		}
 
 	}
-	boolean isRecording=false;
-	
-	public void record(){
+
+	boolean isRecording = false;
+
+	public void record() {
 		toolbar.playToggleB.isFalse();
-		toolbar.playToggleB.state=false;
-		
+		toolbar.playToggleB.state = false;
+
 		PdBase.sendFloat("pd_playToggle", 0);
-		
+
 		SynthCircle.this.runOnUiThread(new Runnable() {
 			public void run() {
-			DialogFragment dialog = new RecordDialog();
-			dialog.show(getFragmentManager(), "recordingfragment");
+				DialogFragment dialog = new RecordDialog();
+				dialog.show(getFragmentManager(), "recordingfragment");
 			}
 		});
-		isRecording=false;
+		isRecording = false;
 	}
 
 	@Override
@@ -2087,53 +2104,49 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		System.out.println("play called from dialog");
 		PdBase.sendFloat("pd_recordPlay", 1);
 
-		
 	}
-	
+
 	@Override
 	public void onPlayFalse() {
 		System.out.println("stop called from dialog");
 		PdBase.sendFloat("pd_recordPlay", 0);
-		
+
 	}
 
 	@Override
 	public void onPositiveAction() {
 		String root = Environment.getExternalStorageDirectory().toString();
 		prepareRecord();
-		copyFile(saveFilePath+"/"+saveFileName,root+"/Ringtones/CircleSynthRing.wav");
+		copyFile(saveFilePath + "/" + saveFileName, root
+				+ "/Ringtones/CircleSynthRing.wav");
 		setRingtone();
-		//new LoadViewTask().execute();
+		// new LoadViewTask().execute();
 		toast(getString(R.string.ringtone));
-		
-		//async task
-		//To use the AsyncTask, it must be subclassed  
-	    
-		
-		
-		
+
+		// async task
+		// To use the AsyncTask, it must be subclassed
+
 	}
 
 	@Override
 	public void onNegativeAction() {
-		//Log.d("listener","cancel");
+		// Log.d("listener","cancel");
 		PdBase.sendFloat("pd_recordPlay", 0);
 		PdBase.sendBang("pd_recordCancel");
 	}
-	
+
 	@Override
-	public void onNeutralAction(){
-		//Log.d("listener","Save");
+	public void onNeutralAction() {
+		// Log.d("listener","Save");
 		prepareRecord();
 		toast(getString(R.string.rec_saved));
 	}
-	
+
 	String saveFilePath;
 	String saveFileName;
-	
-	
-	public void prepareRecord(){
-		
+
+	public void prepareRecord() {
+
 		String root = Environment.getExternalStorageDirectory().toString();
 		File myDir = new File(root + "/circlesynth/recordings");
 		myDir.mkdirs();
@@ -2142,121 +2155,121 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		String fileName = formatter.format(now);
 		String fname = "recording_" + fileName;
 		saveFilePath = myDir.getAbsolutePath();
-		saveFileName=fname+".wav";
-		PdBase.sendSymbol("pd_path",myDir+"/"+fname);
-		
-		
-		
-		
-		
-		
+		saveFileName = fname + ".wav";
+		PdBase.sendSymbol("pd_path", myDir + "/" + fname);
+
 	}
-	
-	public void setRingtone(){
-		
-		String path = Environment.getExternalStorageDirectory().toString()+"/Ringtones";
-		File k = new File(path, "CircleSynthRing.wav"); // path is a file to /sdcard/media/ringtone
+
+	public void setRingtone() {
+
+		String path = Environment.getExternalStorageDirectory().toString()
+				+ "/Ringtones";
+		File k = new File(path, "CircleSynthRing.wav"); // path is a file to
+														// /sdcard/media/ringtone
 		ContentValues values = new ContentValues();
 		values.put(MediaStore.MediaColumns.DATA, k.getAbsolutePath());
 		values.put(MediaStore.MediaColumns.TITLE, "CircleSynthRingtone");
 		values.put(MediaStore.MediaColumns.SIZE, k.length());
 		values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/vnd.wave");
 		values.put(MediaStore.Audio.Media.ARTIST, "CircleSynth");
-		//values.put(MediaStore.Audio.Media.DURATION, 230);
+		// values.put(MediaStore.Audio.Media.DURATION, 230);
 		values.put(MediaStore.Audio.Media.IS_RINGTONE, true);
 		values.put(MediaStore.Audio.Media.IS_NOTIFICATION, false);
 		values.put(MediaStore.Audio.Media.IS_ALARM, false);
 		values.put(MediaStore.Audio.Media.IS_MUSIC, false);
-		
-		System.out.println("getting the right file "+String.valueOf(k.length()));
 
-		//Insert it into the database
+		System.out.println("getting the right file "
+				+ String.valueOf(k.length()));
+
+		// Insert it into the database
 		Uri uri = MediaStore.Audio.Media.getContentUriForPath(k.toString());
-		//delete previous entries
-		getContentResolver().delete(uri, MediaStore.MediaColumns.DATA + "=\"" + k.getAbsolutePath() + "\"", null);
-		System.out.println("file in question "+k.getAbsolutePath());	
-		
-		//insert new values into the DB
-		Uri newUri = this.getContentResolver().insert(uri, values);
-		
-		//set as default ringtone
-		 try {
-		       RingtoneManager.setActualDefaultRingtoneUri(getBaseContext(), RingtoneManager.TYPE_RINGTONE, newUri);
-		   } catch (Throwable t) {
-		       Log.d(TAG, "catch exception");
-		       System.out.println("ringtone set exception "+t.getMessage());
-		   }
-		
+		// delete previous entries
+		getContentResolver().delete(
+				uri,
+				MediaStore.MediaColumns.DATA + "=\"" + k.getAbsolutePath()
+						+ "\"", null);
+		System.out.println("file in question " + k.getAbsolutePath());
 
-		
+		// insert new values into the DB
+		Uri newUri = this.getContentResolver().insert(uri, values);
+
+		// set as default ringtone
+		try {
+			RingtoneManager.setActualDefaultRingtoneUri(getBaseContext(),
+					RingtoneManager.TYPE_RINGTONE, newUri);
+		} catch (Throwable t) {
+			Log.d(TAG, "catch exception");
+			System.out.println("ringtone set exception " + t.getMessage());
+		}
+
 	}
-	
+
 	public static boolean copyFile(String from, String to) {
-	    try {
-	        int bytesum = 0;
-	        int byteread = 0;
-	        File oldfile = new File(from);
-	        File newfile = new File(Environment.getExternalStorageDirectory().toString()+"/Ringtones");
-	        if(!newfile.exists())
-	        	newfile.mkdir();
-	       
-	       
-	        if (oldfile.exists()) {
-	            InputStream inStream = new FileInputStream(from);
-	            FileOutputStream fs = new FileOutputStream(to);
-	            byte[] buffer = new byte[1024];
-	            while ((byteread = inStream.read(buffer)) != -1) {
-	                bytesum += byteread;
-	                fs.write(buffer, 0, byteread);
-	            }
-	            inStream.close();
-	            fs.close();
-	            //System.out.println("success copy");
-	        }
-	        
-	        return true;
-	    } catch (Exception e) {
-	    	System.out.println(e.getMessage());
-	        return false;
-	    }
+		try {
+			int bytesum = 0;
+			int byteread = 0;
+			File oldfile = new File(from);
+			File newfile = new File(Environment.getExternalStorageDirectory()
+					.toString() + "/Ringtones");
+			if (!newfile.exists())
+				newfile.mkdir();
+
+			if (oldfile.exists()) {
+				InputStream inStream = new FileInputStream(from);
+				FileOutputStream fs = new FileOutputStream(to);
+				byte[] buffer = new byte[1024];
+				while ((byteread = inStream.read(buffer)) != -1) {
+					bytesum += byteread;
+					fs.write(buffer, 0, byteread);
+				}
+				inStream.close();
+				fs.close();
+				// System.out.println("success copy");
+			}
+
+			return true;
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			return false;
+		}
 	}
-	
+
 	private void copyDemos() {
-		String basepath = Environment.getExternalStorageDirectory().toString()+"/circlesynth";
-        AssetManager assetManager = getResources().getAssets();
-        String[] files = null;
-        try {
-            files = assetManager.list("demos");
-        } catch (Exception e) {
-            Log.e("read demo ERROR", e.toString());
-            e.printStackTrace();
-        }
-        for(int i=0; i<files.length; i++) {
-            InputStream in = null;
-            OutputStream out = null;
-            try {
-              in = assetManager.open("demos/" + files[i]);
-              out = new FileOutputStream(basepath + "/demos/" + files[i]);
-              copyFile(in, out);
-              in.close();
-              in = null;
-              out.flush();
-              out.close();
-              out = null;
-            } catch(Exception e) {
-                Log.e("copy demos ERROR", e.toString());
-                e.printStackTrace();
-            }       
-        }
-    }
-    private void copyFile(InputStream in, OutputStream out) throws IOException {
-        byte[] buffer = new byte[1024];
-        int read;
-        while((read = in.read(buffer)) != -1){
-          out.write(buffer, 0, read);
-        }
-    }
-	
-	
+		String basepath = Environment.getExternalStorageDirectory().toString()
+				+ "/circlesynth";
+		AssetManager assetManager = getResources().getAssets();
+		String[] files = null;
+		try {
+			files = assetManager.list("demos");
+		} catch (Exception e) {
+			Log.e("read demo ERROR", e.toString());
+			e.printStackTrace();
+		}
+		for (int i = 0; i < files.length; i++) {
+			InputStream in = null;
+			OutputStream out = null;
+			try {
+				in = assetManager.open("demos/" + files[i]);
+				out = new FileOutputStream(basepath + "/demos/" + files[i]);
+				copyFile(in, out);
+				in.close();
+				in = null;
+				out.flush();
+				out.close();
+				out = null;
+			} catch (Exception e) {
+				Log.e("copy demos ERROR", e.toString());
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void copyFile(InputStream in, OutputStream out) throws IOException {
+		byte[] buffer = new byte[1024];
+		int read;
+		while ((read = in.read(buffer)) != -1) {
+			out.write(buffer, 0, read);
+		}
+	}
 
 }

@@ -29,8 +29,8 @@ import android.preference.PreferenceActivity;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-public class SynthSettingsTwo extends PreferenceActivity{
-	
+public class SynthSettingsTwo extends PreferenceActivity {
+
 	static final String TAG = "circle-synth";
 	public static final String PREF_DELETE = "deletefiles";
 	public static final String PREF_TUTORIAL = "tutorial";
@@ -38,17 +38,11 @@ public class SynthSettingsTwo extends PreferenceActivity{
 	public static final String PREF_ABOUT = "about";
 	public static final String PREF_DONATE = "donate";
 	public static final String PREF_DELREC = "deleterecordings";
-	
-	
-	
-	
-	
-	// ZubhiumSDK sdk;
 
 	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		
+
 		super.onCreate(savedInstanceState);
 		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -62,7 +56,7 @@ public class SynthSettingsTwo extends PreferenceActivity{
 					public boolean onPreferenceClick(Preference preference) {
 						String path = Environment.getExternalStorageDirectory()
 								+ "/circlesynth/sketches";
-						deleteFiles(path,getString(R.string.sketch_delete));
+						deleteFiles(path, getString(R.string.sketch_delete));
 						return false;
 
 					}
@@ -92,14 +86,15 @@ public class SynthSettingsTwo extends PreferenceActivity{
 				});
 
 		Preference donatepref = (Preference) findPreference(PREF_DONATE);
-		donatepref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+		donatepref
+				.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				setupDonate();
-				return false;
-			}
-		});
+					@Override
+					public boolean onPreferenceClick(Preference preference) {
+						setupDonate();
+						return false;
+					}
+				});
 
 		Preference aboutpref = (Preference) findPreference(PREF_ABOUT);
 		aboutpref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -110,34 +105,30 @@ public class SynthSettingsTwo extends PreferenceActivity{
 				return false;
 			}
 		});
-		
+
 		Preference deleterecs = (Preference) findPreference(PREF_DELREC);
-		deleterecs.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+		deleterecs
+				.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
 					@Override
 					public boolean onPreferenceClick(Preference preference) {
 						String path = Environment.getExternalStorageDirectory()
 								+ "/circlesynth/recordings";
-						deleteFiles(path,getString(R.string.rec_delete));
+						deleteFiles(path, getString(R.string.rec_delete));
 						return false;
 
 					}
 				});
-		
-	
+
 	}
-	
 
-	    
-    
-
-	public void deleteFiles(String path,String msg) {
+	public void deleteFiles(String path, String msg) {
 
 		File file = new File(path);
 
 		if (file.exists()) {
-			Toast.makeText(SynthSettingsTwo.this, msg,
-					Toast.LENGTH_SHORT).show();
+			Toast.makeText(SynthSettingsTwo.this, msg, Toast.LENGTH_SHORT)
+					.show();
 			String deleteCmd = "rm -r " + path;
 			Runtime runtime = Runtime.getRuntime();
 			try {
@@ -163,21 +154,13 @@ public class SynthSettingsTwo extends PreferenceActivity{
 			startActivity(Intent.createChooser(i, "Send mail"));
 		} catch (android.content.ActivityNotFoundException ex) {
 			Toast.makeText(SynthSettingsTwo.this,
-					getString(R.string.email_fail), Toast.LENGTH_SHORT)
-					.show();
+					getString(R.string.email_fail), Toast.LENGTH_SHORT).show();
 		}
 
 	}
 
 	public void setupDonate() {
-		
-//		SynthSettingsTwo.this.runOnUiThread(new Runnable() {
-//			public void run() {
-//			DialogFragment dialog = new DonateDialog();
-//			dialog.show(getFragmentManager(), "donationfragment");
-//			}
-//		});
-		
+
 		Intent intent = new Intent(SynthSettingsTwo.this, DonateActivity.class);
 		startActivity(intent);
 
@@ -193,14 +176,9 @@ public class SynthSettingsTwo extends PreferenceActivity{
 
 	@Override
 	protected void onUserLeaveHint() {
-		
+
 		super.onUserLeaveHint();
 		finish();
 	}
 
-
-	
-
-	
-	
 }

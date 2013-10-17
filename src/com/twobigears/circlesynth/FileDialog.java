@@ -56,7 +56,7 @@ public class FileDialog {
 
 	/**
 	 * @param activity
-	 * @param initialPath
+	 * @param path
 	 */
 	public FileDialog(Activity activity, File path) {
 		this.activity = activity;
