@@ -319,7 +319,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		super.onDestroy();
 		// dispatcher.release();
 		unbindService(pdConnection);
-		// EasyTracker.getInstance().activityStop(this); // Add this method.
+		//EasyTracker.getInstance().activityStop(this); // Add this method.
 
 		prefs.unregisterOnSharedPreferenceChangeListener(this);
 		mSensorManager.unregisterListener(this);
@@ -1745,6 +1745,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			
 			@Override
 			public void isReleased() {
+				//Analytics Tracker
+				
+				tracker.sendEvent("ui_Action", "button_press", "save_button", 0L);
 				
 				// Save sketch and settings as text file
 				
@@ -1822,6 +1825,11 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 			@Override
 			public void isReleased() {
+				//Analytics Tracker
+				
+				tracker.sendEvent("ui_Action", "button_press", "share_button", 0L);
+				
+				
 				shareIt();
 			}
 		}
@@ -1838,7 +1846,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				
 				// Open share preferences
 				
-				tracker.trackEvent("Buttons Category", "Settings", "", 0L);
+				tracker.sendEvent("ui_Action", "button_press", "settings_button", 0L);
 				Intent intent = new Intent(SynthCircle.this, SynthSettingsTwo.class);
 				startActivity(intent);
 				prefs.registerOnSharedPreferenceChangeListener(SynthCircle.this);
@@ -2054,6 +2062,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					
 					
 					countertest=0;
+					tracker.sendEvent("ui_Action", "button_press", "record_button", 0L);
 				}
 			}
 
