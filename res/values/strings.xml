@@ -104,10 +104,10 @@
     <string name="tbe_web">twobigears.com</string>
     <string name="version_name">2.0</string>
     <string name="donate_small">1x Chocolate</string>
-    <string name="donate_medium">2x Chocolate</string>
+    <string name="donate_medium">2x Chocolates</string>
     <string name="donate_large">1x Snack</string>
     <string name="donate_xl">1x Beer</string>
     <string name="donate_xxl">1x Hour Off</string>
-    <string name="donate_text">Circle Synth is an open source project developed in our spare time. We have a long list of awesome features and fixes we would like to work on. Any sort of a contribution helps. If you are a developer, find us on GitHub.</string>
+    <string name="donate_text">Circle Synth is an open source project developed in our spare time. We have a long list of awesome features and fixes we would like to work on. Any sort of a contribution helps. If you are a developer, find us on GitHub. Thank you!</string>
 
 </resources>

@@ -3,16 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" 
-    android:background="#1C1C1C">
+    android:background="#1C1C1C"
+    android:baselineAligned="false"
+    android:orientation="horizontal" >
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
+        android:layout_width="0dp"
+        android:layout_height="fill_parent"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginTop="20dp"
-        android:layout_weight="0.4"
+        android:layout_weight="0.5"
         android:gravity="center"
         android:orientation="vertical" >
 
@@ -20,26 +21,24 @@
             android:id="@+id/donate_textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:maxWidth="360dp"
+            android:layout_gravity="right"
+            android:layout_margin="20dp"
+            android:gravity="right"
+            android:maxWidth="400dp"
             android:text="@string/donate_text"
-            android:textSize="16sp" />
-
+            android:textSize="18sp" />
     </LinearLayout>
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginBottom="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
+        android:layout_width="0dp"
+        android:layout_height="fill_parent"
         android:layout_weight="0.5" >
 
         <Button
             android:id="@+id/donate_button_xxl"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/anchor"
+            android:layout_below="@id/donate_button_xl"
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
@@ -47,75 +46,71 @@
             android:background="@null"
             android:drawableLeft="@drawable/donate_blue"
             android:drawablePadding="5dp"
-            android:text="@string/donate_xxl" 
-            android:textColor="@drawable/donate_text" />
+            android:text="@string/donate_xxl" />
 
         <Button
             android:id="@+id/donate_button_xl"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/anchor"
+            android:layout_below="@id/donate_button_large"
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_toLeftOf="@+id/anchor"
+            android:layout_toRightOf="@+id/anchor"
             android:background="@null"
             android:drawableLeft="@drawable/donate_purple"
             android:drawablePadding="5dp"
-            android:text="@string/donate_xl" 
-            android:textColor="@drawable/donate_text" />
+            android:text="@string/donate_xl" />
 
         <Button
             android:id="@+id/donate_button_large"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@id/anchor"
+            android:layout_centerVertical="true"
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_toRightOf="@+id/donate_button_medium"
+            android:layout_toRightOf="@id/anchor"
             android:background="@null"
             android:drawableLeft="@drawable/donate_green"
             android:drawablePadding="5dp"
-            android:text="@string/donate_large" 
-            android:textColor="@drawable/donate_text" />
+            android:text="@string/donate_large" />
 
         <Button
             android:id="@+id/donate_button_medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/anchor"
-            android:layout_centerHorizontal="true"
+            android:layout_above="@id/donate_button_large"
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
+            android:layout_toRightOf="@id/anchor"
             android:background="@null"
             android:drawableLeft="@drawable/donate_yellow"
             android:drawablePadding="5dp"
-            android:text="@string/donate_medium"
-            android:textColor="@drawable/donate_text" />
+            android:text="@string/donate_medium" />
 
         <Button
             android:id="@+id/donate_button_small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@id/anchor"
+            android:layout_above="@id/donate_button_medium"
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_toLeftOf="@id/donate_button_medium"
+            android:layout_toRightOf="@id/anchor"
             android:background="@null"
             android:drawableLeft="@drawable/donate_red"
             android:drawablePadding="5dp"
-            android:text="@string/donate_small"
-            android:textColor="@drawable/donate_text" />
+            android:text="@string/donate_small" />
 
         <View
             android:id="@+id/anchor"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_centerInParent="true" />
-
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp" />
     </RelativeLayout>
 
 </LinearLayout>
