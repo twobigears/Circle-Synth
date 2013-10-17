@@ -6,8 +6,8 @@
 		    
 		    <Preference 
             android:key="donate"
-            android:summary="If you like this app please donate any amount that you wish!Thank you :)"
-            android:title="Donate" />
+            android:summary="@string/donate_summary"
+            android:title="@string/donate" />
 		
 		
 		</PreferenceCategory>
@@ -18,8 +18,8 @@
 		
 		<ListPreference
 			android:key="preset"
-			android:title="Presets"
-			android:summary="Select a Preset"
+			android:title="@string/presets"
+			android:summary="@string/preset_summary"
 			android:entries="@array/Presets"
 			android:entryValues="@array/Presets_values"
 			android:dialogTitle="Preset Selection"
@@ -27,8 +27,8 @@
 		
 		<ListPreference
 			android:key="scale"
-			android:title="Scales"
-			android:summary="Select a Scale"
+			android:title="@string/scales"
+			android:summary="@string/scale_summary"
 			android:entries="@array/Scales"
 			android:entryValues="@array/Scales_values"
 			android:dialogTitle="Scale selection"
@@ -36,8 +36,8 @@
 			/>
 		<ListPreference
 			android:key="transposeOct"
-			android:title="Octave"
-			android:summary="Transpose by octaves"
+			android:title="@string/octave"
+			android:summary="@string/octave_summary"
 			android:entries="@array/OctaveTranspose"
 			android:entryValues="@array/Transpose_values"
 			android:dialogTitle="Select"
@@ -45,8 +45,8 @@
 			 />
 		<ListPreference
 			android:key="transposeNote"
-			android:title="Root Note"
-			android:summary="Select root note"
+			android:title="@string/rootnote"
+			android:summary="@string/rootnote_summary"
 			android:entries="@array/NoteTranspose"
 			android:entryValues="@array/Transpose_notes"
 			android:dialogTitle="Select" 
@@ -58,33 +58,33 @@
 		   	<CheckBoxPreference
 		    android:key="accel"
 		    android:defaultValue="true"
-		    android:title="Accelerometer Modulation"
-		    android:summary="Toggle accelerometer controlled filter"
+		    android:title="@string/accelmod"
+		    android:summary="@string/accelmod_summary"
 		    />
 		   	
 		   	<CheckBoxPreference
 		    android:key="delay"
 		    android:defaultValue="true"
-		    android:title="Delay"
-		    android:summary="Toggle master delay"
+		    android:title="@string/delay"
+		    android:summary="@string/delay_summary"
 		    />
 		   	
 		   	<CheckBoxPreference
 		    android:key="reverb"
 		    android:defaultValue="true"
-		    android:title="Reverb"
-		    android:summary="Toggle master reverb"
+		    android:title="@string/reverb"
+		    android:summary="@string/reverb_summary"
 		    />
 		   	
 		   	<Preference 
             android:key="deletefiles"
-            android:summary="Delete all saved sketches"
-            android:title="Delete Sketches" />
+            android:summary="@string/delsketch_summary"
+            android:title="@string/delsketch" />
 		   	
 		   	<Preference 
             android:key="deleterecordings"
-            android:summary="Delete all saved recordings"
-            android:title="Delete Recordings" />
+            android:summary="@string/delrec_summary"
+            android:title="@string/delrec" />
 		  
 		   	
 		    </PreferenceCategory>
@@ -96,21 +96,21 @@
 		    
 		    <Preference 
             android:key="tutorial"
-            android:summary="Synth Circle crash course"
-            android:title="Tutorial" />
+            android:summary="@string/tutorial_summary"
+            android:title="@string/tutorial" />
 		    
 		    
 		    
 		    <Preference 
             android:key="feedback"
-            android:summary="Hate us? Love us? Tell us!"
-            android:title="Feedback" />
+            android:summary="@string/feedback_summary"
+            android:title="@string/feedback" />
 		    
 		    
 		    <Preference 
             android:key="about"
-            android:summary="About Circle Synth"
-            android:title="About" />
+            android:summary="@string/about_summary"
+            android:title="@string/about_pref" />
 		    
 		    </PreferenceCategory>
 		    

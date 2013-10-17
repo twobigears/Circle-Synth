@@ -62,7 +62,7 @@ public class SynthSettingsTwo extends PreferenceActivity{
 					public boolean onPreferenceClick(Preference preference) {
 						String path = Environment.getExternalStorageDirectory()
 								+ "/circlesynth/sketches";
-						deleteFiles(path,"All saved sketches deleted");
+						deleteFiles(path,getString(R.string.sketch_delete));
 						return false;
 
 					}
@@ -118,7 +118,7 @@ public class SynthSettingsTwo extends PreferenceActivity{
 					public boolean onPreferenceClick(Preference preference) {
 						String path = Environment.getExternalStorageDirectory()
 								+ "/circlesynth/recordings";
-						deleteFiles(path,"All saved recordings deleted");
+						deleteFiles(path,getString(R.string.rec_delete));
 						return false;
 
 					}
@@ -163,7 +163,7 @@ public class SynthSettingsTwo extends PreferenceActivity{
 			startActivity(Intent.createChooser(i, "Send mail"));
 		} catch (android.content.ActivityNotFoundException ex) {
 			Toast.makeText(SynthSettingsTwo.this,
-					"There are no email clients installed.", Toast.LENGTH_SHORT)
+					getString(R.string.email_fail), Toast.LENGTH_SHORT)
 					.show();
 		}
 
