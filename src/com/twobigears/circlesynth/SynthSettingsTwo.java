@@ -29,20 +29,26 @@ import android.preference.PreferenceActivity;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-public class SynthSettingsTwo extends PreferenceActivity {
-
+public class SynthSettingsTwo extends PreferenceActivity{
+	
+	static final String TAG = "circle-synth";
 	public static final String PREF_DELETE = "deletefiles";
 	public static final String PREF_TUTORIAL = "tutorial";
 	public static final String PREF_FEEDBACK = "feedback";
 	public static final String PREF_ABOUT = "about";
 	public static final String PREF_DONATE = "donate";
 	public static final String PREF_DELREC = "deleterecordings";
+	
+	
+	
+	
+	
 	// ZubhiumSDK sdk;
 
 	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
+		
 		super.onCreate(savedInstanceState);
 		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -117,7 +123,13 @@ public class SynthSettingsTwo extends PreferenceActivity {
 
 					}
 				});
+		
+	
 	}
+	
+
+	    
+    
 
 	public void deleteFiles(String path,String msg) {
 
@@ -159,9 +171,15 @@ public class SynthSettingsTwo extends PreferenceActivity {
 
 	public void setupDonate() {
 		
-		Toast.makeText(SynthSettingsTwo.this,
-				"Thank you Good Citizen", Toast.LENGTH_SHORT)
-				.show();
+//		SynthSettingsTwo.this.runOnUiThread(new Runnable() {
+//			public void run() {
+//			DialogFragment dialog = new DonateDialog();
+//			dialog.show(getFragmentManager(), "donationfragment");
+//			}
+//		});
+		
+		Intent intent = new Intent(SynthSettingsTwo.this, DonateActivity.class);
+		startActivity(intent);
 
 	}
 
@@ -175,8 +193,14 @@ public class SynthSettingsTwo extends PreferenceActivity {
 
 	@Override
 	protected void onUserLeaveHint() {
-		// TODO Auto-generated method stub
+		
 		super.onUserLeaveHint();
 		finish();
 	}
+
+
+	
+
+	
+	
 }

@@ -1,6 +1,19 @@
 <PreferenceScreen
 	xmlns:android="http://schemas.android.com/apk/res/android">
-	<PreferenceCategory android:title="Preferences">
+			
+		<PreferenceCategory android:title="Support Us!">
+		    
+		    
+		    <Preference 
+            android:key="donate"
+            android:summary="If you like this app please donate any amount that you wish!Thank you :)"
+            android:title="Donate" />
+		
+		
+		</PreferenceCategory>
+		
+		
+		<PreferenceCategory android:title="Preferences">
 	
 		
 		<ListPreference
@@ -62,16 +75,21 @@
 		    android:title="Reverb"
 		    android:summary="Toggle master reverb"
 		    />
+		   	
 		   	<Preference 
             android:key="deletefiles"
             android:summary="Delete all saved sketches"
             android:title="Delete Sketches" />
+		   	
 		   	<Preference 
             android:key="deleterecordings"
             android:summary="Delete all saved recordings"
             android:title="Delete Recordings" />
+		  
 		   	
 		    </PreferenceCategory>
+    
+			
 		    
 		    <PreferenceCategory android:title="Help and Support">
 		    
@@ -81,10 +99,7 @@
             android:summary="Synth Circle crash course"
             android:title="Tutorial" />
 		    
-		    <Preference 
-            android:key="donate"
-            android:summary="If you like this app please donate any amount that you wish!Thank you :)"
-            android:title="Sponsor our food for a day" />
+		    
 		    
 		    <Preference 
             android:key="feedback"
