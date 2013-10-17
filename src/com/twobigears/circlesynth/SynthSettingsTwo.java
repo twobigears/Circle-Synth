@@ -148,7 +148,7 @@ public class SynthSettingsTwo extends PreferenceActivity{
 	}
 
 	public void showTutorial() {
-		MiscDialogs.showTutorialDialog(SynthSettingsTwo.this);
+		TutorialDialog.showTutorialDialog(SynthSettingsTwo.this);
 
 	}
 

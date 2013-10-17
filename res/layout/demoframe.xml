@@ -4,28 +4,41 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="#292929"
-    android:orientation="vertical" 
-    android:animateLayoutChanges="true">
+    android:orientation="vertical"
+    android:weightSum="1" >
 
     <FrameLayout
         android:id="@+id/dynocontent"
-        android:layout_width="485dp"
-        android:layout_height="255dp">
+        android:layout_width="470dp"
+        android:layout_height="255dp"
+        android:fitsSystemWindows="true" >
+
     </FrameLayout>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+    <View
+    android:layout_width="fill_parent"
+    android:layout_height="1dp"
+    android:background="@android:color/darker_gray"/>
+   </LinearLayout>
 
      <RelativeLayout
-        android:id="@+id/buttons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+         android:id="@+id/buttons"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:orientation="horizontal" >
 
         <ImageButton
             android:id="@+id/back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
             android:layout_toLeftOf="@+id/next"
             android:background="@drawable/prevoff"
-            android:paddingRight="5dp"
+            android:scaleType="centerInside"
             tools:ignore="ContentDescription" />
 
         <ImageButton
@@ -33,8 +46,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
+            android:layout_marginRight="5dp"
             android:background="@drawable/nexton"
+            android:scaleType="centerInside"
             tools:ignore="ContentDescription" />
+
     </RelativeLayout> 
 
 </LinearLayout>

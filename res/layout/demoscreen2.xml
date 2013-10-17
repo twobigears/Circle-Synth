@@ -1,21 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-   
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/TutorialBox"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:background="#292929" 
-    style="@style/TutorialBox">
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    tools:ignore="ContentDescription,NestedWeights" >
 
-    
-
-    <ImageView
-        android:id="@+id/imageView1"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:src="@drawable/screen2" />
+        android:layout_weight="0.5"
+        android:orientation="vertical" >
 
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:layout_weight="0.5"
+            android:scaleType="centerInside"
+            android:src="@drawable/tut_beforefx" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:layout_weight="0.5"
+            android:scaleType="centerInside"
+            android:src="@drawable/tut_afterfx" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="fill_parent"
+        android:layout_gravity="center"
+        android:layout_marginRight="20dp"
+        android:layout_weight="0.3"
+        android:gravity="center"
+        android:text="@string/tutorial_fx"
+        android:textColor="#ffffff"
+        android:textSize="18sp" />
 
 </LinearLayout>

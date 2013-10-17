@@ -520,7 +520,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		boolean tuts = prefs.getBoolean("first_tutorial", false);
 		if (!tuts) {
 
-			MiscDialogs.showTutorialDialog(SynthCircle.this);
+			TutorialDialog.showTutorialDialog(SynthCircle.this);
 			tuts = true;
 			Editor editor = prefs.edit();
 			editor.putBoolean("first_tutorial", true);

@@ -29,7 +29,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import com.twobigears.circlesynth.R;
 
-public class MiscDialogs {
+public class TutorialDialog {
 	public static class Counter {
 		public int count = 0;
 	}
@@ -44,7 +44,8 @@ public class MiscDialogs {
 		final ViewGroup blanklayout = (ViewGroup) tutorialFrame
 				.findViewById(R.id.dynocontent);
 		final int[] slides = { R.layout.demoscreen0, R.layout.demoscreen1,
-				R.layout.demoscreen2, R.layout.demoscreen3, };
+				R.layout.demoscreen2, R.layout.demoscreen3,
+				R.layout.demoscreen4 };
 
 		final Counter c = new Counter();
 		c.count = 0;
@@ -123,8 +124,7 @@ public class MiscDialogs {
 				.findViewById(R.id.dynocontent);
 		final int[] slides = { R.layout.demoscreen0, R.layout.demoscreen1,
 				R.layout.demoscreen2, R.layout.demoscreen3,
-
-		};
+				R.layout.demoscreen4 };
 
 		final Counter c = new Counter();
 		c.count = 0;
