@@ -70,7 +70,6 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -139,7 +138,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	boolean moveflag = false;
 	boolean headerflag = false;
-	public float scanline;
+	float scanline;
 	
 	CountDownTimer timer;
 	
@@ -155,7 +154,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	
 	float outerCircSize, dragDeleteBoundary;
 	
-	String resSuffix = "30";
+	String resSuffix = "_x100";
 
 	int bpm = 120;
 
@@ -389,10 +388,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		getWindowManager().getDefaultDisplay().getMetrics(dm);
 		float densityR = dm.density; // get android screen density
 
-		if (densityR < 0.9) {
-			density = (float) 0.75;
-			resSuffix = "_x75";
-		} else if (densityR > 0.9 && densityR <= 1.2) {
+		if (densityR > 0.5 && densityR <= 1.2) {
 			density = (float) 1;
 			resSuffix = "_x100";
 		} else if (densityR > 1.2 && densityR <= 1.6) {
