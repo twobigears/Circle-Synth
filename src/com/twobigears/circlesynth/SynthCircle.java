@@ -1102,11 +1102,11 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 								// dots.remove(dots.size() - 1);
 								if (y < mainHeadHeight && !moveflag) {
 									dots.remove(dots.size() - 1);
-									toast("You can't draw there");
+									toast(getString(R.string.cant_draw));
 								}
 
 								if (dots.size() > maxCircle) {
-									toast("Circle Limit Reached");
+									toast(getString(R.string.limit_Reached));
 									dots.remove(dots.size() - 1);
 								}
 								if (d1.hasLine == true && !d1.isLocked) {
@@ -1124,7 +1124,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 									|| y > height - dragDeleteBoundary
 									|| y < mainHeadHeight + dragDeleteBoundary) {
 								dots.remove(checkdelete);
-								toast("Circle gone!");
+								toast(getString(R.string.gone));
 								}
 								
 								if (d.hasLine && !d.touched2)
@@ -1421,7 +1421,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 			startActivity(Intent.createChooser(sharingIntent, "Share via"));
 		} else
-			toast("Please save the sketch before sharing");
+			toast(getString(R.string.save_sketch));
 	}
 	
 	// The toolbar including all buttons and animations
@@ -1655,7 +1655,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			public void isReleased() {
 				
 				// Open BPM popup dialog
-				toast("Set BPM/Speed");
+				toast(getString(R.string.set_bpm));
 				SynthCircle.this.runOnUiThread(new Runnable() {
 					public void run() {
 						new BpmPicker(SynthCircle.this, SynthCircle.this, bpm)
@@ -1676,7 +1676,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			public void isReleased() {
 				dots.clear();
 				stored.clear();
-				toast("Sketch Cleared");
+				toast(getString(R.string.clear));
 			}
 		}
 		
@@ -1747,7 +1747,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				
 				// Save sketch and settings as text file
 				
-				toast("Sketch Saved in /circlesynth/sketches");
+				toast(getString(R.string.saved));
 				stored.clear();
 				int t1 = 0;
 				int t2 = 0;
@@ -1957,7 +1957,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 					Dot d = (Dot) dots.get(i);
 					d.fxClear();
 				}
-				toast("All FX cleared");
+				toast(getString(R.string.fx_clear));
 			}
 		}
 		
@@ -2104,7 +2104,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		copyFile(saveFilePath+"/"+saveFileName,root+"/Ringtones/CircleSynthRing.wav");
 		setRingtone();
 		//new LoadViewTask().execute();
-		toast("Set as current ringtone!");
+		toast(getString(R.string.ringtone));
 		
 		//async task
 		//To use the AsyncTask, it must be subclassed  
@@ -2125,7 +2125,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	public void onNeutralAction(){
 		//Log.d("listener","Save");
 		prepareRecord();
-		toast("recording saved in /circlesynth/recordings");
+		toast(getString(R.string.rec_saved));
 	}
 	
 	String saveFilePath;

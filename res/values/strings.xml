@@ -115,4 +115,54 @@
 	<string name="tutorial_settings">Choose presets, scales, effects and more.</string>
 	<string name="tutorial_share">Share, save and open sketches.</string>
 	<string name="tutorial_accel">Tilt your device to affect the sound.</string>
+	<string name="cant_draw">You can\'t draw there</string>
+	<string name="limit_Reached">Circle Limit Reached</string>
+	<string name="gone">Circle gone!</string>
+	<string name="save_sketch">Please save the sketch before sharing</string>
+	<string name="set_bpm">Set BPM/Speed</string>
+	<string name="clear">Sketch cleared</string>
+	<string name="saved">Sketch saved in circlesynth/sketches</string>
+	<string name="fx_clear">All FX cleared</string>
+	<string name="ringtone">Set as current Ringtone!</string>
+	<string name="rec_saved">Recording saved in circlesynth/recordings</string>
+	<string name="sketch_delete">All saved sketches deleted</string>
+	<string name="rec_delete">All saved recordings deleted</string>
+	<string name="email_fail">No email clients installed</string>
+	<string name="in_app_bill_error">Problem setting up in-app billing</string>
+	<string name="purchase_error">Error purchasing: </string>
+	<string name="error_verification">Error purchasing:Authenticity verification failed</string>
+	<string name="thank_you">Thank you for helping the developers!</string>
+	<string name="error_consume">Error while consuming: </string>
+	
+	
+	<string name="presets">Presets</string>
+	<string name="scales">Scales</string>
+	<string name="octave">Octave</string>
+	<string name="rootnote">Root Note</string>
+	<string name="accelmod">Accelerometer Modulation</string>
+	<string name="delay">Delay</string>
+	<string name="reverb">Reverb</string>
+	<string name="delsketch">Delete all saved sketches</string>
+	<string name="delrec">Delete all saved recordings</string>
+	<string name="tutorial">Tutorial</string>
+	<string name="feedback">Feedback</string>
+	<string name="about_pref">About</string>
+	<string name="donate">Donate</string>
+	<string name="preset_summary">Select a preset</string>
+	<string name="scale_summary">Choose a scale</string>
+	<string name="octave_summary">Transpose by octave</string>
+	<string name="rootnote_summary">Select root note</string>
+	<string name="accelmod_summary">Toggle accelerometer controlled filter</string>
+	<string name="delay_summary">Toggle master delay</string>
+	<string name="reverb_summary">Toggle master reverb</string>
+	<string name="delsketch_summary">Delete all saved sketches</string>
+	<string name="delrec_summary">Delete all saved recordings</string>
+	<string name="tutorial_summary">Circle Synth crash course</string>
+	<string name="feedback_summary">Hate us? Love us? Tell us!</string>
+	<string name="about_summary">About Circle Synth v2.0</string>
+	<string name="donate_summary">Buy us a beer!</string>
+	
+	
+	
+	
 </resources>
