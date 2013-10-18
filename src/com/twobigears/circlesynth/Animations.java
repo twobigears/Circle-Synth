@@ -22,7 +22,7 @@ import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
 
 /**
- * Create animations: a basic ramp up/down between 0f and 1f over a length
+ * Create animations: a basic ramp up/down between 0f and 1f over a time
  * specified in frames
  */
 public class Animations {
