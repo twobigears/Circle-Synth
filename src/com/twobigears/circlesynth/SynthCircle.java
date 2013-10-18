@@ -167,7 +167,11 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	final int col4 = color(170, 102, 204);
 	final int col5 = color(51, 181, 229);
 
-	// setup libpd stuff//
+	
+	/** setting up libPd as a background service
+	 * the initPdService() method binds the service to the background thread. call initPdService
+	 * in onCreate() to start the service.
+	 */
 
 	protected final ServiceConnection pdConnection = new ServiceConnection() {
 		@Override
@@ -203,7 +207,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			}
 		}.start();
 	}
-
+	/* initialise pd, also setup listeners here */
 	protected void initPd() throws IOException {
 
 		// Configure the audio glue
@@ -250,9 +254,14 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		}
 	}
-
+	
+	
 	private Toast toast = null;
-
+	
+	/**creating a handy toast notification message method here
+	 * 
+	 * @param msg String MESSAGE_TO_BE_DISPLAYED_AS_TOAST
+	 */
 	private void toast(final String msg) {
 		runOnUiThread(new Runnable() {
 			@Override
@@ -271,22 +280,37 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		// Set context
+		
+		//Setting up Google analytics. GA parameters in the analytics.xml file
 		EasyTracker.getInstance().setContext(getApplicationContext());
 		// Instantiate the Tracker
 		tracker = EasyTracker.getTracker();
+		
+		/**
+		 * IMPORTANT : if using decimal format, remember to set the decimal separator explicitly,
+		 * else your app will crash when used in locales which use ',' as the decimal separator.
+		 */
 		symbols.setDecimalSeparator('.');
 		df = new DecimalFormat("#.##", symbols);
 		df1 = new DecimalFormat("#.#", symbols);
+		
+		//Accessing default Shared Preferences
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		//Call and setup the accelerometer which we will be using later
 		mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		mAccelerometer = mSensorManager
 				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-
 		mSensorManager.registerListener(this, mAccelerometer, 100000);
+		
+		//make sure the screen doesn't turn off
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		initPdService();
+		
+		/*IMPORTANT:make sure you have the READ_PHONE_STATE permission specified to use the method below.
+		 * This method will ensure that pdservice is paused during a phone call.
+		 */
 		initSystemServices();
 
 	}
@@ -307,19 +331,17 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}, PhoneStateListener.LISTEN_CALL_STATE);
 	}
 
-	@Override
-	public void onBackPressed() {
-		System.out.println("back pressed");
-		// super.onBackPressed();
-	}
+
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		// dispatcher.release();
+		
+		//release all resources called by pdservice
+		dispatcher.release();
 		unbindService(pdConnection);
-		// EasyTracker.getInstance().activityStop(this); // Add this method.
-
+		
+		//unregister listener for shared preference clicks and accelerometer
 		prefs.unregisterOnSharedPreferenceChangeListener(this);
 		mSensorManager.unregisterListener(this);
 
@@ -328,12 +350,14 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	@Override
 	protected void onStart() {
 		super.onStart();
+		//this gives analytics the cue to start tracking
 		EasyTracker.getInstance().activityStart(this); // Add this method
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
+		//stop GA tracking
 		EasyTracker.getInstance().activityStop(this); // Add this method
 	}
 
@@ -456,11 +480,15 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	}
 
 	int save_preset, save_bpm, save_scale, save_octTrans, save_noteTrans;
-
+	
+	
+	//We need to have pd ready with presets when the app is first loaded.
 	private void initialisepatch() {
-
+		
+		/*Since the presets sent to pd are gathered from persistent storage, check if there are any pre-saved
+		settings. if there aren't, allocate default settings.*/
 		String value = prefs.getString("preset", null);
-		// SharedPreferences prefs1 = getPreferences(SynthCircle.MODE_PRIVATE);
+		
 		if (value == null) {
 
 			Editor editor = prefs.edit();
@@ -515,20 +543,22 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			PdBase.sendFloat("pd_reverbToggle", 0);
 
 		boolean tuts = prefs.getBoolean("first_tutorial", false);
+		
+		//If this is the first time the app is laoded, then..
 		if (!tuts) {
-
+			//display tutorial dialog
 			TutorialDialog.showTutorialDialog(SynthCircle.this);
 			tuts = true;
 			Editor editor = prefs.edit();
 			editor.putBoolean("first_tutorial", true);
 			editor.commit();
 
-			// copy asset files
+			// copy asset files and paste them to the demos folder
 			String basepath = Environment.getExternalStorageDirectory()
 					.toString() + "/circlesynth";
-			File clipartdir = new File(basepath + "/demos/");
-			if (!clipartdir.exists()) {
-				clipartdir.mkdirs();
+			File demodir = new File(basepath + "/demos/");
+			if (!demodir.exists()) {
+				demodir.mkdirs();
 				copyDemos();
 			}
 
@@ -538,7 +568,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 
 	}
-
+	
+	//call this method to apply settings along with a saved sketch, like presets, scales etc.
 	public void loadSettings() {
 		PdBase.sendFloat("pd_presets", save_preset);
 		PdBase.sendFloat("pd_scales", save_scale);
@@ -574,7 +605,13 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		fxCircleDrag.drawIt();
 	}
-
+	
+	/*
+	 * This method detects where the scanline is, sees if there are any dots which need to be animated
+	 * and sets the corresponding selected_ flag for that dot object. When processing is drawing each frame,
+	 * depending on the selected_ flag, it animated the dots accordingly. Gives the illusion of the dots
+	 * animating as the scanline moves along.
+	 */
 	public void detect() {
 
 		if (dots.size() > 0) {
@@ -655,7 +692,21 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		}
 	}
-
+	
+	/*
+	 * This is the main method where all the dot object information is sent to pd. Each dot represents
+	 * a pd dot module which makes the corresponding sound. Here the screen coordinates are normalised,
+	 * and saved as a string. Decimal format is used here since the pd modules respond to a maximum
+	 * of 2 decimal places. For non-existing dots, a value of 5 is sent to the module, which in turn
+	 * switches it off. For example, if there are 3 active dots on the screen, 3 modules will be on 
+	 * and the remaining 7(since the max number of circles is 10 in the current version) will be sent
+	 * a value of 5 for the screen coordinates, which automatically shuts them off.
+	 * 
+	 * The string format is as follows : 
+	 * index_xvalue1_yvalue1_xvalue2_yvalue2_fxvalue(int)
+	 * 
+	 * Run as a separate thread to increase efficiency and responsiveness of the UI.
+	 */
 	public void sendPdValue() {
 		new Thread() {
 			@Override
@@ -682,7 +733,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 						FINAL = String.valueOf(i) + " " + "5 5 5 5 0";
 
 					}
-
+					
+					//make sure a module doesn't keep receiving the same values.
 					if (CHECK[i] != FINAL) {
 						// Log.d("pdsend",FINAL);
 						// send list of dot values to pd
@@ -705,7 +757,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}.start();
 
 	}
-
+	
+	//parse the string contents to populate the dot arraylist. Also extract the sketch params here.
 	public void splitString(String string) {
 
 		String[] pieces = string.split(" ");
@@ -764,7 +817,11 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 
 	}
-
+	
+	/*
+	if the screen is touched where a dot already exists, it return the index of that dot object,
+	else returns -1. 
+	*/
 	public int delCheck(float mX, float mY) {
 		int checkdelete = -1;
 		float disp1, disp2;
@@ -783,7 +840,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		return checkdelete;
 
 	}
-
+	
+	//calculates the displacement between two coordinates
 	public float distancecalc(float x1, float y1, float x2, float y2) {
 
 		// calculating the px distance between two coordinates (x1,y1) and
@@ -796,7 +854,12 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		return distance;
 	}
 
-	// The Dot class
+	/* The main Dot class
+	 * Contains parameters to define where the dots or nodes will be drawn.
+	 * The class has two main sections, the create(Circle/line)_ methods and the drawCircle_ methods,
+	 * the former assigning screen coordinates to the circles and the other responsible for 
+	 * actual drawing by processing. Also contains the FX parameters to be passed on to libPd.
+	 */
 
 	public class Dot {
 
@@ -1038,7 +1101,11 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	int checkdelete;
 	int fxcheckdelete;
-
+	
+	
+	/**
+	 * This is where the magic happens. All touch events are sent here, and then worked on accordingly.
+	 */
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent event) {
 
@@ -1132,23 +1199,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 								dots.remove(dots.size() - 1);
 
 						}
-						// if (checkdelete >= 0) {
-						// if (Math.abs(pX - x) <= 15
-						// && Math.abs(pY - y) <= 15 && !moveflag) {
-						//
-						// checkdelete = -1;
-						// } else {
-						// Dot d2 = (Dot) dots.get(dots.size() - 1);
-						// if (d2.touched3 == true
-						// && d2.touched2 == false) {
-						// dots.remove(dots.size() - 1);
-						// } else if (!d2.touched1) {
-						// dots.remove(dots.size() - 1);
-						// dots.remove(checkdelete);
-						// }
-						// }
-						//
-						// }
+
 
 					}
 
@@ -1228,7 +1279,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		return super.dispatchTouchEvent(event);
 	}
-
+	
+	//return true if the distance between two dots meets a certain limit
 	public boolean distanceChecker(float x1, float y1, float x2, float y2) {
 		boolean check = false;
 
@@ -1240,7 +1292,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		return check;
 	}
-
+	
+	//interface method from the bpm dialog.
 	@Override
 	public void bpmChanged(int t) {
 		bpm = t;
@@ -1251,7 +1304,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	protected void onResume() {
 		super.onResume();
 	}
-
+	
+	//Changes in the settings screen are sent to pd here
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences pref, String key) {
 
@@ -1336,7 +1390,11 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	}
 
-	// lores~ through accelerometer
+	/*
+	 * low pass filtering based on the accelerometer
+	 * tilting the device in either x or y axes generates the filter params used in pd in the lores~
+	 * object 
+	*/
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
@@ -1366,9 +1424,11 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	}
 
-	// smoothening accelerometer data
+	
 	DecimalFormat dfnew = new DecimalFormat("#");
-
+	
+	// smoothening accelerometer data
+	
 	// lowpass filter function
 	protected float lowPass(float input) {
 
@@ -1729,7 +1789,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 							}
 
 						});
-
+				
+				//show the in-app file manager
 				SynthCircle.this.runOnUiThread(new Runnable() {
 					public void run() {
 
@@ -1996,7 +2057,13 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		long start;
 		int countertest;
 		Editor edit1;
-
+		
+		/**
+		 * 
+		 * Pd starts recording the audio into a buffer. It is then either saved, set as a ringtone 
+		 * or deleted, depending on the user choice. These actions are triggered based on the 
+		 * state of the REC button.
+		 */
 		class RecordToggle extends UiTextToggle {
 
 			public RecordToggle(PApplet p) {
@@ -2009,14 +2076,14 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 				// Note: maximum record time is 30s, this is set independently
 				// in Pd
 				start = 30000;
+				//tell pd to start recording into a temp buffer
 				PdBase.sendFloat("pd_record", 1);
-				// PdBase.sendMessage("pd_path", "record",
-				// baseDir+"/circlesynth/recordings");
 				isRecording = true;
-				;
+				//integer counter to count the rec time. used later to set the rec play button state
 				countertest = 0;
 				edit1 = prefs.edit();
-
+				
+				//in case the recording button is pressed when the play button is off, start playing
 				if (!toolbar.playToggleB.state) {
 					toolbar.playToggleB.isTrue();
 					toolbar.playToggleB.state = true;
@@ -2087,9 +2154,9 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	public void record() {
 		toolbar.playToggleB.isFalse();
 		toolbar.playToggleB.state = false;
-
+		
 		PdBase.sendFloat("pd_playToggle", 0);
-
+		
 		SynthCircle.this.runOnUiThread(new Runnable() {
 			public void run() {
 				DialogFragment dialog = new RecordDialog();
@@ -2098,7 +2165,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		});
 		isRecording = false;
 	}
-
+	
+	//interface methods from the recording dialog
 	@Override
 	public void onPlayTrue() {
 		System.out.println("play called from dialog");
@@ -2144,7 +2212,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	String saveFilePath;
 	String saveFileName;
-
+	
+	//prepare the file system to store the recordings
 	public void prepareRecord() {
 
 		String root = Environment.getExternalStorageDirectory().toString();
@@ -2159,13 +2228,17 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		PdBase.sendSymbol("pd_path", myDir + "/" + fname);
 
 	}
-
+	
+	/**
+	 * Here we must copy the recording to be set as a ringtone into the user's /Ringtones folder,
+	 * and then create the MediaStore entry so that we can proceed to set it as the user's default
+	 * ringtone.
+	 */
 	public void setRingtone() {
 
 		String path = Environment.getExternalStorageDirectory().toString()
 				+ "/Ringtones";
-		File k = new File(path, "CircleSynthRing.wav"); // path is a file to
-														// /sdcard/media/ringtone
+		File k = new File(path, "CircleSynthRing.wav"); 
 		ContentValues values = new ContentValues();
 		values.put(MediaStore.MediaColumns.DATA, k.getAbsolutePath());
 		values.put(MediaStore.MediaColumns.TITLE, "CircleSynthRingtone");
@@ -2183,7 +2256,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 		// Insert it into the database
 		Uri uri = MediaStore.Audio.Media.getContentUriForPath(k.toString());
-		// delete previous entries
+		// delete previous entries - do this to avoid duplicate entries of the same name
 		getContentResolver().delete(
 				uri,
 				MediaStore.MediaColumns.DATA + "=\"" + k.getAbsolutePath()
@@ -2203,7 +2276,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		}
 
 	}
-
+	
+	//copying the file from the recordings folder to the Ringtones folder on the sdcard
 	public static boolean copyFile(String from, String to) {
 		try {
 			int bytesum = 0;
@@ -2233,7 +2307,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			return false;
 		}
 	}
-
+	
+	//unpack the demo sketches from the assets resource folder to the sdcard
 	private void copyDemos() {
 		String basepath = Environment.getExternalStorageDirectory().toString()
 				+ "/circlesynth";
@@ -2263,7 +2338,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 			}
 		}
 	}
-
+	//do the actual copying. HORRIBLE naming. beat yourself up.
 	private void copyFile(InputStream in, OutputStream out) throws IOException {
 		byte[] buffer = new byte[1024];
 		int read;

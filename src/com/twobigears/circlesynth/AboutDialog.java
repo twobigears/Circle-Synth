@@ -27,6 +27,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+/** This dialog activity brings up the About dialog. The textual content is directly referenced from 
+ * String resources. Handy little thing.
+ */
+
 public class AboutDialog extends Dialog {
 
 	private static Context mContext = null;
