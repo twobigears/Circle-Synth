@@ -29,11 +29,21 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import com.twobigears.circlesynth.R;
 
+/*
+ * Class creating the tutorial dialog. References images and text and puts it in the layout,
+ * along with next/previous buttons to advance in the tutorial.
+ */
+
 public class TutorialDialog {
 	public static class Counter {
 		public int count = 0;
 	}
 
+	
+	//Two instances are mentioned here for two different contexts. Pretty sure this can be cleaned up
+	//later.
+	
+	
 	public static void showTutorialDialog(final SynthSettingsTwo context) {
 
 		final Dialog alert = new Dialog(context);
@@ -49,7 +59,9 @@ public class TutorialDialog {
 
 		final Counter c = new Counter();
 		c.count = 0;
-
+		
+		//the images are stored in an array(slides[]). The button press events create the counter
+		//value which fetches that particular image
 		inflater.inflate(slides[c.count], blanklayout);
 
 		alert.setContentView(tutorialFrame);

@@ -24,6 +24,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import com.twobigears.circlesynth.R;
 
+
+//Our Splash screen. Switches to main activity after 2s
 public class Splash extends Activity {
 
 	@Override

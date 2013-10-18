@@ -29,9 +29,18 @@ import android.preference.PreferenceActivity;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+//SharedPreferences class. Refer to preferences.xml to see the keys
+
+
 public class SynthSettingsTwo extends PreferenceActivity {
 
+	
 	static final String TAG = "circle-synth";
+	
+	/*
+	 * We need to assign a static string to each of the clickable preferences so that we can handle
+	 * the callbacks here
+	 */
 	public static final String PREF_DELETE = "deletefiles";
 	public static final String PREF_TUTORIAL = "tutorial";
 	public static final String PREF_FEEDBACK = "feedback";
@@ -121,7 +130,11 @@ public class SynthSettingsTwo extends PreferenceActivity {
 				});
 
 	}
-
+	/** Delete all files in a given directory at one go
+	 * 
+	 * @param path PATH where all the files to be deleted are located
+	 * @param msg Toast message to be displayed post deletion
+	 */
 	public void deleteFiles(String path, String msg) {
 
 		File file = new File(path);
@@ -139,10 +152,13 @@ public class SynthSettingsTwo extends PreferenceActivity {
 	}
 
 	public void showTutorial() {
+		//pass the context as a parameter, as the tutorial could be called either from
+		//the main activity or from this
 		TutorialDialog.showTutorialDialog(SynthSettingsTwo.this);
 
 	}
-
+	
+	//construct email intent
 	public void setupFeedback() {
 
 		Intent i = new Intent(Intent.ACTION_SEND);
@@ -173,7 +189,11 @@ public class SynthSettingsTwo extends PreferenceActivity {
 
 		about.show();
 	}
-
+	
+	//In case the user presses the home button, they will not be able to come back to the settings
+	//but instead be taken to the main sketch screen when they return. The main activity is 
+	//implemented as a singleTop instance in the manifest. Had to implement this hack
+	//as processing and libPd as a service doesn't play too well with the activity stack.
 	@Override
 	protected void onUserLeaveHint() {
 
