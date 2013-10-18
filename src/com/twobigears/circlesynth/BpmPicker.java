@@ -24,6 +24,15 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import com.twobigears.circlesynth.R;
 
+/**
+ * 
+ * BPM picker interface. Implements a seekbar which convert values from 0-100 from the seekbar to
+ * 0-240 to be fed into pd. The interface feeds the integer bpm directly into the host activity
+ *
+ */
+
+
+
 public class BpmPicker extends Dialog implements
 		SeekBar.OnSeekBarChangeListener {
 

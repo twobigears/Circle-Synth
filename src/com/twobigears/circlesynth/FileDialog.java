@@ -18,6 +18,7 @@
 package com.twobigears.circlesynth;
 
 import java.io.File;
+
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,13 +34,20 @@ import android.content.DialogInterface.OnClickListener;
 import android.os.Environment;
 import android.util.Log;
 
+/**
+ * 
+ * This activity implements a quick, easy to use file browser inside your app. Thanks StackOverflow!
+ *
+ */
+
 @SuppressLint("DefaultLocale")
 public class FileDialog {
 	private static final String PARENT_DIR = "..";
 	private final String TAG = getClass().getName();
 	private String[] fileList;
 	private File currentPath;
-
+	
+	//defining interfaces to be used in the file browser dialog
 	public interface FileSelectedListener {
 		void fileSelected(File file);
 	}
@@ -47,7 +55,9 @@ public class FileDialog {
 	public interface DirectorySelectedListener {
 		void directorySelected(File directory);
 	}
-
+    
+	
+	//file+directory listener list
 	private ListenerList<FileSelectedListener> fileListenerList = new ListenerList<FileDialog.FileSelectedListener>();
 	private ListenerList<DirectorySelectedListener> dirListenerList = new ListenerList<FileDialog.DirectorySelectedListener>();
 	private final Activity activity;
@@ -65,7 +75,8 @@ public class FileDialog {
 		loadFileList(path);
 	}
 
-	/**
+	/**Create the file dialog here
+	 * 
 	 * @return file dialog
 	 */
 	public Dialog createFileDialog() {
@@ -100,7 +111,14 @@ public class FileDialog {
 		dialog = builder.show();
 		return dialog;
 	}
-
+	
+	
+	//file selection or directory selection actions are handled here
+	
+	/**
+	
+	 * @param listener
+	 */
 	public void addFileListener(FileSelectedListener listener) {
 		fileListenerList.add(listener);
 	}
@@ -109,6 +127,7 @@ public class FileDialog {
 		fileListenerList.remove(listener);
 	}
 
+	//It's important to note here that the file browser needs to navigate directories as well
 	public void setSelectDirectoryOption(boolean selectDirectoryOption) {
 		this.selectDirectoryOption = selectDirectoryOption;
 	}
@@ -146,6 +165,8 @@ public class FileDialog {
 				});
 	}
 
+	
+	//Show the files in the current directory selection
 	private void loadFileList(File path) {
 		this.currentPath = path;
 		List<String> r = new ArrayList<String>();

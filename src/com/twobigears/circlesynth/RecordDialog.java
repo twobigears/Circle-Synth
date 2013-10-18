@@ -31,6 +31,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 
+/*
+ * Dialog interface that pops up when the REC button is selected. Has an ImageButton inside the 
+ * content area which triggers the playback of the recorded sound fragment. The interface methods
+ * are referenced in the host activity
+ * 
+ *
+ */
 public class RecordDialog extends DialogFragment {
 
 	ImageButton playbutton;
@@ -39,7 +46,8 @@ public class RecordDialog extends DialogFragment {
 	
 	long start;
 	boolean state=false;
-
+	
+	//interface methods
 	public interface OnRecordingListener {
 
 		void onPlayTrue();
@@ -71,7 +79,7 @@ public class RecordDialog extends DialogFragment {
 		
 		
 	}
-
+	//define the dialog attributes here.
 	@Override
 	public AlertDialog onCreateDialog(Bundle savedInstanceState) {
 		
@@ -80,8 +88,10 @@ public class RecordDialog extends DialogFragment {
 		
 		
 		prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		
+		//Fetch the duration of recording from the host activity by accessing Shared Preferences.
 		start = ((long) prefs.getFloat("timer", 0))*1000;
-		System.out.println("timer from preference "+String.valueOf(start));
+		//System.out.println("timer from preference "+String.valueOf(start));
 		// Use the Builder class for convenient dialog construction
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setMessage("Save File ?")
@@ -116,7 +126,9 @@ public class RecordDialog extends DialogFragment {
 
 		View view = inflater.inflate(R.layout.rec_dialog, null);
 		playbutton = (ImageButton) view.findViewById(R.id.recordPlayToggle);
-
+		
+		//The status of the play button changes here when it is clicked, and also when the CountDownTimer
+		//runs out
 		playbutton.setOnClickListener(new OnClickListener() {
 			//boolean state = false;
 			
@@ -146,7 +158,8 @@ public class RecordDialog extends DialogFragment {
 	}
 	
 	
-	
+	//Implementing a CountDownTimer to automatically change the state of the play button when 
+	//file play back is finished
 	CountDownTimer timer;
 	float test;
 	
