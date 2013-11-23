@@ -416,15 +416,21 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 		float densityR = dm.density;
 
 		// set denity scale value and suffix for image resources
-		if (densityR > 0.5 && densityR <= 1.2) {
-			density = (float) 1;
+		if (densityR <= 1.2) {
+			density = 1f;
 			resSuffix = "_x100";
 		} else if (densityR > 1.2 && densityR <= 1.6) {
-			density = (float) 1.5;
+			density = 1.5f;
 			resSuffix = "_x150";
-		} else if (densityR > 1.6) {
-			density = (float) 2;
+		} else if (densityR > 1.6 && densityR <= 2.5) {
+			density = 2f;
 			resSuffix = "_x200";
+		} else if (densityR > 2.5 && densityR < 3.5) {
+			density = 3f;
+			resSuffix = "_x300";
+		} else if (densityR >= 3.5) {
+			density = 4f;
+			resSuffix = "_x400";
 		}
 
 		// load images
