@@ -20,6 +20,7 @@ package com.twobigears.circlesynth;
 import java.io.File;
 import java.io.IOException;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -47,6 +48,10 @@ public class SynthSettingsTwo extends PreferenceActivity {
 	public static final String PREF_ABOUT = "about";
 	public static final String PREF_DONATE = "donate";
 	public static final String PREF_DELREC = "deleterecordings";
+
+	private AboutDialog about;
+
+	private Dialog tutorial;
 
 	@SuppressWarnings("deprecation")
 	@Override
@@ -154,7 +159,7 @@ public class SynthSettingsTwo extends PreferenceActivity {
 	public void showTutorial() {
 		//pass the context as a parameter, as the tutorial could be called either from
 		//the main activity or from this
-		TutorialDialog.showTutorialDialog(SynthSettingsTwo.this);
+		tutorial = TutorialDialog.showTutorialDialog(SynthSettingsTwo.this);
 
 	}
 	
@@ -184,9 +189,8 @@ public class SynthSettingsTwo extends PreferenceActivity {
 
 	public void setupAbout() {
 
-		AboutDialog about = new AboutDialog(this);
+		about = new AboutDialog(this);
 		about.setTitle("Circle Synth");
-
 		about.show();
 	}
 	
@@ -196,7 +200,12 @@ public class SynthSettingsTwo extends PreferenceActivity {
 	//as processing and libPd as a service doesn't play too well with the activity stack.
 	@Override
 	protected void onUserLeaveHint() {
-
+		if (about != null) {
+			about.dismiss();
+		}
+		if (tutorial != null) {
+			tutorial.dismiss();
+		}
 		super.onUserLeaveHint();
 		finish();
 	}
