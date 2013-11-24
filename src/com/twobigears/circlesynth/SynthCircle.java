@@ -1110,7 +1110,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 			double dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-			if (dist < outerCircSize / 2) {
+			if (dist < outerCircSize) {
 				xDown = mX;
 				yDown = mY;
 				if (hasLine) {
@@ -1142,6 +1142,8 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 	int checkdelete;
 	int fxcheckdelete;
+
+	private static float mSavedPlayState = 0;
 
 	/**
 	 * This is where the magic happens. All touch events are sent here, and then
@@ -1336,7 +1338,20 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 	}
 
 	@Override
+	protected void onPause() {
+		PdBase.sendFloat("pd_playToggle", 0);
+		if (toolbar.playToggleB.isEnabled) {
+			mSavedPlayState = 1;
+		}
+		else {
+			mSavedPlayState = 0;
+		}
+		super.onPause();
+	}
+
+	@Override
 	protected void onResume() {
+		PdBase.sendFloat("pd_playToggle", mSavedPlayState);
 		super.onResume();
 	}
 
