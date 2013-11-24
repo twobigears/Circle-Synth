@@ -1110,7 +1110,7 @@ public class SynthCircle extends PApplet implements OnBpmChangedListener,
 
 			double dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-			if (dist < outerCircSize / 2) {
+			if (dist < outerCircSize) {
 				xDown = mX;
 				yDown = mY;
 				if (hasLine) {
